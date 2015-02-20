@@ -19,6 +19,8 @@ public class Client
 
 	private static byte[] public_server_key_separator = "==============================================".getBytes();
 
+	private static java.util.Scanner sc = new java.util.Scanner(System.in);
+
 	public static void main(String[] args)
 	{
 
@@ -61,17 +63,7 @@ public class Client
 		return true;
 	}
 
-	private static final String    HEXES    = "0123456789ABCDEF";
-
-	static String getHex(byte[] raw) 
-	{
-	    final StringBuilder hex = new StringBuilder(2 * raw.length);
-	    for (final byte b : raw) 
-	    {
-	        hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
-	    }
-    	return hex.toString();
-	}	
+	
 
 	public static void loadTrustedServers()
 	{
@@ -129,8 +121,18 @@ public class Client
 				return;
 		}
 
-		System.out.println("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers?");
-		server_public_keys.add(server_public_key.getEncoded());
+		System.out.println("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers? (yes/no): ");
+		
+		while (true)
+		{
+			String result = sc.next();
+			if (result.equals("yes"))
+				server_public_keys.add(server_public_key.getEncoded());
+			else if (result.equals("no"))
+				break;
+			else
+				System.out.println("Please enter \"yes\" or \"no\": ");
+		}
 	}
 
 	public static boolean verifyAuthenticity() throws Exception
@@ -161,7 +163,7 @@ public class Client
 
 	public static void writeMessageToServer()
 	{
-		java.util.Scanner sc = new java.util.Scanner(System.in);
+		
 		String write = sc.nextLine();
 		try
 		{
