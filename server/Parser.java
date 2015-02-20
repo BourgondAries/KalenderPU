@@ -14,7 +14,13 @@ public class Parser
 		DELETE
 	}
 
-	private static java.util.HashMap<NonTerminals, java.util.HashMap<
+	private static java.util.HashMap<NonTerminals, java.util.HashMap<String, String>> table = new java.util.HashMap<>();
+
+	public static void initialize()
+	{
+		table.put(START, new java.util.HashMap<String, String>()); 
+		table.get(START).put("UPDATE", "Something and some stuff");
+	}
 
 	public static boolean validateInput(String input_string)
 	{
