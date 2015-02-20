@@ -7,6 +7,16 @@ public class Utils
 		return new java.util.Scanner(new java.io.File(filename)).useDelimiter("\\Z").next();
 	}
 
+	public static byte[] encrypt(byte[] inp_bytes, java.security.PublicKey key) throws Exception
+	{
+		return encrypt(inp_bytes, key, Configuration.settings.get("xform"));
+	}
+
+	public static byte[] decrypt(byte[] inp_bytes, java.security.PrivateKey key) throws Exception
+	{
+		return decrypt(inp_bytes, key, Configuration.settings.get("xform"));
+	}
+
 	public static byte[] encrypt(byte[] inpBytes, java.security.PublicKey key, String xform) throws Exception
 	{
 	    javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(xform);

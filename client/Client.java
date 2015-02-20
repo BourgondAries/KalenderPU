@@ -5,7 +5,10 @@ public class Client
 	private static utils.Configuration settings = null;
 	static java.io.OutputStream output_to_server;
 	static java.io.InputStream input_from_server;
-	static java.security.PrivateKey private_key;
+	static java.security.PrivateKey client_private_key;
+	static java.security.PublicKey server_public_key;
+	static java.net.Socket client_socket;
+	static String last_message;
 
 	public static void main(String[] args)
 	{
@@ -13,23 +16,11 @@ public class Client
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
 
-			java.net.Socket client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
-			output_to_server = client_socket.getOutputStream();
-			input_from_server = client_socket.getInputStream();
-
-			java.security.PublicKey public_key = getPublicKeyFromServer();
-
-			java.util.Scanner sc = new java.util.Scanner(System.in);
-			String write = sc.nextLine();
-			try
-			{
-				output_to_server.write(utils.Utils.encrypt(write.getBytes(), public_key, settings.get("xform")));
-			}
-			catch (Exception exc_obj)
-			{
-				exc_obj.printStackTrace();
-			}
-			output_to_server.flush();
+			connectAndSetUpChannels();
+			getPublicKeyFromServer();
+			sendPublicKeyToServer();
+			writeMessageToServer();
+			ensureCorrectServerResponse();
 		}
 		catch (java.io.IOException exc_obj)
 		{
@@ -37,7 +28,14 @@ public class Client
 		}
 	}
 
-	public static java.security.PublicKey getPublicKeyFromServer()
+	public static void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
+	{
+		client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
+		output_to_server = client_socket.getOutputStream();
+		input_from_server = client_socket.getInputStream();
+	}
+
+	public static void getPublicKeyFromServer()
 	{
 		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 		try
@@ -49,7 +47,7 @@ public class Client
 			{
 				java.security.spec.X509EncodedKeySpec pubkey_spec = new java.security.spec.X509EncodedKeySpec(bytes);
 				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance(settings.get("keypairgen"));
-				return key_factory.generatePublic(pubkey_spec);
+				server_public_key = key_factory.generatePublic(pubkey_spec);
 			}
 			catch (java.security.NoSuchAlgorithmException exc_obj)
 			{
@@ -64,15 +62,14 @@ public class Client
 		{
 			System.out.println(exc_obj);
 		}
-		return null;
 	}
 
-	public static java.security.PrivateKey sendPublicKeyToServer()
+	public static void sendPublicKeyToServer()
 	{
 		try
 		{
 			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-			private_key = pair.getPrivate();
+			client_private_key = pair.getPrivate();
 			java.security.PublicKey public_key = pair.getPublic();
 			output_to_server.write(public_key.getEncoded());
 			System.out.println(new String(public_key.getEncoded()));
@@ -81,7 +78,37 @@ public class Client
 		{
 			System.out.println(exc_obj);
 		}
-		return null;
+	}
+
+	public static void writeMessageToServer()
+	{
+		java.util.Scanner sc = new java.util.Scanner(System.in);
+		String write = sc.nextLine();
+		try
+		{
+			output_to_server.write(utils.Utils.encrypt(write.getBytes(), server_public_key));
+			output_to_server.flush();
+		}
+		catch (Exception exc_obj)
+		{
+			exc_obj.printStackTrace();
+		}
 	}
 	
+	public static void ensureCorrectServerResponse()
+	{
+		try
+		{
+			byte[] bytes = new byte[1024];
+			int length = input_from_server.read(bytes);
+			bytes = java.util.Arrays.copyOf(bytes, length);
+			// System.out.println(new String(bytes));
+			last_message = new String(utils.Utils.decrypt(bytes, client_private_key));
+			System.out.println(last_message);
+		}
+		catch (Exception exc_obj)
+		{
+			exc_obj.printStackTrace();
+		}
+	}
 }
