@@ -2,15 +2,18 @@ package server;
 
 public class Server
 {
+	private static utils.Configuration settings = null;
 	public static void main(String[] args)
 	{
 		System.out.println("The server is running!");
 		try
 		{
+			settings = utils.Configuration.loadDefaultConfiguration();
+
 			while (true)
 			{
 				// init
-				java.net.ServerSocket server_socket = new java.net.ServerSocket(7777);
+				java.net.ServerSocket server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
 				System.out.println("Waiting for acceptance");
 
 				java.net.Socket client_socket = server_socket.accept();
@@ -26,7 +29,8 @@ public class Server
 				bytes = java.util.Arrays.copyOf(bytes, code);
 				try
 				{
-					System.out.println(new String(decrypt(bytes, private_key, "RSA/ECB/PKCS1PADDING")));
+					System.out.println(new String(bytes));
+					System.out.println(new String(decrypt(bytes, private_key, settings.get("xform"))));
 				}
 				catch (Exception exc_obj)
 				{
@@ -47,12 +51,16 @@ public class Server
 	{
 		try
 		{
-			java.security.KeyPairGenerator keygen = java.security.KeyPairGenerator.getInstance("RSA");
-			//java.security.SecureRandom random = java.security.SecureRandom.getInstance("SHA1PRNG", "SUN");
-			keygen.initialize(2048/*, random*/);
+			java.security.KeyPairGenerator keygen = java.security.KeyPairGenerator.getInstance(settings.get("keypairgen"));
+			java.security.SecureRandom random = java.security.SecureRandom.getInstance(settings.get("SecureRandomRNG"), settings.get("SecureRandomProvider"));
+			keygen.initialize(Integer.parseInt(settings.get("keylength")), random);
 			return keygen.generateKeyPair();
 		}
 		catch (java.security.NoSuchAlgorithmException exc_obj)
+		{
+			System.out.println(exc_obj);
+		}
+		catch (java.security.NoSuchProviderException exc_obj)
 		{
 			System.out.println(exc_obj);
 		}

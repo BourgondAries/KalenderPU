@@ -2,11 +2,15 @@ package client;
 
 public class Client
 {
+	private static utils.Configuration settings = null;
 	public static void main(String[] args)
 	{
+
 		try
 		{
-			java.net.Socket client_socket = new java.net.Socket("localhost", 7777);
+			settings = utils.Configuration.loadDefaultConfiguration();
+
+			java.net.Socket client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
 			java.io.OutputStream out_stream = client_socket.getOutputStream();
 			java.io.InputStream in_stream = client_socket.getInputStream();
 
@@ -16,7 +20,7 @@ public class Client
 			String write = sc.nextLine();
 			try
 			{
-				out_stream.write(encrypt(write.getBytes(), public_key, "RSA/ECB/PKCS1PADDING"));
+				out_stream.write(encrypt(write.getBytes(), public_key, settings.get("xform")));
 			}
 			catch (Exception exc_obj)
 			{
@@ -32,18 +36,16 @@ public class Client
 
 	public static java.security.PublicKey getPublicKeyFromServer(java.io.InputStream in_stream)
 	{
-		byte[] bytes = new byte[2048];
+		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 		try
 		{
 			int number = in_stream.read(bytes);
-			if (number != 2048)
-				System.out.println("Wrong number of bytes!" + number);
 			bytes = java.util.Arrays.copyOf(bytes, number);
 			System.out.println(new String(bytes));
 			try
 			{
 				java.security.spec.X509EncodedKeySpec pubkey_spec = new java.security.spec.X509EncodedKeySpec(bytes);
-				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance("RSA");
+				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance(settings.get("keypairgen"));
 				return key_factory.generatePublic(pubkey_spec);
 			}
 			catch (java.security.NoSuchAlgorithmException exc_obj)
