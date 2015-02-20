@@ -13,6 +13,7 @@ public class Main
 		System.out.println("MAULI ER BEST!");
 		System.out.println("Hans er retard i dag");
 		what();
+		System.out.println("Woho!")
 	}
 
 	public static void what()
@@ -25,10 +26,4 @@ public class Main
 		}
 		System.out.println("Kevin er retard i dag");
 	}
-
-	public static void hei()
-	{
-		System.out.println("Hei");
-	}
-}
 
