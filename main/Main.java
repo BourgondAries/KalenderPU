@@ -25,4 +25,5 @@ public class Main
 		}
 		System.out.println("Kevin er retard i dag");
 	}
+
 }
