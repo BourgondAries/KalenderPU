@@ -8,6 +8,8 @@ public class Main
 
 		System.out.println("halla");
 		System.out.println("hey hey hey!");
+		System.out.println("MAULI ER BEST!");
+		
 	}
 	// Comment
 }
