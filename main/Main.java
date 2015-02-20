@@ -14,5 +14,9 @@ public class Main
 	{
 		System.out.println("Let's try it!");
 	}
+	public static void hei()
+	{
+		System.out.println("Hei");
+	}
 }
 
