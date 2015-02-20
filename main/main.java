@@ -8,6 +8,11 @@ public class Main
 		System.out.println("herp");
 		System.out.println("Hello world!");
 		what();
+		System.out.println("gfhghdfjgh")
+		System.out.println("halla");
+		System.out.println("hey hey hey!");
+		System.out.println("MAULI ER BEST!");
+		System.out.println("Hans er retard i dag");
 	}
 
 	public static void what()
