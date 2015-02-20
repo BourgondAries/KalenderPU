@@ -11,26 +11,32 @@ public class Server
 	private static java.io.OutputStream 	output_to_client;
 
 	private static java.security.PrivateKey server_private_key;
+	private static java.security.PublicKey 	server_public_key;
 	private static java.security.PublicKey 	client_public_key;
 
 	private static byte[] bytes;
 	private static String last_message;
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws java.io.IOException
 	{
-		System.out.println("The server is running!");
+		settings = utils.Configuration.loadDefaultConfiguration();
+
+		branchIfKeygenArgumentGivenAndExit(args);
+		loadTheKeysIntoMemory();
+
+		System.out.println("The server is running!" + utils.Configuration.settings.get("keypairgen"));
+		
 		while (true)
 		{
 			try
 			{
-				settings = utils.Configuration.loadDefaultConfiguration();
-
 				while (true)
 				{
 					waitForIncomingConnection();
 					setup2WayCommunicationChannels();
-					generatePairAndSendPublicKeyToClient();
+					announceServerPublicKey();
 					getPublicKeyFromClient();
+					sendCertificateToClient(signClientsPublicKey());
 					readIncomingbytes();
 					handleLastMessage();
 					finishConnection();
@@ -42,11 +48,32 @@ public class Server
 		}
 	}
 
+	/// Generates a private and public key and stores it inside 2 files in the root folder.
+	public static void branchIfKeygenArgumentGivenAndExit(String[] args) throws java.io.IOException, java.io.FileNotFoundException
+	{
+		if (args.length >= 1 && args[0].equals("keygen"))
+		{
+			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+			java.io.FileOutputStream output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPublicKeyFile"));
+			output.write(pair.getPublic().getEncoded());
+			output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPrivateKeyFile"));
+			output.write(pair.getPrivate().getEncoded());
+			System.exit(0);
+		}
+	}
+
+	public static void loadTheKeysIntoMemory() throws java.io.IOException
+	{
+		server_public_key = utils.Utils.getServerPublicKey();
+		server_private_key = utils.Utils.getServerPrivateKey();
+	}
+
 	public static void waitForIncomingConnection() throws java.io.IOException
 	{
 		server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
 		System.out.println("Waiting for a response");
 		client_socket = server_socket.accept();
+		client_socket.setSoTimeout(3000);
 		System.out.println("Got acceptance");
 	}
 
@@ -55,21 +82,10 @@ public class Server
 		input_from_client = client_socket.getInputStream();
 		output_to_client = client_socket.getOutputStream();
 	}
-	
-	public static void generatePairAndSendPublicKeyToClient()
+
+	public static void announceServerPublicKey() throws Exception
 	{
-		try
-		{
-			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-			server_private_key = pair.getPrivate();
-			java.security.PublicKey public_key = pair.getPublic();
-			output_to_client.write(public_key.getEncoded());
-			System.out.println(new String(public_key.getEncoded()));
-		}
-		catch (java.io.IOException exc_obj)
-		{
-			System.out.println(exc_obj);
-		}
+		output_to_client.write(server_public_key.getEncoded());
 	}
 
 	public static void getPublicKeyFromClient()
@@ -101,6 +117,19 @@ public class Server
 		}
 	}
 
+	public static byte[] signClientsPublicKey() throws java.security.NoSuchAlgorithmException, java.io.IOException, java.security.SignatureException, java.security.InvalidKeyException
+	{
+		java.security.Signature signature = java.security.Signature.getInstance("SHA1withRSA");
+		signature.initSign(server_private_key);
+		signature.update(client_public_key.getEncoded());
+		return signature.sign();
+	}
+
+	public static void sendCertificateToClient(byte[] signature) throws java.io.IOException
+	{
+		output_to_client.write(signature);
+	}
+
 	public static void readIncomingbytes() throws java.io.IOException
 	{
 		bytes = new byte[1024];
@@ -122,8 +151,8 @@ public class Server
 	{
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
-		
-		
+
+
 		boolean success = true;
 		if (success)
 			notifyToClientOperationSuccess();
