@@ -1,3 +1,4 @@
+
 package main;
 
 public class Main
@@ -15,3 +16,4 @@ public class Main
 		System.out.println("Let's try it!");
 	}
 }
+
