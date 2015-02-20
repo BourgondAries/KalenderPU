@@ -4,12 +4,15 @@ public class Server
 {
 	private static utils.Configuration settings = null;
 
-	private static java.net.ServerSocket server_socket;
-	private static java.net.Socket client_socket;
-	private static java.io.InputStream input_from_client;
-	private static java.io.OutputStream output_to_client;
+	private static java.net.ServerSocket 	server_socket;
+	private static java.net.Socket 			client_socket;
+
+	private static java.io.InputStream 		input_from_client;
+	private static java.io.OutputStream 	output_to_client;
+
 	private static java.security.PrivateKey server_private_key;
-	private static java.security.PublicKey client_public_key;
+	private static java.security.PublicKey 	client_public_key;
+
 	private static byte[] bytes;
 	private static String last_message;
 
@@ -26,14 +29,14 @@ public class Server
 				{
 					waitForIncomingConnection();
 					setup2WayCommunicationChannels();
-					sendPublicKeyToClient();
+					generatePairAndSendPublicKeyToClient();
 					getPublicKeyFromClient();
 					readIncomingbytes();
 					handleLastMessage();
 					finishConnection();
 				}		
 			}
-			catch (java.net.BindException exc_obj) { try { finishConnection(); } catch (java.io.IOException exc_object) { System.out.println("Unable to unbind"); } }
+			catch (java.net.BindException exc_obj) { try { finishConnectionWithError(); } catch (java.io.IOException exc_object) { System.out.println("Unable to unbind"); } }
 			catch (java.net.SocketException exc_obj) { System.out.println(exc_obj); }
 			catch (Exception exc_obj) { System.out.println(exc_obj); }
 		}
@@ -53,7 +56,7 @@ public class Server
 		output_to_client = client_socket.getOutputStream();
 	}
 	
-	public static java.security.PrivateKey sendPublicKeyToClient()
+	public static void generatePairAndSendPublicKeyToClient()
 	{
 		try
 		{
@@ -67,7 +70,6 @@ public class Server
 		{
 			System.out.println(exc_obj);
 		}
-		return null;
 	}
 
 	public static void getPublicKeyFromClient()
@@ -120,6 +122,8 @@ public class Server
 	{
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
+		
+		
 		boolean success = true;
 		if (success)
 			notifyToClientOperationSuccess();
@@ -134,6 +138,20 @@ public class Server
 	{
 		server_socket.close();
 	}
+
+	public static void finishConnectionWithError() throws java.io.IOException
+	{
+		try
+		{
+			output_to_client.write(utils.Utils.encrypt("ERROR_TOO_LONG_POSSIBLE".getBytes(), client_public_key));
+		}
+		catch (Exception exc_obj)
+		{
+			System.out.println("Could not write to client.");
+		}
+		server_socket.close();
+	}
+
 
 
 }

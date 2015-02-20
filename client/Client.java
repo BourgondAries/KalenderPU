@@ -3,12 +3,17 @@ package client;
 public class Client
 {
 	private static utils.Configuration settings = null;
-	static java.io.OutputStream output_to_server;
-	static java.io.InputStream input_from_server;
-	static java.security.PrivateKey client_private_key;
-	static java.security.PublicKey server_public_key;
-	static java.net.Socket client_socket;
-	static String last_message;
+
+	private static java.net.Socket 			client_socket;
+
+	private static java.io.InputStream 		input_from_server;
+	private static java.io.OutputStream 	output_to_server;
+	
+	private static java.security.PrivateKey client_private_key;
+	private static java.security.PublicKey 	server_public_key;
+
+	private static byte[] bytes;
+	private static String last_message;
 
 	public static void main(String[] args)
 	{
@@ -18,7 +23,7 @@ public class Client
 
 			connectAndSetUpChannels();
 			getPublicKeyFromServer();
-			sendPublicKeyToServer();
+			generatePairAndSendPublicKeyToServer();
 			writeMessageToServer();
 			ensureCorrectServerResponse();
 		}
@@ -37,7 +42,7 @@ public class Client
 
 	public static void getPublicKeyFromServer()
 	{
-		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
+		bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 		try
 		{
 			int number = input_from_server.read(bytes);
@@ -64,7 +69,7 @@ public class Client
 		}
 	}
 
-	public static void sendPublicKeyToServer()
+	public static void generatePairAndSendPublicKeyToServer()
 	{
 		try
 		{
@@ -99,7 +104,7 @@ public class Client
 	{
 		try
 		{
-			byte[] bytes = new byte[1024];
+			bytes = new byte[1024];
 			int length = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, length);
 			// System.out.println(new String(bytes));
