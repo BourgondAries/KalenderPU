@@ -95,7 +95,7 @@ public class Server
 		{
 			int number = input_from_client.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, number);
-			System.out.println(new String(bytes));
+			// System.out.println(new String(bytes));
 			try
 			{
 				java.security.spec.X509EncodedKeySpec pubkey_spec = new java.security.spec.X509EncodedKeySpec(bytes);

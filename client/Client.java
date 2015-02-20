@@ -12,30 +12,33 @@ public class Client
 	private static java.security.PrivateKey client_private_key;
 	private static java.security.PublicKey 	server_public_key;
 	private static java.security.PublicKey  client_public_key;
-	private static java.util.ArrayList<java.security.PublicKey> server_public_keys = new java.util.ArrayList<>();
+	private static java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
 
 	private static byte[] bytes = new byte[2048];
 	private static String last_message;
 
+	private static String public_server_key_separator = "=============================";
+
 	public static void main(String[] args)
 	{
-		loadTrustedServers();
 
 		try
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
 
+			loadTrustedServers();
+
 			connectAndSetUpChannels();
 			generatePairAndSendPublicKeyToServer();
 			getPublicKeyFromServer(); // For checking whether we already have this one later.
 			queryWhetherItIsTrusted();
-			// Get signed data:
 			if (verifyAuthenticity())
 			{
 				System.out.println("Server authenticated!");
 				writeMessageToServer();
 				ensureCorrectServerResponse();
 			}
+			storeAllTrustedKeys();
 			System.out.println("Server NOT authenticated!");
 		}
 		catch (Exception exc_obj)
@@ -46,7 +49,22 @@ public class Client
 
 	public static void loadTrustedServers()
 	{
-
+		try
+		{
+			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
+			server_public_keys.add(cert);
+			/*scanner.useDelimiter(public_server_key_separator);
+			while (scanner.hasNext())
+			{
+				byte[] temp = scanner.next().getBytes();
+				server_public_keys.add(temp);
+			}
+			System.out.println(server_public_keys.size());*/
+		}
+		catch (java.io.IOException exc_obj)
+		{
+			System.out.println("What!");
+		}
 	}
 
 	public static void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
@@ -63,7 +81,7 @@ public class Client
 		{
 			int number = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, number);
-			System.out.println(new String(bytes));
+			// System.out.println(new String(bytes));
 			server_public_key = utils.Utils.bytesToPublicKey(bytes);
 		}
 		catch (java.io.IOException exc_obj)
@@ -75,11 +93,13 @@ public class Client
 	public static void queryWhetherItIsTrusted()
 	{
 		for (int i = 0; i < server_public_keys.size(); ++i)
-			if (server_public_keys.get(i).getEncoded().equals(server_public_key.getEncoded()))
+		{
+			if (java.util.Arrays.equals(server_public_keys.get(i), server_public_key.getEncoded()))
 				return;
+		}
 
 		System.out.println("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers?");
-		server_public_keys.add(server_public_key);
+		server_public_keys.add(server_public_key.getEncoded());
 	}
 
 	public static boolean verifyAuthenticity() throws Exception
@@ -100,7 +120,7 @@ public class Client
 			client_private_key = pair.getPrivate();
 			client_public_key = pair.getPublic();
 			output_to_server.write(client_public_key.getEncoded());
-			System.out.println(new String(client_public_key.getEncoded()));
+			// System.out.println(new String(client_public_key.getEncoded()));
 		}
 		catch (java.io.IOException exc_obj)
 		{
@@ -139,6 +159,16 @@ public class Client
 		catch (Exception exc_obj)
 		{
 			exc_obj.printStackTrace();
+		}
+	}
+
+	public static void storeAllTrustedKeys() throws java.io.IOException
+	{
+		java.io.FileOutputStream trusted = new java.io.FileOutputStream(utils.Configuration.settings.get("TrustedServers"));
+		for (int i = 0; i < server_public_keys.size(); ++i)
+		{
+			trusted.write(server_public_keys.get(i));
+			// trusted.write(public_server_key_separator.getBytes());
 		}
 	}
 }
