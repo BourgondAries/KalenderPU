@@ -17,7 +17,7 @@ public class Client
 	private static byte[] bytes = new byte[2048];
 	private static String last_message;
 
-	private static String public_server_key_separator = "=============================";
+	private static byte[] public_server_key_separator = "==============================================".getBytes();
 
 	public static void main(String[] args)
 	{
@@ -38,8 +38,12 @@ public class Client
 				writeMessageToServer();
 				ensureCorrectServerResponse();
 			}
+			else
+			{
+				System.out.println("Server NOT authenticated!");
+			}
 			storeAllTrustedKeys();
-			System.out.println("Server NOT authenticated!");
+			
 		}
 		catch (Exception exc_obj)
 		{
@@ -47,19 +51,46 @@ public class Client
 		}
 	}
 
+	public static boolean isContained(byte[] bigger, int index, byte[] smaller)
+	{
+		for (int i = 0; i < smaller.length && i + index < bigger.length; ++i)
+		{
+			if (bigger[i + index] != smaller[i])
+				return false;
+		}
+		return true;
+	}
+
+	private static final String    HEXES    = "0123456789ABCDEF";
+
+	static String getHex(byte[] raw) 
+	{
+	    final StringBuilder hex = new StringBuilder(2 * raw.length);
+	    for (final byte b : raw) 
+	    {
+	        hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+	    }
+    	return hex.toString();
+	}	
+
 	public static void loadTrustedServers()
 	{
 		try
 		{
 			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
-			server_public_keys.add(cert);
-			/*scanner.useDelimiter(public_server_key_separator);
-			while (scanner.hasNext())
+			for (int i = 0; i < cert.length; ++i)
 			{
-				byte[] temp = scanner.next().getBytes();
-				server_public_keys.add(temp);
+				if (isContained(cert, i, public_server_key_separator))
+				{
+					byte[] copy = java.util.Arrays.copyOfRange(cert, 0, i);
+					// System.out.println(getHex(copy));
+					// System.out.println("=======================");
+					server_public_keys.add(copy);
+					cert = java.util.Arrays.copyOfRange(cert, i + public_server_key_separator.length, cert.length);
+					i = 0;
+				}
 			}
-			System.out.println(server_public_keys.size());*/
+
 		}
 		catch (java.io.IOException exc_obj)
 		{
@@ -135,7 +166,7 @@ public class Client
 		try
 		{
 			bytes = utils.Utils.encrypt(write.getBytes(), server_public_key);
-			System.out.println(new String(bytes));
+			//System.out.println(new String(bytes));
 			output_to_server.write(bytes);
 			output_to_server.flush();
 		}
@@ -168,7 +199,7 @@ public class Client
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			trusted.write(server_public_keys.get(i));
-			// trusted.write(public_server_key_separator.getBytes());
+			trusted.write(public_server_key_separator);
 		}
 	}
 }
