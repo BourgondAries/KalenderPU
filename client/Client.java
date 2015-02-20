@@ -3,30 +3,33 @@ package client;
 public class Client
 {
 	private static utils.Configuration settings = null;
+	static java.io.OutputStream output_to_server;
+	static java.io.InputStream input_from_server;
+	static java.security.PrivateKey private_key;
+
 	public static void main(String[] args)
 	{
-
 		try
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
 
 			java.net.Socket client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
-			java.io.OutputStream out_stream = client_socket.getOutputStream();
-			java.io.InputStream in_stream = client_socket.getInputStream();
+			output_to_server = client_socket.getOutputStream();
+			input_from_server = client_socket.getInputStream();
 
-			java.security.PublicKey public_key = getPublicKeyFromServer(in_stream);
+			java.security.PublicKey public_key = getPublicKeyFromServer();
 
 			java.util.Scanner sc = new java.util.Scanner(System.in);
 			String write = sc.nextLine();
 			try
 			{
-				out_stream.write(encrypt(write.getBytes(), public_key, settings.get("xform")));
+				output_to_server.write(utils.Utils.encrypt(write.getBytes(), public_key, settings.get("xform")));
 			}
 			catch (Exception exc_obj)
 			{
 				exc_obj.printStackTrace();
 			}
-			out_stream.flush();
+			output_to_server.flush();
 		}
 		catch (java.io.IOException exc_obj)
 		{
@@ -34,12 +37,12 @@ public class Client
 		}
 	}
 
-	public static java.security.PublicKey getPublicKeyFromServer(java.io.InputStream in_stream)
+	public static java.security.PublicKey getPublicKeyFromServer()
 	{
 		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 		try
 		{
-			int number = in_stream.read(bytes);
+			int number = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, number);
 			System.out.println(new String(bytes));
 			try
@@ -64,10 +67,21 @@ public class Client
 		return null;
 	}
 
-	private static byte[] encrypt(byte[] inpBytes, java.security.PublicKey key, String xform) throws Exception
+	public static java.security.PrivateKey sendPublicKeyToServer()
 	{
-	    javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(xform);
-	    cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key);
-	    return cipher.doFinal(inpBytes);
+		try
+		{
+			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+			private_key = pair.getPrivate();
+			java.security.PublicKey public_key = pair.getPublic();
+			output_to_server.write(public_key.getEncoded());
+			System.out.println(new String(public_key.getEncoded()));
+		}
+		catch (java.io.IOException exc_obj)
+		{
+			System.out.println(exc_obj);
+		}
+		return null;
 	}
+	
 }

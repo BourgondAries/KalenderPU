@@ -3,92 +3,104 @@ package server;
 public class Server
 {
 	private static utils.Configuration settings = null;
+
+	static java.net.ServerSocket server_socket;
+	static java.net.Socket client_socket;
+	static java.io.InputStream input_from_client;
+	static java.io.OutputStream output_to_client;
+	static java.security.PrivateKey private_key;
+	static byte[] bytes;
+	static String last_message;
+
 	public static void main(String[] args)
 	{
 		System.out.println("The server is running!");
-		try
+		while (true)
 		{
-			settings = utils.Configuration.loadDefaultConfiguration();
-
-			while (true)
+			try
 			{
-				// init
-				java.net.ServerSocket server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
-				System.out.println("Waiting for acceptance");
+				settings = utils.Configuration.loadDefaultConfiguration();
 
-				java.net.Socket client_socket = server_socket.accept();
-				System.out.println("Got acceptance");
-
-				java.io.InputStream input_from_client = client_socket.getInputStream();
-				java.io.OutputStream output_to_client = client_socket.getOutputStream();
-
-				java.security.PrivateKey private_key = sendPublicKeyToClient(output_to_client);
-
-				byte[] bytes = new byte[1000];
-				int code = input_from_client.read(bytes);
-				bytes = java.util.Arrays.copyOf(bytes, code);
-				try
+				while (true)
 				{
-					System.out.println(new String(bytes));
-					System.out.println(new String(decrypt(bytes, private_key, settings.get("xform"))));
-				}
-				catch (Exception exc_obj)
-				{
-					exc_obj.printStackTrace();
-				}
-				System.out.println("read: " + code + " bytes");
-				server_socket.close();
-			}		
+					waitForIncomingConnection();
+					setup2WayCommunicationChannels();
+					sendPublicKeyToClient();
+					readIncomingbytes();
+					handleLastMessage();
+					finishConnection();
+				}		
+			}
+			catch (java.net.BindException exc_obj) { try { finishConnection(); } catch (java.io.IOException exc_object) { System.out.println("Unable to unbind"); } }
+			catch (java.net.SocketException exc_obj) { System.out.println(exc_obj); }
+			catch (Exception exc_obj) { System.out.println(exc_obj); }
 		}
-		catch (java.io.IOException exc_obj)
-		{
-			System.out.println(exc_obj);
-		}
-		
 	}
 
-	public static java.security.KeyPair getNewKeyPair()
+	public static void waitForIncomingConnection() throws java.io.IOException
+	{
+		server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
+		System.out.println("Waiting for a response");
+		client_socket = server_socket.accept();
+		System.out.println("Got acceptance");
+	}
+
+	public static void setup2WayCommunicationChannels() throws java.io.IOException
+	{
+		input_from_client = client_socket.getInputStream();
+		output_to_client = client_socket.getOutputStream();
+	}
+
+	public static void readIncomingbytes() throws java.io.IOException
+	{
+		bytes = new byte[1024];
+		int code = input_from_client.read(bytes);
+		bytes = java.util.Arrays.copyOf(bytes, code);
+		try
+		{
+			// System.out.println(new String(bytes));
+			last_message = new String(utils.Utils.decrypt(bytes, private_key, settings.get("xform")));
+			System.out.println(last_message);
+		}
+		catch (Exception exc_obj)
+		{
+			exc_obj.printStackTrace();
+		}
+	}
+
+	public static void handleLastMessage()
+	{
+		// Need to check the validity: check if the grammar is correct.
+		// If correct, apply the update. Let the client know that it was succesful.
+		boolean success = true;
+		if (success)
+			notifyToClientOperationSuccess();
+	}
+
+	public static void finishConnection() throws java.io.IOException
+	{
+		server_socket.close();
+	}
+
+	public static void notifyToClientOperationSuccess()
+	{
+
+	}
+
+	public static java.security.PrivateKey sendPublicKeyToClient()
 	{
 		try
 		{
-			java.security.KeyPairGenerator keygen = java.security.KeyPairGenerator.getInstance(settings.get("keypairgen"));
-			java.security.SecureRandom random = java.security.SecureRandom.getInstance(settings.get("SecureRandomRNG"), settings.get("SecureRandomProvider"));
-			keygen.initialize(Integer.parseInt(settings.get("keylength")), random);
-			return keygen.generateKeyPair();
-		}
-		catch (java.security.NoSuchAlgorithmException exc_obj)
-		{
-			System.out.println(exc_obj);
-		}
-		catch (java.security.NoSuchProviderException exc_obj)
-		{
-			System.out.println(exc_obj);
-		}
-		return null;
-	}
-
-	public static java.security.PrivateKey sendPublicKeyToClient(java.io.OutputStream output_to_client)
-	{
-		try
-		{
-			java.security.KeyPair pair = getNewKeyPair();
-			java.security.PrivateKey private_key = pair.getPrivate();
+			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+			private_key = pair.getPrivate();
 			java.security.PublicKey public_key = pair.getPublic();
 			output_to_client.write(public_key.getEncoded());
 			System.out.println(new String(public_key.getEncoded()));
-			return private_key;
 		}
 		catch (java.io.IOException exc_obj)
 		{
 			System.out.println(exc_obj);
 		}
 		return null;
-	}
-
-	private static byte[] decrypt(byte[] inpBytes, java.security.PrivateKey key, String xform) throws Exception
-	{
-	    javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(xform);
-	    cipher.init(javax.crypto.Cipher.DECRYPT_MODE, key);
-	    return cipher.doFinal(inpBytes);
 	}
 }
