@@ -63,8 +63,6 @@ public class Client
 		return true;
 	}
 
-	
-
 	public static void loadTrustedServers()
 	{
 		try
@@ -75,8 +73,6 @@ public class Client
 				if (isContained(cert, i, public_server_key_separator))
 				{
 					byte[] copy = java.util.Arrays.copyOfRange(cert, 0, i);
-					// System.out.println(getHex(copy));
-					// System.out.println("=======================");
 					server_public_keys.add(copy);
 					cert = java.util.Arrays.copyOfRange(cert, i + public_server_key_separator.length, cert.length);
 					i = 0;
@@ -121,17 +117,20 @@ public class Client
 				return;
 		}
 
-		System.out.println("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers? (yes/no): ");
+		System.out.print("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers? (yes/no): ");
 		
 		while (true)
 		{
 			String result = sc.next();
 			if (result.equals("yes"))
+			{
 				server_public_keys.add(server_public_key.getEncoded());
+				break;
+			}
 			else if (result.equals("no"))
 				break;
 			else
-				System.out.println("Please enter \"yes\" or \"no\": ");
+				System.out.print("Please enter \"yes\" or \"no\": ");
 		}
 	}
 
