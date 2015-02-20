@@ -22,7 +22,8 @@ public class Main
 		for (int i = 0; i < 1000; ++i)
 		{
 			System.out.println("Hans er retard for " + String.valueOf(i) + ". gang i dag.");
-		}	
+		}
+		System.out.println("Kevin er retard i dag");
 	}
 
 	public static void hei()
