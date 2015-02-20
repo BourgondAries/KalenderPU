@@ -13,6 +13,7 @@ public class Main
 		System.out.println("MAULI ER BEST!");
 		System.out.println("Hans er retard i dag");
 		what();
+		System.out.println("Woho!")
 	}
 
 	public static void what()
