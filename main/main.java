@@ -13,7 +13,8 @@ public class Main
 	public static void what()
 	{
 		System.out.println("Let's try it!");
-		System.out.println("Hans vil commit!")
+		// Rolig nå
+		System.out.println("HEY HEY HEY");
 	}
 }
 
