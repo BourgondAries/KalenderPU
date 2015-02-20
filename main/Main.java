@@ -13,6 +13,7 @@ public class Main
 	public static void what()
 	{
 		System.out.println("Let's try it!");
+		System.out.println("HEY HEY HEY");
 	}
 }
 
