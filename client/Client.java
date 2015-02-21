@@ -36,6 +36,8 @@ public class Client
 
 	public Client(String[] args)
 	{
+		try { settings = utils.Configuration.loadDefaultConfiguration(); }
+		catch ( java.io.IOException ioexc ) { System.out.println(ioexc); }
 		argument_handler = new ArgumentHandler(args);
 		if (argument_handler.print_help)
 		{
@@ -46,7 +48,7 @@ public class Client
 
 		try
 		{
-			settings = utils.Configuration.loadDefaultConfiguration();
+			
 			bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 			loadTrustedServers();
 			connectAndSetUpChannels();
