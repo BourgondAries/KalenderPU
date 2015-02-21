@@ -91,7 +91,7 @@ public class Server
 		server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
 		verbose("Waiting for a response");
 		client_socket = server_socket.accept();
-		client_socket.setSoTimeout(3000);
+		client_socket.setSoTimeout(Integer.parseInt(utils.Configuration.settings.get("SocketTimeOut")));
 	}
 
 	public static void setup2WayCommunicationChannels() throws java.io.IOException

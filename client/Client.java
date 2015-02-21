@@ -16,10 +16,11 @@ public class Client
 	private static java.security.PublicKey  client_public_key;
 	private static java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
 
-	private static byte[] bytes = new byte[2048];
+	private static byte[] bytes = null;
+	private static int 	  length = 0;
 	private static String last_message;
 
-	private static byte[] public_server_key_separator = "==============================================".getBytes();
+	private static byte[] public_server_key_separator = "#======================|======================#".getBytes();
 
 	private static java.util.Scanner sc = new java.util.Scanner(System.in);
 
@@ -38,10 +39,12 @@ public class Client
 		try
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
+			bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 			loadTrustedServers();
 			connectAndSetUpChannels();
 			generatePairAndSendPublicKeyToServer();
 			getPublicKeyFromServer(); // For checking whether we already have this one later.
+			getCertificateFromServer();
 			queryWhetherItIsTrusted();
 			if (verifyAuthenticity())
 			{
@@ -126,7 +129,12 @@ public class Client
 		}
 	}
 
-	public static void queryWhetherItIsTrusted()
+	public static void getCertificateFromServer() throws java.io.IOException
+	{
+		length = input_from_server.read(bytes);
+	}
+
+	public static void queryWhetherItIsTrusted() 
 	{
 		verbose("Testing whether the key is trusted.");
 		for (int i = 0; i < server_public_keys.size(); ++i)
@@ -155,12 +163,12 @@ public class Client
 	public static boolean verifyAuthenticity() throws Exception
 	{
 		verbose("Verifying authenticity.");
-		int l = input_from_server.read(bytes);
-		bytes = java.util.Arrays.copyOf(bytes, l);
+		bytes = java.util.Arrays.copyOf(bytes, length);
 		java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
 		sig.initVerify(server_public_key);
 		sig.update(client_public_key.getEncoded());
 		return sig.verify(bytes);
+		
 	}
 
 	public static void generatePairAndSendPublicKeyToServer()
