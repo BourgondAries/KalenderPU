@@ -35,7 +35,6 @@ public class Client
 		}
 		utils.Configuration.verbose_mode = argument_handler.is_verbose;
 
-
 		try
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
@@ -158,7 +157,7 @@ public class Client
 		verbose("Verifying authenticity.");
 		int l = input_from_server.read(bytes);
 		bytes = java.util.Arrays.copyOf(bytes, l);
-		java.security.Signature sig = java.security.Signature.getInstance("SHA1withRSA");
+		java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
 		sig.initVerify(server_public_key);
 		sig.update(client_public_key.getEncoded());
 		return sig.verify(bytes);
