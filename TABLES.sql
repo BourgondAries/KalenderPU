@@ -6,7 +6,7 @@ CREATE TABLE User
 	lname 		varchar(255),
 	salt		varchar(255),
 	hashedPW 	varchar(255),
-	PRIMARY KEY (userid), 
+	PRIMARY KEY (userId), 
 );
 
 CREATE TABLE PersonalEvent
@@ -16,7 +16,7 @@ CREATE TABLE PersonalEvent
 	time 		timestamp,
 	userId 		int,
 	PRIMARY KEY (eventId),
-	FOREIGN KEY (userId) REFERENCES USER(userid),
+	FOREIGN KEY (userId) REFERENCES USER(userId),
 );
 
 CREATE TABLE Booking
@@ -28,7 +28,7 @@ CREATE TABLE Booking
 	roomId			int,
 	PRIMARY KEY (bookingId),
 	FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
-	FOREIGN KEY (adminId) REFERENCES USER(userid),
+	FOREIGN KEY (adminId) REFERENCES USER(userId),
 );
 
 CREATE TABLE Group
@@ -38,7 +38,7 @@ CREATE TABLE Group
 	groupName	varchar(255), 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
-	PRIMARY KEY (groupid),
+	PRIMARY KEY (groupId),
 	FOREIGN KEY (parentGroupId) REFERENCES GROUP(groupId),
 );
 
