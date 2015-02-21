@@ -4,29 +4,37 @@ import static utils.Configuration.verbose;
 
 public class Client
 {
-	private static utils.Configuration settings = null;
+	private utils.Configuration settings = null;
 
-	private static java.net.Socket 			client_socket;
+	private java.net.Socket 			client_socket;
 
-	private static java.io.InputStream 		input_from_server;
-	private static java.io.OutputStream 	output_to_server;
+	private java.io.InputStream 		input_from_server;
+	private java.io.OutputStream 	output_to_server;
 	
-	private static java.security.PrivateKey client_private_key;
-	private static java.security.PublicKey 	server_public_key;
-	private static java.security.PublicKey  client_public_key;
-	private static java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
+	private java.security.PrivateKey client_private_key;
+	private java.security.PublicKey 	server_public_key;
+	private java.security.PublicKey  client_public_key;
+	private java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
 
-	private static byte[] bytes = null;
-	private static int 	  length = 0;
-	private static String last_message;
+	private byte[] bytes = null;
+	private int 	  length = 0;
+	private String last_message;
 
 	private static byte[] public_server_key_separator = "#======================|======================#".getBytes();
 
-	private static java.util.Scanner sc = new java.util.Scanner(System.in);
+	private java.util.Scanner sc = new java.util.Scanner(System.in);
 
-	private static ArgumentHandler argument_handler = null;
+	private ArgumentHandler argument_handler = null;
 
 	public static void main(String[] args)
+	{
+		while (true)
+		{
+			new Client(args);
+		}
+	}
+
+	public Client(String[] args)
 	{
 		argument_handler = new ArgumentHandler(args);
 		if (argument_handler.print_help)
@@ -80,7 +88,7 @@ public class Client
 		return true;
 	}
 
-	public static void loadTrustedServers()
+	public void loadTrustedServers()
 	{
 		verbose("Loading trusted servers into memory.");
 		try
@@ -104,7 +112,7 @@ public class Client
 		}
 	}
 
-	public static void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
+	public void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
 	{
 		verbose("Connecting to foreign host.");
 		client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
@@ -112,7 +120,7 @@ public class Client
 		input_from_server = client_socket.getInputStream();
 	}
 
-	public static void getPublicKeyFromServer()
+	public void getPublicKeyFromServer()
 	{
 		verbose("Waiting for host public key.");
 		bytes = new byte[Integer.parseInt(settings.get("keylength"))];
@@ -129,12 +137,12 @@ public class Client
 		}
 	}
 
-	public static void getCertificateFromServer() throws java.io.IOException
+	public void getCertificateFromServer() throws java.io.IOException
 	{
 		length = input_from_server.read(bytes);
 	}
 
-	public static void queryWhetherItIsTrusted() 
+	public void queryWhetherItIsTrusted() 
 	{
 		verbose("Testing whether the key is trusted.");
 		for (int i = 0; i < server_public_keys.size(); ++i)
@@ -160,7 +168,7 @@ public class Client
 		}
 	}
 
-	public static boolean verifyAuthenticity() throws Exception
+	public boolean verifyAuthenticity() throws Exception
 	{
 		verbose("Verifying authenticity.");
 		bytes = java.util.Arrays.copyOf(bytes, length);
@@ -171,7 +179,7 @@ public class Client
 		
 	}
 
-	public static void generatePairAndSendPublicKeyToServer()
+	public void generatePairAndSendPublicKeyToServer()
 	{
 		verbose("Generating keypair to send to the remote.");
 		try
@@ -188,7 +196,7 @@ public class Client
 		}
 	}
 
-	public static void writeMessageToServer()
+	public void writeMessageToServer()
 	{
 		verbose("Sending packets to the server...");
 		String write = sc.nextLine();
@@ -205,7 +213,7 @@ public class Client
 		}
 	}
 	
-	public static void ensureCorrectServerResponse()
+	public void ensureCorrectServerResponse()
 	{
 		verbose("Verifying server integrity.");
 		try
@@ -223,7 +231,7 @@ public class Client
 		}
 	}
 
-	public static void storeAllTrustedKeys() throws java.io.IOException
+	public void storeAllTrustedKeys() throws java.io.IOException
 	{
 		verbose("Storing the trusted keys in \"" + utils.Configuration.settings.get("TrustedServers") + "\"");
 		java.io.FileOutputStream trusted = new java.io.FileOutputStream(utils.Configuration.settings.get("TrustedServers"));

@@ -4,24 +4,30 @@ import static utils.Configuration.verbose;
 
 public class Server
 {
-	private static utils.Configuration settings = null;
+	private utils.Configuration settings = null;
 
-	private static java.net.ServerSocket 	server_socket;
-	private static java.net.Socket 			client_socket;
+	private java.net.ServerSocket 	server_socket;
+	private java.net.Socket 			client_socket;
 
-	private static java.io.InputStream 		input_from_client;
-	private static java.io.OutputStream 	output_to_client;
+	private java.io.InputStream 		input_from_client;
+	private java.io.OutputStream 	output_to_client;
 
-	private static java.security.PrivateKey server_private_key;
-	private static java.security.PublicKey 	server_public_key;
-	private static java.security.PublicKey 	client_public_key;
+	private java.security.PrivateKey server_private_key;
+	private java.security.PublicKey 	server_public_key;
+	private java.security.PublicKey 	client_public_key;
 
-	private static byte[] bytes;
-	private static String last_message;
+	private byte[] bytes;
+	private String last_message;
 
-	private static ArgumentHandler argument_handler = null;
+	private ArgumentHandler argument_handler = null;
 
 	public static void main(String[] args) throws java.io.IOException
+	{
+		while (true)
+			new Server(args);
+	}
+
+	public Server(String[] args) throws java.io.IOException
 	{
 		argument_handler = new ArgumentHandler(args);
 		if (argument_handler.print_help)
@@ -52,9 +58,9 @@ public class Server
 					finishConnection();
 				}		
 			}
-			catch (java.net.BindException exc_obj) { try { finishConnectionWithError(); } catch (java.io.IOException exc_object) { System.out.println("Unable to unbind"); } }
-			catch (java.net.SocketException exc_obj) { System.out.println(exc_obj); }
-			catch (Exception exc_obj) { System.out.println(exc_obj); }
+			catch (java.net.BindException exc_obj) { try { finishConnectionWithError(); } catch (java.io.IOException exc_object) { verbose("Unable to unbind"); } }
+			catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
+			catch (Exception exc_obj) { verbose(exc_obj.toString()); }
 		}
 	}
 
@@ -64,7 +70,7 @@ public class Server
 	}
 
 	/// Generates a private and public key and stores it inside 2 files in the root folder.
-	public static void branchIfKeygenArgumentGivenAndExit() throws java.io.IOException, java.io.FileNotFoundException
+	public void branchIfKeygenArgumentGivenAndExit() throws java.io.IOException, java.io.FileNotFoundException
 	{
 		if (argument_handler.keygen)
 		{
@@ -78,14 +84,14 @@ public class Server
 		}
 	}
 
-	public static void loadTheKeysIntoMemory() throws java.io.IOException
+	public void loadTheKeysIntoMemory() throws java.io.IOException
 	{
 		verbose("Loading keys into memory.");
 		server_public_key = utils.Utils.getServerPublicKey();
 		server_private_key = utils.Utils.getServerPrivateKey();
 	}
 
-	public static void waitForIncomingConnection() throws java.io.IOException
+	public void waitForIncomingConnection() throws java.io.IOException
 	{
 		verbose("Waiting for incoming connection...");
 		server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
@@ -94,20 +100,20 @@ public class Server
 		client_socket.setSoTimeout(Integer.parseInt(utils.Configuration.settings.get("SocketTimeOut")));
 	}
 
-	public static void setup2WayCommunicationChannels() throws java.io.IOException
+	public void setup2WayCommunicationChannels() throws java.io.IOException
 	{
 		verbose("Setting up 2-way communication.");
 		input_from_client = client_socket.getInputStream();
 		output_to_client = client_socket.getOutputStream();
 	}
 
-	public static void announceServerPublicKey() throws Exception
+	public void announceServerPublicKey() throws Exception
 	{
 		verbose("Broadcasting server's public key.");
 		output_to_client.write(server_public_key.getEncoded());
 	}
 
-	public static void getPublicKeyFromClient()
+	public void getPublicKeyFromClient()
 	{
 		verbose("Fetching the public key from the client.");
 		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
@@ -137,7 +143,7 @@ public class Server
 		}
 	}
 
-	public static byte[] signClientsPublicKey() throws java.security.NoSuchAlgorithmException, java.io.IOException, java.security.SignatureException, java.security.InvalidKeyException
+	public byte[] signClientsPublicKey() throws java.security.NoSuchAlgorithmException, java.io.IOException, java.security.SignatureException, java.security.InvalidKeyException
 	{
 		verbose("Signing the client's public key.");
 		java.security.Signature signature = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
@@ -146,13 +152,13 @@ public class Server
 		return signature.sign();
 	}
 
-	public static void sendCertificateToClient(byte[] signature) throws java.io.IOException
+	public void sendCertificateToClient(byte[] signature) throws java.io.IOException
 	{
 		verbose("Sending signed public key to client.");
 		output_to_client.write(signature);
 	}
 
-	public static void readIncomingbytes() throws java.io.IOException
+	public void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
 		bytes = new byte[1024];
@@ -170,7 +176,7 @@ public class Server
 		}
 	}
 
-	public static void handleLastMessage() throws java.io.IOException, Exception
+	public void handleLastMessage() throws java.io.IOException, Exception
 	{
 		verbose("Delegating input to the input handler.");
 		// Need to check the validity: check if the grammar is correct.
@@ -182,19 +188,19 @@ public class Server
 			notifyToClientOperationSuccess();
 	}
 
-	public static void notifyToClientOperationSuccess() throws java.io.IOException, Exception
+	public void notifyToClientOperationSuccess() throws java.io.IOException, Exception
 	{
 		verbose("Notifying to the client that the input was valid.");
 		output_to_client.write(utils.Utils.encrypt("success".getBytes(), client_public_key));
 	}
 
-	public static void finishConnection() throws java.io.IOException
+	public void finishConnection() throws java.io.IOException
 	{
 		verbose("Cleaning up the connection.");
 		server_socket.close();
 	}
 
-	public static void finishConnectionWithError() throws java.io.IOException
+	public void finishConnectionWithError() throws java.io.IOException
 	{
 		verbose("Reporting the error to the client.");
 		try
@@ -207,7 +213,5 @@ public class Server
 		}
 		server_socket.close();
 	}
-
-
 
 }
