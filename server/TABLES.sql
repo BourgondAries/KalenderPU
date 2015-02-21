@@ -31,30 +31,42 @@ CREATE TABLE Group(
 groupId 	int 		NOT NULL,
 rank		int			NOT NULL,
 groupName	varchar(255), 
-parrentGroupId int CHECK (groupId != parrentGroupId)
+parentGroupId int CHECK (groupId != parentGroupId)
 PRIMARY KEY (groupid),
-FOREIGN KEY (parrentGroupId) REFERENCES GROUP(groupId)
+FOREIGN KEY (parentGroupId) REFERENCES GROUP(groupId)
 );
 
 CREATE TABLE Groupmenber(
-userid		int		NOT NULL,
-groupid		int		NOT NULL,
-PRIMARY KEY (userid, groupid),
-FOREIGN KEY (userid) REFERENCES USER (userid),
-FOREIGN KEY (groupid) REFERENCES GROUP (groupid)
+userId		int		NOT NULL,
+groupId		int		NOT NULL,
+PRIMARY KEY (userId, groupId),
+FOREIGN KEY (userId) REFERENCES USER (userId),
+FOREIGN KEY (groupId) REFERENCES GROUP (groupId)
 );
 CREATE TABLE Invitiation(
+userId 		int NOT NULL,
+bookingId 	int NOT NULL,
+status		bit,
+PRIMARY KEY (userId, bookingId),
 )
 
 CREATE TABLE Notification(
-notificationId 		int NOTNULL AUTO_INCREMENT,
+n_Id 		int NOT NULL AUTO_INCREMENT,
 message 			varchar(255),
 duration			varchar(255),
 seen 				bit,
+bookingId			int NOT NULL,
+groupId 			int, 
+userId 				int, 
+CHECK (groupId != NULL OR userId != NULL),
+PRIMARY KEY (n_Id),
+FOREIGN KEY (bookingId) REFERENCES Booking(bookingId),
+FOREIGN KEY (groupId) REFERENCES Group(groupId),
+FOREIGN KEY (userId) REFERENCES User(userId),
 );
 
 CREATE TABLE Room(
 roomId		int NOT NULL AUTO_INCREMENT,
-size 		int
+size 		int,
 location	varchar(255),
 );
