@@ -14,6 +14,26 @@ public class Parser
 		DELETE
 	}
 
+	/*
+		EBNF Grammar:
+
+		start 		::= USERNAME PASSWORD command
+
+		command 	::= GROUP ADD entity
+					| CREATE EVENT TIMESTAMP STRING
+					| DELETE entity
+					| CHANGE property TO
+
+		property	::=	EMAIL
+					|	NAME
+					| 	SURNAME
+					| 	PHONE
+
+		entity 		::=	GROUP id
+					|	USER id
+
+	*/
+
 	private static java.util.HashMap<NonTerminals, java.util.HashMap<String, String>> table = new java.util.HashMap<>();
 
 	public static void initialize()
