@@ -2,8 +2,17 @@ package utils;
 
 public class Configuration extends java.util.HashMap<String, String>
 {
+	public static boolean verbose_mode = false;
+
+	public static void verbose(String string)
+	{
+		if (verbose_mode)
+			System.out.println(string);
+	}
+
 	public static Configuration loadConfiguration(String filename) throws java.io.IOException
 	{
+		verbose("Loading configuration from " + filename);
 		try
 		{
 			Configuration map = new Configuration();
@@ -16,7 +25,6 @@ public class Configuration extends java.util.HashMap<String, String>
 				if (scanner.hasNext())
 				{
 					String tail = scanner.next();
-					// System.out.println('\'' + head + '\'' + tail + '\'');
 					map.put(head.trim(), tail.trim());
 				}
 				else
@@ -28,7 +36,7 @@ public class Configuration extends java.util.HashMap<String, String>
 		}
 		catch (java.util.InputMismatchException exc_obj)
 		{
-			System.out.print(exc_obj.getMessage()); 
+			verbose(exc_obj.getMessage());
 		}
 		return null;
 	}

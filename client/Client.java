@@ -1,5 +1,7 @@
 package client;
 
+import static utils.Configuration.verbose;
+
 public class Client
 {
 	private static utils.Configuration settings = null;
@@ -21,15 +23,23 @@ public class Client
 
 	private static java.util.Scanner sc = new java.util.Scanner(System.in);
 
+	private static ArgumentHandler argument_handler = null;
+
 	public static void main(String[] args)
 	{
+		argument_handler = new ArgumentHandler(args);
+		if (argument_handler.print_help)
+		{
+			printHelp();
+			System.exit(0);
+		}
+		utils.Configuration.verbose_mode = argument_handler.is_verbose;
+
 
 		try
 		{
 			settings = utils.Configuration.loadDefaultConfiguration();
-
 			loadTrustedServers();
-
 			connectAndSetUpChannels();
 			generatePairAndSendPublicKeyToServer();
 			getPublicKeyFromServer(); // For checking whether we already have this one later.
@@ -49,8 +59,13 @@ public class Client
 		}
 		catch (Exception exc_obj)
 		{
-			System.out.println(exc_obj);
+			verbose(exc_obj.toString());
 		}
+	}
+
+	public static void printHelp()
+	{
+		System.out.println("Help text for this program.");
 	}
 
 	public static boolean isContained(byte[] bigger, int index, byte[] smaller)
@@ -65,6 +80,7 @@ public class Client
 
 	public static void loadTrustedServers()
 	{
+		verbose("Loading trusted servers into memory.");
 		try
 		{
 			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
@@ -82,12 +98,13 @@ public class Client
 		}
 		catch (java.io.IOException exc_obj)
 		{
-			System.out.println("What!");
+			verbose(exc_obj.toString());
 		}
 	}
 
 	public static void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
 	{
+		verbose("Connecting to foreign host.");
 		client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
 		output_to_server = client_socket.getOutputStream();
 		input_from_server = client_socket.getInputStream();
@@ -95,6 +112,7 @@ public class Client
 
 	public static void getPublicKeyFromServer()
 	{
+		verbose("Waiting for host public key.");
 		bytes = new byte[Integer.parseInt(settings.get("keylength"))];
 		try
 		{
@@ -105,12 +123,13 @@ public class Client
 		}
 		catch (java.io.IOException exc_obj)
 		{
-			System.out.println(exc_obj);
+			verbose(exc_obj.toString());
 		}
 	}
 
 	public static void queryWhetherItIsTrusted()
 	{
+		verbose("Testing whether the key is trusted.");
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			if (java.util.Arrays.equals(server_public_keys.get(i), server_public_key.getEncoded()))
@@ -136,6 +155,7 @@ public class Client
 
 	public static boolean verifyAuthenticity() throws Exception
 	{
+		verbose("Verifying authenticity.");
 		int l = input_from_server.read(bytes);
 		bytes = java.util.Arrays.copyOf(bytes, l);
 		java.security.Signature sig = java.security.Signature.getInstance("SHA1withRSA");
@@ -146,6 +166,7 @@ public class Client
 
 	public static void generatePairAndSendPublicKeyToServer()
 	{
+		verbose("Generating keypair to send to the remote.");
 		try
 		{
 			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
@@ -156,13 +177,13 @@ public class Client
 		}
 		catch (java.io.IOException exc_obj)
 		{
-			System.out.println(exc_obj);
+			verbose(exc_obj.toString());
 		}
 	}
 
 	public static void writeMessageToServer()
 	{
-		
+		verbose("Sending packets to the server...");
 		String write = sc.nextLine();
 		try
 		{
@@ -173,12 +194,13 @@ public class Client
 		}
 		catch (Exception exc_obj)
 		{
-			exc_obj.printStackTrace();
+			verbose(exc_obj.toString());
 		}
 	}
 	
 	public static void ensureCorrectServerResponse()
 	{
+		verbose("Verifying server integrity.");
 		try
 		{
 			bytes = new byte[1024];
@@ -190,12 +212,13 @@ public class Client
 		}
 		catch (Exception exc_obj)
 		{
-			exc_obj.printStackTrace();
+			verbose(exc_obj.toString());
 		}
 	}
 
 	public static void storeAllTrustedKeys() throws java.io.IOException
 	{
+		verbose("Storing the trusted keys in \"" + utils.Configuration.settings.get("TrustedServers") + "\"");
 		java.io.FileOutputStream trusted = new java.io.FileOutputStream(utils.Configuration.settings.get("TrustedServers"));
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
