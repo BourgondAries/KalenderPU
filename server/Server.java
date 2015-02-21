@@ -209,11 +209,23 @@ public class Server
 		System.out.println("Executing query " + last_message);
 		try
 		{
-			stmt = conn.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-			java.sql.ResultSet result = stmt.executeQuery(last_message);
-			// result.absolute(1);
-			while (result.next())
-				System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");
+			if 
+			(
+				last_message.startsWith("UPDATE") 
+				|| last_message.startsWith("INSERT")
+				|| last_message.startsWith("EXECUTE")
+			)
+			{
+				java.sql.PreparedStatement statement = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+				statement.execute();
+			}
+			else
+			{
+				stmt = conn.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+				java.sql.ResultSet result = stmt.executeQuery(last_message);
+				while (result.next())
+					System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");	
+			}
 		}
 		catch (Exception exc)
 		{
