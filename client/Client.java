@@ -9,11 +9,11 @@ public class Client
 	private java.net.Socket 			client_socket;
 
 	private java.io.InputStream 		input_from_server;
-	private java.io.OutputStream 	output_to_server;
+	private java.io.OutputStream 		output_to_server;
 	
-	private java.security.PrivateKey client_private_key;
+	private java.security.PrivateKey 	client_private_key;
 	private java.security.PublicKey 	server_public_key;
-	private java.security.PublicKey  client_public_key;
+	private java.security.PublicKey  	client_public_key;
 	private java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
 
 	private byte[] bytes = null;

@@ -6,13 +6,13 @@ public class Server
 {
 	private utils.Configuration settings = null;
 
-	private java.net.ServerSocket 	server_socket;
+	private java.net.ServerSocket 		server_socket;
 	private java.net.Socket 			client_socket;
 
 	private java.io.InputStream 		input_from_client;
-	private java.io.OutputStream 	output_to_client;
+	private java.io.OutputStream 		output_to_client;
 
-	private java.security.PrivateKey server_private_key;
+	private java.security.PrivateKey 	server_private_key;
 	private java.security.PublicKey 	server_public_key;
 	private java.security.PublicKey 	client_public_key;
 
