@@ -6,16 +6,16 @@ fname 		varchar(255) 	NOT NULL,
 lname 		varchar(255) 	NOT NULL,
 hashedPW 	varchar()		NOT NULL,
 PRIMARY KEY userid 
-
 );
+
 CREATE TABLE EVENT()
-eventid 	int NOT NULL,
+eventId 	int NOT NULL AUTO_INCREMENT,
 message 	varchar(255),
 time 		timestamp,
+);
 
-)
-
-CREATE TABLE ( )
+CREATE TABLE BOOKING( 
+bookingId		int NOT NULL AUTO_INCREMENT)
 
 CREATE TABLE GROUP(
 groupid 	int 		NOT NULL,
@@ -25,19 +25,26 @@ PRIMARY KEY (groupid),
 FOREIGN KEY (groupid) REFERENCES GROUP(groupid)
 );
 
-CREATE TABLE Groupmember(
+CREATE TABLE GROUPMENBER(
 userid		int		NOT NULL,
 groupid		int		NOT NULL,
 PRIMARY KEY (userid, groupid),
 FOREIGN KEY (userid) REFERENCES USER (userid),
 FOREIGN KEY (groupid) REFERENCES GROUP (groupid)
-
-
 );
 
 CREATE TABLE NOTIFICATION(
-notificationid 		int NOTNULL,
+notificationId 		int NOTNULL AUTO_INCREMENT,
 message 			varchar(255),
-duration			
-
+duration			varchar(255),
+seen 				boolean,
+);
+CREATE TABLE ROOM(
+roomId		int NOT NULL AUTO_INCREMENT,
+size 		int
+location	varchar(255),
+);
+CREATE TABLE BOOKING(
+bookingId 	int 		NOT NULL,
+bookingName	varchar(255),
 )
