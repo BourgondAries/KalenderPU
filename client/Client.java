@@ -135,7 +135,7 @@ public class Client
 				return;
 		}
 
-		System.out.print("WARNING: The certificate presented by remote does not appear to be trusted. Do you want to add remote to the list of trusted servers? (yes/no): ");
+		System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
 		
 		while (true)
 		{
