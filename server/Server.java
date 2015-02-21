@@ -23,7 +23,7 @@ public class Server
 
 	private static String db_url = "jdbc:derby:derbyDB;create=true;user=me;password=mine";
 	private static java.sql.Connection conn = null;
-    private static java.sql.PreparedStatement stmt = null;
+    private static java.sql.Statement stmt = null;
 
 	public static void main(String[] args) throws java.sql.SQLException, java.io.IOException
 	{
@@ -41,8 +41,8 @@ public class Server
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             conn = java.sql.DriverManager.getConnection(db_url);
         	// stmt = conn.createStatement();
-        	stmt = conn.prepareStatement("CREATE TABLE X (id int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), name varchar(255))", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-        	stmt.execute();
+        	java.sql.PreparedStatement prepstate = conn.prepareStatement("CREATE TABLE X (id int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), name varchar(255))", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+        	prepstate.execute();
         	
         }
         catch (Exception except)
@@ -209,22 +209,27 @@ public class Server
 		System.out.println("Executing query " + last_message);
 		try
 		{
-			stmt = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-			java.sql.ResultSet result = stmt.executeQuery();
-			//result.absolute(1);
-			System.out.println("'" + result.getString(1) + "'");
+			if 
+			(
+				last_message.startsWith("UPDATE") 
+				|| last_message.startsWith("INSERT")
+				|| last_message.startsWith("EXECUTE")
+			)
+			{
+				java.sql.PreparedStatement statement = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+				statement.execute();
+			}
+			else
+			{
+				stmt = conn.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+				java.sql.ResultSet result = stmt.executeQuery(last_message);
+				while (result.next())
+					System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");	
+			}
 		}
 		catch (Exception exc)
 		{
-			try
-			{
-				stmt.executeUpdate();
-				System.out.println("Update executed!");
-			}
-			catch (Exception excobj)
-			{
-				System.out.println("An exception ocurred during execution: " + excobj.toString());
-			}
+			System.out.println("An exception ocurred during execution: " + exc.toString());
 		}
 		
 		boolean success = true;
