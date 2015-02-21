@@ -1,82 +1,83 @@
-CREATE TABLE User
+CREATE TABLE SystemUser
 (
-	userId  	int 		NOT NULL AUTO_INCREMENT,
+	SystemUserId  	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	rank 		int,
 	fname 		varchar(255),
 	lname 		varchar(255),
 	salt		varchar(255),
 	hashedPW 	varchar(255),
-	PRIMARY KEY (userId), 
+	PRIMARY KEY (SystemUserId)
 );
 
 CREATE TABLE PersonalEvent
 (
-	eventId 	int NOT NULL AUTO_INCREMENT,
+	eventId 	int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	description	varchar(255),
 	time 		timestamp,
-	userId 		int,
+	SystemUserId 		int,
 	PRIMARY KEY (eventId),
-	FOREIGN KEY (userId) REFERENCES USER(userId),
+	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(SystemUserId)
+);
+
+CREATE TABLE Room
+(
+	roomId		int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	size 		int,
+	location	varchar(255),
+	PRIMARY KEY (roomId)
 );
 
 CREATE TABLE Booking
 ( 
-	bookingId		int NOT NULL AUTO_INCREMENT,
+	bookingId		int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	adminId			int NOT NULL,
 	description		varchar(255),
 	bookingName		varchar(255),
 	roomId			int,
 	PRIMARY KEY (bookingId),
 	FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
-	FOREIGN KEY (adminId) REFERENCES USER(userId),
+	FOREIGN KEY (adminId) REFERENCES SystemUser(SystemUserId)
 );
 
-CREATE TABLE Group
+CREATE TABLE SystemGroup
 (
-	groupId 	int 		NOT NULL,
+	groupId 	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	rank		int			NOT NULL,
 	groupName	varchar(255), 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
-	FOREIGN KEY (parentGroupId) REFERENCES GROUP(groupId),
+	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId)
 );
 
 CREATE TABLE Groupmember
 (
-	userId		int		NOT NULL,
+	SystemUserId		int		NOT NULL,
 	groupId		int		NOT NULL,
-	PRIMARY KEY (userId, groupId),
-	FOREIGN KEY (userId) REFERENCES USER (userId),
-	FOREIGN KEY (groupId) REFERENCES GROUP (groupId),
+	PRIMARY KEY (SystemUserId, groupId),
+	FOREIGN KEY (SystemUserId) REFERENCES SystemUser (SystemUserId),
+	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId)
 );
-CREATE TABLE Invitiation
+CREATE TABLE Invitation
 (
-	userId 		int NOT NULL,
+	SystemUserId 		int NOT NULL,
 	bookingId 	int NOT NULL,
 	status		boolean,
-	PRIMARY KEY (userId, bookingId),
+	PRIMARY KEY (SystemUserId, bookingId)
 );
 
 CREATE TABLE Notification
 (
-	n_Id 			int NOT NULL AUTO_INCREMENT,
+	n_Id 			int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	message 		varchar(255),
 	duration		varchar(255),
 	seen 			boolean,
 	bookingId		int NOT NULL,
 	groupId 		int, 
-	userId 			int, 
-	CHECK (groupId != NULL OR userId != NULL),
+	SystemUserId 			int, 
+	CHECK (groupId IS NOT NULL OR SystemUserId IS NOT NULL),
 	PRIMARY KEY (n_Id),
 	FOREIGN KEY (bookingId) REFERENCES Booking(bookingId),
-	FOREIGN KEY (groupId) REFERENCES Group(groupId),
-	FOREIGN KEY (userId) REFERENCES User(userId),
-);
-
-CREATE TABLE Room
-(
-	roomId		int NOT NULL AUTO_INCREMENT,
-	size 		int,
-	location	varchar(255),
+	FOREIGN KEY (groupId) REFERENCES SystemGroup(groupId),
+	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(SystemUserId)
 );
