@@ -1,42 +1,44 @@
 
 CREATE TABLE User(
-userId  	int 			NOT NULL AUTO_INCREMENT,
+userId  	int 		NOT NULL AUTO_INCREMENT,
 rank 		int,
 fname 		varchar(255),
 lname 		varchar(255),
 hashedPW 	varchar(255),
-PRIMARY KEY (userid) 
+PRIMARY KEY (userid), 
 );
 
-CREATE TABLE Event()
+CREATE TABLE PersonalEvent()
 eventId 	int NOT NULL AUTO_INCREMENT,
-message 	varchar(255),
+description	varchar(255),
 time 		timestamp,
-PRIMARY KEY (eventId)
-FOREIGN KEY (userid) REFERENCES USER(userid)
-FOREIGN KEY (groupid) REFERENCES GROUP(groupid)
+userId 		int,
+PRIMARY KEY (eventId),
+FOREIGN KEY (userId) REFERENCES USER(userid),
 );
 
 CREATE TABLE Booking( 
 bookingId		int NOT NULL AUTO_INCREMENT,
-adminId	int NOT NULL,
+adminId			int NOT NULL,
 description		varchar(255),
 bookingName		varchar(255),
-PRIMARY KEY (bookingId)
-FOREIGN KEY (roomId) REFERENCES ROOM(roomId)
-FOREIGN KEY (adminId) REFERENCES USER(userid)
+roomId			int,
+PRIMARY KEY (bookingId),
+FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
+FOREIGN KEY (adminId) REFERENCES USER(userid),
 )
 
 CREATE TABLE Group(
 groupId 	int 		NOT NULL,
 rank		int			NOT NULL,
 groupName	varchar(255), 
-parentGroupId int CHECK (groupId != parentGroupId)
+parentGroupId int,
+CHECK (groupId != parentGroupId),
 PRIMARY KEY (groupid),
-FOREIGN KEY (parentGroupId) REFERENCES GROUP(groupId)
+FOREIGN KEY (parentGroupId) REFERENCES GROUP(groupId),
 );
 
-CREATE TABLE Groupmenber(
+CREATE TABLE Groupmember(
 userId		int		NOT NULL,
 groupId		int		NOT NULL,
 PRIMARY KEY (userId, groupId),
