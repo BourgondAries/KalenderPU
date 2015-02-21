@@ -21,11 +21,29 @@ public class Server
 
 	private ArgumentHandler argument_handler = null;
 
+	private static String db_url = "jdbc:derby:derbyDB;create=true;user=me;password=mine";
+	private static java.sql.Connection conn = null;
+    private static java.sql.Statement stmt = null;
+
 	public static void main(String[] args) throws java.io.IOException
 	{
+		createConnection();
 		while (true)
 			new Server(args);
 	}
+
+	private static void createConnection()
+    {
+        try
+        {
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+            conn = java.sql.DriverManager.getConnection(db_url);
+        }
+        catch (Exception except)
+        {
+            except.printStackTrace();
+        }
+    }
 
 	public Server(String[] args) throws java.io.IOException
 	{
