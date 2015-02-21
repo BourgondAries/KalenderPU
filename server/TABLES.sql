@@ -4,6 +4,7 @@ CREATE TABLE User
 	rank 		int,
 	fname 		varchar(255),
 	lname 		varchar(255),
+	salt		varchar(255),
 	hashedPW 	varchar(255),
 	PRIMARY KEY (userid), 
 );
