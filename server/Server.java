@@ -23,13 +23,15 @@ public class Server
 
 	private static String db_url = "jdbc:derby:derbyDB;create=true;user=me;password=mine";
 	private static java.sql.Connection conn = null;
-    private static java.sql.Statement stmt = null;
+    private static java.sql.PreparedStatement stmt = null;
 
-	public static void main(String[] args) throws java.io.IOException
+	public static void main(String[] args) throws java.sql.SQLException, java.io.IOException
 	{
 		createConnection();
 		while (true)
 			new Server(args);
+		// conn = java.sql.DriverManager.getConnection("jdbc:derby:derbyDB;shutdown=true");
+		// conn.close();
 	}
 
 	private static void createConnection()
@@ -38,6 +40,10 @@ public class Server
         {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             conn = java.sql.DriverManager.getConnection(db_url);
+        	// stmt = conn.createStatement();
+        	stmt = conn.prepareStatement("CREATE TABLE X (id int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), name varchar(255))", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+        	stmt.execute();
+        	
         }
         catch (Exception except)
         {
@@ -200,7 +206,27 @@ public class Server
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
 
-
+		System.out.println("Executing query " + last_message);
+		try
+		{
+			stmt = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+			java.sql.ResultSet result = stmt.executeQuery();
+			//result.absolute(1);
+			System.out.println("'" + result.getString(1) + "'");
+		}
+		catch (Exception exc)
+		{
+			try
+			{
+				stmt.executeUpdate();
+				System.out.println("Update executed!");
+			}
+			catch (Exception excobj)
+			{
+				System.out.println("An exception ocurred during execution: " + excobj.toString());
+			}
+		}
+		
 		boolean success = true;
 		if (success)
 			notifyToClientOperationSuccess();
