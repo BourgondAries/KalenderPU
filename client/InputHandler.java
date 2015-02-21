@@ -7,10 +7,17 @@ public class InputHandler
 
 	java.util.Scanner sc = new java.util.Scanner(System.in);
 
-	String[] parts = sc.nextLine().split(" ");
+	String[] parts = null
 
-	for (int i = 0 ; i < parts.length ; i++) {
-		System.out.println(parts[i]);
+	while(parts.length != 0) {
+		parts = sc.nextLine().split(" ");
+		
+		while( )
+
+	}
+	
+
 	}
 	}
+
 }
