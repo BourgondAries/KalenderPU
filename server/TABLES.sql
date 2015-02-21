@@ -43,7 +43,7 @@ userId		int		NOT NULL,
 groupId		int		NOT NULL,
 PRIMARY KEY (userId, groupId),
 FOREIGN KEY (userId) REFERENCES USER (userId),
-FOREIGN KEY (groupId) REFERENCES GROUP (groupId)
+FOREIGN KEY (groupId) REFERENCES GROUP (groupId),
 );
 CREATE TABLE Invitiation(
 userId 		int NOT NULL,
@@ -53,13 +53,13 @@ PRIMARY KEY (userId, bookingId),
 )
 
 CREATE TABLE Notification(
-n_Id 		int NOT NULL AUTO_INCREMENT,
-message 			varchar(255),
-duration			varchar(255),
-seen 				bit,
-bookingId			int NOT NULL,
-groupId 			int, 
-userId 				int, 
+n_Id 			int NOT NULL AUTO_INCREMENT,
+message 		varchar(255),
+duration		varchar(255),
+seen 			bit,
+bookingId		int NOT NULL,
+groupId 		int, 
+userId 			int, 
 CHECK (groupId != NULL OR userId != NULL),
 PRIMARY KEY (n_Id),
 FOREIGN KEY (bookingId) REFERENCES Booking(bookingId),
