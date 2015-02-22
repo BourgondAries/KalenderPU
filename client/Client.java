@@ -36,12 +36,36 @@ public class Client
 		return argument_handler;
 	}
 
+	public static class ClientFinalizer extends Thread
+	{
+		Client client;
+
+		ClientFinalizer(Client client)
+		{
+			this.client = client;
+		}
+
+		public void run()
+		{
+			try
+			{
+				verbose("Storing trusted keys");
+				client.storeAllTrustedKeys();
+			}
+			catch (java.io.IOException exc)
+			{
+				verbose("Unable to store public server keys");
+			}
+		}
+	}
+
 	public static void commandLineInterface()
 	{
 		Client client = null;
 		try
 		{
 			client = new Client(utils.Configuration.settings);
+			Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter the hostname (leave blank for default): ");
 			String host = scanner.nextLine();
@@ -92,7 +116,7 @@ public class Client
 						{
 							client.addPublicServerKeyToTrusted();
 							client.sendWhenTrusted(login_info + " " + line);
-							System.out.println("Server response: " + client.getResponse());
+							System.out.println("Server response: " + client.fetchResponse());
 							break;
 						}
 						else if (result.equals("no"))
@@ -103,7 +127,7 @@ public class Client
 				}
 				else
 				{
-					System.out.println("Server response: " + client.getResponse());
+					System.out.println("Server response: " + client.fetchResponse());
 				}
 
 			}
@@ -114,15 +138,15 @@ public class Client
 		}
 		finally
 		{
-			try
+			/*try
 			{
-				verbose("Storing trusted keys");
-				client.storeAllTrustedKeys();
+				//verbose("Storing trusted keys");
+				//client.storeAllTrustedKeys();
 			}
 			catch (java.io.IOException exc)
 			{
 				verbose("Unable to store public server keys");
-			}
+			}*/
 		}
 	}
 
@@ -199,9 +223,11 @@ public class Client
 		client_socket.close();
 	}
 
-	public String getResponse()
+	public String fetchResponse()
 	{
-		return last_message;
+		String tmp = last_message;
+		last_message = null;
+		return tmp;
 	}
 
 	public void addPublicServerKeyToTrusted()
