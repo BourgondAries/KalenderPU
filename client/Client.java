@@ -32,7 +32,7 @@ public class Client
 		catch ( java.io.IOException ioexc ) { System.out.println("Unable to load configuration data: " + ioexc); System.exit(1); }
 
 		ArgumentHandler argument_handler = new ArgumentHandler(args);
-		utils.Configuration.verbose_mode = argument_handler.is_verbose;
+		utils.Configuration.verbose_mode = argument_handler.hasOption("v");
 		return argument_handler;
 	}
 

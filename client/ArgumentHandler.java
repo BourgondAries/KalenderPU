@@ -4,8 +4,6 @@ import org.apache.commons.cli.*;
 
 class ArgumentHandler
 {
-	public boolean is_verbose = false;
-	public boolean print_help = false;
 	private CommandLine cmd = null;
 
 	ArgumentHandler(String[] args)
@@ -20,9 +18,6 @@ class ArgumentHandler
 		try
 		{
 			cmd = parser.parse(opts, args);
-			
-			is_verbose = cmd.hasOption("v");
-			print_help = cmd.hasOption("help");
 
 			if (cmd.hasOption("clear"))
 			{

@@ -4,22 +4,6 @@ import static utils.Configuration.verbose;
 
 public class Server
 {
-	private utils.Configuration settings = null;
-
-	private java.net.ServerSocket 		server_socket;
-	private java.net.Socket 			client_socket;
-
-	private java.io.InputStream 		input_from_client;
-	private java.io.OutputStream 		output_to_client;
-
-	private java.security.PrivateKey 	server_private_key;
-	private java.security.PublicKey 	server_public_key;
-	private java.security.PublicKey 	client_public_key;
-
-	private byte[] bytes;
-	private String last_message;
-
-	private ArgumentHandler argument_handler = null;
 
 	private static String db_url = "jdbc:derby:database";
 	private static java.sql.Connection conn = null;
@@ -30,11 +14,35 @@ public class Server
 	////////////////////////////////////////////////////////////
 	public static void main(String[] args) throws java.sql.SQLException, java.io.IOException
 	{
-		createConnection();
-		while (true)
-			new Server(args);
+		ArgumentHandler arghandler = initializeConfiguration(args);
+
+		if (arghandler.hasOption("cli"))
+			commandLineInterface();
+		else if (arghandler.hasOption("gui"))
+			; // start gui
+		else if (arghandler.hasOption("test"))
+			; // Run tests
+		else if (arghandler.hasOption("keygen"))
+			(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+		else if (arghandler.hasOption("help"))
+			printHelp();
+		else
+			printHelp();
+
+		// createConnection();
 		// conn = java.sql.DriverManager.getConnection("jdbc:derby:derbyDB;shutdown=true");
 		// conn.close();
+	}
+
+	public static ArgumentHandler initializeConfiguration(String[] args)
+	{
+		utils.Configuration settings = null;
+		try { settings = utils.Configuration.loadDefaultConfiguration(); }
+		catch ( java.io.IOException ioexc ) { System.out.println("Unable to load configuration data: " + ioexc); System.exit(1); }
+
+		ArgumentHandler argument_handler = new ArgumentHandler(args);
+		utils.Configuration.verbose_mode = argument_handler.hasOption("v");
+		return argument_handler;
 	}
 
 	private static void createConnection()
@@ -65,43 +73,57 @@ public class Server
         }
     }
 
-    ////////////////////////////////////////////////////////////
-	// SERVER OBJECT DEPENDENT DEFINITIONS /////////////////////
-	////////////////////////////////////////////////////////////
-	public Server(String[] args) throws java.io.IOException
+    public static class ServerFinalizer extends Thread
 	{
-		argument_handler = new ArgumentHandler(args);
-		if (argument_handler.print_help)
+		Server server;
+
+		ServerFinalizer(Server server)
 		{
-			printHelp();
-			System.exit(0);
+			this.server = server;
 		}
-		utils.Configuration.verbose_mode = argument_handler.is_verbose;
 
-		settings = utils.Configuration.loadDefaultConfiguration();
-
-		branchIfKeygenArgumentGivenAndExit();
-		loadTheKeysIntoMemory();
-		
-		while (true)
+		public void run()
 		{
-			try
+			/*try
+			{*/
+				verbose("UNIMPLEMENTED Closing database gracefully.");
+				
+			/*}
+			catch (java.io.IOException exc)
 			{
-				while (true)
-				{
-					waitForIncomingConnection();
-					setup2WayCommunicationChannels();
-					announceServerPublicKey();
-					getPublicKeyFromClient();
-					sendCertificateToClient(signClientsPublicKey());
-					readIncomingbytes();
-					handleLastMessage();
-					finishConnection();
-				}		
+				verbose("Unable to code database.");
+			}*/
+		}
+	}
+
+	public static void commandLineInterface()
+	{
+		Server server = null;
+		try
+		{
+			server = new Server(utils.Configuration.settings);
+			Runtime.getRuntime().addShutdownHook(new ServerFinalizer(server));
+			java.util.Scanner scanner = new java.util.Scanner(System.in);
+			System.out.print("Enter the port to listen and send to (leave blank for default): ");
+			String portnumber = scanner.nextLine();
+			Integer port = null;
+			if (!portnumber.equals(""))
+				port = Integer.parseInt(portnumber);
+
+			while (true)
+			{
+				String message = server.waitForMessage(port);
+				if (message == null)
+					continue;
+				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
+				for (String ins : message_parts)
+					System.out.println(ins);
+				server.respondToMessage("OK");
 			}
-			catch (java.net.BindException exc_obj) { try { finishConnectionWithError(); } catch (java.io.IOException exc_object) { verbose("Unable to unbind"); } }
-			catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
-			catch (Exception exc_obj) { verbose(exc_obj.toString()); }
+		}
+		catch (Exception exc)
+		{
+			verbose(exc.toString());
 		}
 	}
 
@@ -110,51 +132,108 @@ public class Server
 		System.out.println("Help for server CLI");
 	}
 
-	/// Generates a private and public key and stores it inside 2 files in the root folder.
-	public void branchIfKeygenArgumentGivenAndExit() throws java.io.IOException, java.io.FileNotFoundException
+    ////////////////////////////////////////////////////////////
+	// SERVER OBJECT DEPENDENT DEFINITIONS /////////////////////
+	////////////////////////////////////////////////////////////
+
+	private utils.Configuration settings = null;
+
+	private java.net.ServerSocket 		server_socket;
+	private java.net.Socket 			client_socket;
+
+	private java.io.InputStream 		input_from_client;
+	private java.io.OutputStream 		output_to_client;
+
+	private java.security.PrivateKey 	server_private_key;
+	private java.security.PublicKey 	server_public_key;
+	private java.security.PublicKey 	client_public_key;
+
+	private byte[] bytes;
+	private String last_message;
+
+
+	public Server(utils.Configuration settings) throws java.io.IOException
 	{
-		if (argument_handler.keygen)
+		this.settings = settings;
+		loadTheKeysIntoMemory();
+	}
+
+	public String waitForMessage(Integer port)
+	{
+		try
 		{
-			verbose("Creating public and private key pair.");
-			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-			java.io.FileOutputStream output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPublicKeyFile"));
-			output.write(pair.getPublic().getEncoded());
-			output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPrivateKeyFile"));
-			output.write(pair.getPrivate().getEncoded());
-			System.exit(0);
+			waitForIncomingConnection(port);
+			setup2WayCommunicationChannels();
+			announceServerPublicKey();
+			getPublicKeyFromClient();
+			sendCertificateToClient(signClientsPublicKey());
+			readIncomingbytes();
+			return last_message;
+		}
+		catch (java.net.BindException exc_obj) { try { finishConnection(); } catch (java.io.IOException exc_object) { verbose("Unable to unbind"); } }
+		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
+		catch (Exception exc_obj) { verbose(exc_obj.toString()); }
+		return null;
+	}
+
+	public void respondToMessage(String string)
+	{
+		try
+		{
+			output_to_client.write(utils.Utils.encrypt(utils.Utils.escapeSpaces(string).getBytes(), client_public_key));
+			finishConnection();
+		} 
+		catch (java.io.IOException exc_object) 
+		{ 
+			verbose("Unable to unbind");
+		}
+		catch (Exception exc)
+		{
+			verbose(exc.toString());
 		}
 	}
 
-	public void loadTheKeysIntoMemory() throws java.io.IOException
+	/// Generates a private and public key and stores it inside 2 files in the root folder.
+	public void generatePublicAndPrivateKey() throws java.io.IOException, java.io.FileNotFoundException
+	{
+		verbose("Creating public and private key pair.");
+		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+		java.io.FileOutputStream output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPublicKeyFile"));
+		output.write(pair.getPublic().getEncoded());
+		output = new java.io.FileOutputStream(utils.Configuration.settings.get("ServerPrivateKeyFile"));
+		output.write(pair.getPrivate().getEncoded());
+	}
+
+	private void loadTheKeysIntoMemory() throws java.io.IOException
 	{
 		verbose("Loading keys into memory.");
 		server_public_key = utils.Utils.getServerPublicKey();
 		server_private_key = utils.Utils.getServerPrivateKey();
 	}
 
-	public void waitForIncomingConnection() throws java.io.IOException
+	private void waitForIncomingConnection(Integer port) throws java.io.IOException
 	{
 		verbose("Waiting for incoming connection...");
-		server_socket = new java.net.ServerSocket(settings.getInt("port"));
+		server_socket = new java.net.ServerSocket((port == null ? settings.getInt("port") : port));
 		verbose("Waiting for a response");
 		client_socket = server_socket.accept();
 		client_socket.setSoTimeout(settings.getInt("SocketTimeOut"));
 	}
 
-	public void setup2WayCommunicationChannels() throws java.io.IOException
+	private void setup2WayCommunicationChannels() throws java.io.IOException
 	{
 		verbose("Setting up 2-way communication.");
 		input_from_client = client_socket.getInputStream();
 		output_to_client = client_socket.getOutputStream();
 	}
 
-	public void announceServerPublicKey() throws Exception
+	private void announceServerPublicKey() throws Exception
 	{
 		verbose("Broadcasting server's public key.");
 		output_to_client.write(server_public_key.getEncoded());
 	}
 
-	public void getPublicKeyFromClient()
+	private void getPublicKeyFromClient()
 	{
 		verbose("Fetching the public key from the client.");
 		byte[] bytes = new byte[settings.getInt("keylength")];
@@ -185,7 +264,7 @@ public class Server
 		}
 	}
 
-	public byte[] signClientsPublicKey() throws java.security.NoSuchAlgorithmException, java.io.IOException, java.security.SignatureException, java.security.InvalidKeyException
+	private byte[] signClientsPublicKey() throws java.security.NoSuchAlgorithmException, java.io.IOException, java.security.SignatureException, java.security.InvalidKeyException
 	{
 		verbose("Signing the client's public key.");
 		java.security.Signature signature = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
@@ -194,13 +273,13 @@ public class Server
 		return signature.sign();
 	}
 
-	public void sendCertificateToClient(byte[] signature) throws java.io.IOException
+	private void sendCertificateToClient(byte[] signature) throws java.io.IOException
 	{
 		verbose("Sending signed public key to client.");
 		output_to_client.write(signature);
 	}
 
-	public void readIncomingbytes() throws java.io.IOException
+	private void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
 		bytes = new byte[settings.getInt("keylength")];
@@ -269,35 +348,12 @@ public class Server
 			System.out.println("An exception ocurred during execution: " + exc.toString());
 		}
 		*/
-		
-		boolean success = true;
-		if (success)
-			notifyToClientOperationSuccess();
 	}
 
-	public void notifyToClientOperationSuccess() throws java.io.IOException, Exception
-	{
-		verbose("Notifying to the client that the input was valid.");
-		output_to_client.write(utils.Utils.encrypt("success".getBytes(), client_public_key));
-	}
 
-	public void finishConnection() throws java.io.IOException
+	private void finishConnection() throws java.io.IOException
 	{
 		verbose("Cleaning up the connection.");
-		server_socket.close();
-	}
-
-	public void finishConnectionWithError() throws java.io.IOException
-	{
-		verbose("Reporting the error to the client.");
-		try
-		{
-			output_to_client.write(utils.Utils.encrypt("ERROR_TOO_LONG_POSSIBLE".getBytes(), client_public_key));
-		}
-		catch (Exception exc_obj)
-		{
-			verbose("Could not write to client.");
-		}
 		server_socket.close();
 	}
 
