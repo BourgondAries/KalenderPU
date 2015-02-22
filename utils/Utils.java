@@ -178,19 +178,20 @@ public class Utils
 		return kg.generateKey();
 	}
 
-	public static final String encrypt(final String message, final Key key, final IvParameterSpec iv) throws IllegalBlockSizeException,
-BadPaddingException, NoSuchAlgorithmException,
-NoSuchPaddingException, InvalidKeyException,
-UnsupportedEncodingException, InvalidAlgorithmParameterException {
+	/*
+	public static final String encrypt(final String message, final Key key, final IvParameterSpec iv) 
+		throws IllegalBlockSizeException,
+		BadPaddingException, NoSuchAlgorithmException,
+		NoSuchPaddingException, InvalidKeyException,
+		UnsupportedEncodingException, InvalidAlgorithmParameterException
+	{
 
-      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-      cipher.init(Cipher.ENCRYPT_MODE,key,iv);
-
-      byte[] stringBytes = message.getBytes();
-
-      byte[] raw = cipher.doFinal(stringBytes);
-
-      return Base64.encodeBase64String(raw);
-}
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.ENCRYPT_MODE,key,iv);
+		byte[] stringBytes = message.getBytes();
+		byte[] raw = cipher.doFinal(stringBytes);
+		return Base64.encodeBase64String(raw);
+	}
+	*/
 
 }

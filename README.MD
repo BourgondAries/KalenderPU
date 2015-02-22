@@ -9,5 +9,5 @@ The program is divided into a server and a client component. Both communicate ov
 
 ## How to Run the Server or Client ##
 
-First compile using "javac -cp ".;commons-cli-1.2.jar;derby.jar" server/Server.java", then run using "java -cp ".;commons-cli-1.2.jar;derby.jar" server.Server".
-For the client; first compile: "javac -cp ".;commons-cli-1.2.jar;derbyclient.jar" client/Client.java", then run using "java -cp ".;commons-cli-1.2.jar;derbyclient.jar" client.Client".
+First compile using "javac -cp ".;commons-cli-1.2.jar;derby.jar" server/Server.java", then run using "java -cp ".;commons-cli-1.2.jar;derby.jar" server.Server --cli".
+For the client; first compile: "javac -cp ".;commons-cli-1.2.jar;derbyclient.jar" client/Client.java", then run using "java -cp ".;commons-cli-1.2.jar;derbyclient.jar" client.Client --cli".
