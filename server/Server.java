@@ -21,7 +21,7 @@ public class Server
 
 	private ArgumentHandler argument_handler = null;
 
-	private static String db_url = "jdbc:derby:derbyDB";
+	private static String db_url = "jdbc:derby:database";
 	private static java.sql.Connection conn = null;
     private static java.sql.Statement stmt = null;
 
@@ -40,9 +40,6 @@ public class Server
         {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             conn = java.sql.DriverManager.getConnection(db_url);
-        	// stmt = conn.createStatement();
-        	java.sql.PreparedStatement prepstate = conn.prepareStatement("CREATE TABLE X (id int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), name varchar(255))", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-        	prepstate.execute();
         	
         }
         catch (Exception except)

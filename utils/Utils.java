@@ -43,7 +43,7 @@ public class Utils
 		{
 			java.security.KeyPairGenerator keygen = java.security.KeyPairGenerator.getInstance(Configuration.settings.get("keypairgen"));
 			java.security.SecureRandom random = java.security.SecureRandom.getInstance(Configuration.settings.get("SecureRandomRNG"), Configuration.settings.get("SecureRandomProvider"));
-			keygen.initialize(Integer.parseInt(Configuration.settings.get("keylength")), random);
+			keygen.initialize(Configuration.settings.getInt("keylength"), random);
 			return keygen.generateKeyPair();
 		}
 		catch (java.security.NoSuchAlgorithmException exc_obj)

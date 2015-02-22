@@ -4,70 +4,115 @@ import static utils.Configuration.verbose;
 
 public class Client
 {
-	private utils.Configuration settings = null;
 
-	private java.net.Socket 			client_socket;
+	////////////////////////////////////////////////////////////
+	// CLIENT PROGRAM ENTRY ////////////////////////////////////
+	////////////////////////////////////////////////////////////
 
-	private java.io.InputStream 		input_from_server;
-	private java.io.OutputStream 		output_to_server;
-	
-	private java.security.PrivateKey 	client_private_key;
-	private java.security.PublicKey 	server_public_key;
-	private java.security.PublicKey  	client_public_key;
-	private java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
-
-	private byte[] bytes = null;
-	private int 	  length = 0;
-	private String last_message;
-
-	private static byte[] public_server_key_separator = "#======================|======================#".getBytes();
-
-	private java.util.Scanner sc = new java.util.Scanner(System.in);
-
-	private ArgumentHandler argument_handler = null;
+	private static byte[] public_server_key_separator = null;
+	private static utils.Configuration settings = null;
 
 	public static void main(String[] args)
 	{
-		while (true)
-		{
-			new Client(args);
-		}
+		initializeConfiguration(args);
 	}
 
-	public Client(String[] args)
+	public static void initializeConfiguration(String[] args)
 	{
 		try { settings = utils.Configuration.loadDefaultConfiguration(); }
-		catch ( java.io.IOException ioexc ) { System.out.println(ioexc); }
-		argument_handler = new ArgumentHandler(args);
+		catch ( java.io.IOException ioexc ) { System.out.println("Unable to load configuration data: " + ioexc); System.exit(1); }
+		public_server_key_separator = settings.get("PublicKeySeparator").getBytes();
+
+		ArgumentHandler argument_handler = new ArgumentHandler(args);
 		if (argument_handler.print_help)
 		{
 			printHelp();
 			System.exit(0);
 		}
 		utils.Configuration.verbose_mode = argument_handler.is_verbose;
+		if (argument_handler.hasOption("cli"))
+			commandLineInterface();
+	}
 
+	public static void printHelp()
+	{
+		System.out.println
+		(
+			"Help text for this program."
+		);
+	}
+
+	public static void commandLineInterface()
+	{
+		Client client = null;
 		try
 		{
-			
+			client = new Client();
+			java.util.Scanner scanner = new java.util.Scanner(System.in);
+			while (scanner.hasNextLine())
+			{
+				String line = scanner.nextLine();
+				if (line.equalsIgnoreCase(settings.get("ExitCommand")))
+					break;
+				if (client.sendData(line) == false)
+				{
+					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
+					while (true)
+					{
+						String result = scanner.nextLine();
+						if (result.equals("yes"))
+						{
+							client.addPublicServerKeyToTrusted();
+							client.sendRemainder(line);
+							break;
+						}
+						else if (result.equals("no"))
+							break;
+						else
+							System.out.print("Please enter \"yes\" or \"no\": ");
+					}
+				}
+			}
+		}
+		catch (Exception exc)
+		{
+			verbose(exc.toString());
+		}
+		finally
+		{
+			try
+			{
+				client.storeAllTrustedKeys();
+			}
+			catch (java.io.IOException exc)
+			{
+				verbose("Unable to store public server keys");
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	// START OF OBJECT DEPENDENT DEFINITIONS ///////////////////
+	////////////////////////////////////////////////////////////
+
+	private java.net.Socket 			client_socket;
+	private java.io.InputStream 		input_from_server;
+	private java.io.OutputStream 		output_to_server;
+	private java.security.PrivateKey 	client_private_key;
+	private java.security.PublicKey 	server_public_key;
+	private java.security.PublicKey  	client_public_key;
+	private java.util.ArrayList<byte[]> server_public_keys = new java.util.ArrayList<>();
+	private byte[] 	bytes = null;
+	private int 	length = 0;
+	private String 	last_message;
+
+	public Client()
+	{
+		try
+		{
 			bytes = new byte[settings.getInt("keylength")];
 			loadTrustedServers();
-			connectAndSetUpChannels();
-			generatePairAndSendPublicKeyToServer();
-			getPublicKeyFromServer(); // For checking whether we already have this one later.
-			getCertificateFromServer();
-			queryWhetherItIsTrusted();
-			if (verifyAuthenticity())
-			{
-				System.out.println("Server authenticated!");
-				writeMessageToServer();
-				ensureCorrectServerResponse();
-			}
-			else
-			{
-				System.out.println("Server NOT authenticated!");
-			}
-			storeAllTrustedKeys();
-			
+			generatePair();
 		}
 		catch (Exception exc_obj)
 		{
@@ -75,9 +120,38 @@ public class Client
 		}
 	}
 
-	public static void printHelp()
+	public boolean sendData(String data)
 	{
-		System.out.println("Help text for this program.");
+		try
+		{
+			connectAndSetUpChannels();
+			sendClientPublicKeyToServer();
+			getServerPublicKeyFromServer(); // For checking whether we already have this one later.
+			getCertificateFromServer(); // Aka client's encrypted public key
+			if (queryWhetherItIsTrusted() == false)
+				return false;
+			sendRemainder(data);
+		}
+		catch (Exception exc_obj)
+		{
+			verbose(exc_obj.toString());
+		}
+		return true;
+	}
+
+	public void sendRemainder(String data) throws Exception
+	{
+		if (verifyAuthenticity())
+		{
+			verbose("Server authenticated!");
+			writeMessageToServer(data);
+			ensureCorrectServerResponse();
+		}
+		else
+		{
+			verbose("Server NOT authenticated!");
+		}
+		client_socket.close();
 	}
 
 	public static boolean isContained(byte[] bigger, int index, byte[] smaller)
@@ -122,7 +196,7 @@ public class Client
 		input_from_server = client_socket.getInputStream();
 	}
 
-	public void getPublicKeyFromServer()
+	public void getServerPublicKeyFromServer()
 	{
 		verbose("Waiting for host public key.");
 		bytes = new byte[settings.getInt("keylength")];
@@ -144,30 +218,21 @@ public class Client
 		length = input_from_server.read(bytes);
 	}
 
-	public void queryWhetherItIsTrusted() 
+	public boolean queryWhetherItIsTrusted() 
 	{
 		verbose("Testing whether the key is trusted.");
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			if (java.util.Arrays.equals(server_public_keys.get(i), server_public_key.getEncoded()))
-				return;
+				return true;
 		}
 
-		System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
-		
-		while (true)
-		{
-			String result = sc.next();
-			if (result.equals("yes"))
-			{
-				server_public_keys.add(server_public_key.getEncoded());
-				break;
-			}
-			else if (result.equals("no"))
-				break;
-			else
-				System.out.print("Please enter \"yes\" or \"no\": ");
-		}
+		return false;
+	}
+
+	public void addPublicServerKeyToTrusted()
+	{
+		server_public_keys.add(server_public_key.getEncoded());
 	}
 
 	public boolean verifyAuthenticity() throws Exception
@@ -179,6 +244,19 @@ public class Client
 		sig.update(client_public_key.getEncoded());
 		return sig.verify(bytes);
 		
+	}
+
+	public void generatePair()
+	{
+		verbose("Generating keypair.");
+		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+		client_private_key = pair.getPrivate();
+		client_public_key = pair.getPublic();
+	}
+
+	public void sendClientPublicKeyToServer() throws java.io.IOException
+	{
+		output_to_server.write(client_public_key.getEncoded());
 	}
 
 	public void generatePairAndSendPublicKeyToServer()
@@ -198,14 +276,12 @@ public class Client
 		}
 	}
 
-	public void writeMessageToServer()
+	public void writeMessageToServer(String data)
 	{
 		verbose("Sending packets to the server...");
-		String write = sc.nextLine();
 		try
 		{
-			bytes = utils.Utils.encrypt(write.getBytes(), server_public_key);
-			//System.out.println(new String(bytes));
+			bytes = utils.Utils.encrypt(data.getBytes(), server_public_key);
 			output_to_server.write(bytes);
 			output_to_server.flush();
 		}
@@ -214,7 +290,7 @@ public class Client
 			verbose(exc_obj.toString());
 		}
 	}
-	
+
 	public void ensureCorrectServerResponse()
 	{
 		verbose("Verifying server integrity.");
