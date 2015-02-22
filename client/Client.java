@@ -117,6 +117,7 @@ public class Client
 		{
 			try
 			{
+				verbose("Storing trusted keys");
 				client.storeAllTrustedKeys();
 			}
 			catch (java.io.IOException exc)

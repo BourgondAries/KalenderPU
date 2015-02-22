@@ -44,14 +44,20 @@ public class Server
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             conn = java.sql.DriverManager.getConnection(db_url);
 
-        	java.sql.PreparedStatement statement 
-			= conn.prepareStatement
-				(
-					"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
-					+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
-					, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
-				);
-			statement.execute();
+            java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
+			prepstmt.setString(1, "root");
+			java.sql.ResultSet result = prepstmt.executeQuery();
+			if (result.next() == false)
+			{
+	        	java.sql.PreparedStatement statement 
+				= conn.prepareStatement
+					(
+						"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
+						+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
+						, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
+					);
+				statement.execute();
+			}
         }
         catch (Exception except)
         {

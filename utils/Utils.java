@@ -155,7 +155,6 @@ public class Utils
 		int last_split_pos = 0;
 		for (int i = 0; i < message.length() - 1; ++i)
 		{
-			System.out.println(message.charAt(i));
 			if (message.charAt(i) == '\\' && message.charAt(i + 1) == ' ')
 			{
 				i += 1;
