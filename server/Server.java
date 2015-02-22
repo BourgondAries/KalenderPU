@@ -87,7 +87,7 @@ public class Server
 				}
 				else
 				{
-					server.respondToMessage("INVALID: Amount of tokens do not match the desired amount of 3 tokens.");
+					server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
 				}
 			}
 		}
@@ -160,8 +160,6 @@ public class Server
 			bytes = java.util.Arrays.copyOf(bytes, code);
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
 			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
-			verbose("Fetched symkey: '" + new String(symmetric_key.getEncoded()) + "'");
-			verbose("Symkey stored");
 		}
 		catch (Exception exc_obj)
 		{
@@ -212,7 +210,6 @@ public class Server
 	{
 		verbose("Waiting for incoming connection...");
 		server_socket = new java.net.ServerSocket((port == null ? settings.getInt("port") : port));
-		verbose("Waiting for a response");
 		client_socket = server_socket.accept();
 		client_socket.setSoTimeout(settings.getInt("SocketTimeOut"));
 	}

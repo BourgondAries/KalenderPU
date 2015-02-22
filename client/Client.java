@@ -49,7 +49,6 @@ public class Client
 		{
 			try
 			{
-				verbose("Storing trusted keys");
 				client.storeAllTrustedKeys();
 			}
 			catch (java.io.IOException exc)
@@ -105,7 +104,7 @@ public class Client
 				String line = utils.Utils.escapeSpaces(scanner.nextLine());
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
-				System.out.println("Sending data: '" + login_info + " " + line + "'");
+				System.out.println("Sending data: '" + login_info + " " + line + "'.");
 				if (client.sendData(login_info + " " + line, host, port) == false)
 				{
 					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
@@ -116,7 +115,10 @@ public class Client
 						{
 							client.addPublicServerKeyToTrusted();
 							client.sendWhenTrusted(login_info + " " + line);
-							System.out.println("Server response: " + client.fetchResponse());
+							java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
+							System.out.println("Server response:");
+							for (String string : answer)
+								System.out.println(string);
 							break;
 						}
 						else if (result.equals("no"))
@@ -129,7 +131,12 @@ public class Client
 				{
 					String response = client.fetchResponse();
 					if (response != null)
-						System.out.println("Server response: " + utils.Utils.unescapeSpaces(response));
+					{
+						java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
+						System.out.println("Server response:");
+						for (String string : answer)
+							System.out.println(string);
+					}
 					else
 						System.out.println("No response from server");
 
@@ -206,7 +213,7 @@ public class Client
 
 	public void sendSymmetricKey() throws java.io.IOException, Exception
 	{
-		verbose("Sent symkey: '" + new String(symmetric_key.getEncoded()) + "'");
+		verbose("Sending symmetric key.");
 		output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
 	}
 
@@ -214,13 +221,13 @@ public class Client
 	{
 		if (verifyAuthenticity())
 		{
-			verbose("Server authenticated!");
+			verbose("Server authenticated.");
 			writeMessageToServer(data);
 			getServerResponse();
 		}
 		else
 		{
-			verbose("Server NOT authenticated!");
+			verbose("Server failed to authenticate");
 		}
 		client_socket.close();
 	}
@@ -275,6 +282,7 @@ public class Client
 	{
 		verbose("Connecting to foreign host.");
 		client_socket = new java.net.Socket(host, port);
+		client_socket.setSoTimeout(settings.getInt("SocketTimeOut"));
 		output_to_server = client_socket.getOutputStream();
 		input_from_server = client_socket.getInputStream();
 	}
@@ -365,7 +373,7 @@ public class Client
 
 	private void getServerResponse()
 	{
-		verbose("Verifying server integrity.");
+		verbose("Retrieving server response.");
 		try
 		{
 			bytes = new byte[settings.getInt("keylength")];
@@ -381,7 +389,7 @@ public class Client
 
 	private void storeAllTrustedKeys() throws java.io.IOException
 	{
-		verbose("Storing the trusted keys in \"" + settings.get("TrustedServers") + "\"");
+		verbose("Storing the trusted keys in \"" + settings.get("TrustedServers") + "\".");
 		java.io.FileOutputStream trusted = new java.io.FileOutputStream(settings.get("TrustedServers"));
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
