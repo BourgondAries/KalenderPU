@@ -8,10 +8,6 @@ public class Client
 	////////////////////////////////////////////////////////////
 	// CLIENT PROGRAM ENTRY ////////////////////////////////////
 	////////////////////////////////////////////////////////////
-
-	private static byte[] public_server_key_separator = null;
-	private static utils.Configuration settings = null;
-
 	public static void main(String[] args)
 	{
 		initializeConfiguration(args);
@@ -19,9 +15,9 @@ public class Client
 
 	public static void initializeConfiguration(String[] args)
 	{
+		utils.Configuration settings = null;
 		try { settings = utils.Configuration.loadDefaultConfiguration(); }
 		catch ( java.io.IOException ioexc ) { System.out.println("Unable to load configuration data: " + ioexc); System.exit(1); }
-		public_server_key_separator = settings.get("PublicKeySeparator").getBytes();
 
 		ArgumentHandler argument_handler = new ArgumentHandler(args);
 		if (argument_handler.print_help)
@@ -47,7 +43,7 @@ public class Client
 		Client client = null;
 		try
 		{
-			client = new Client(settings.get("hostname"), settings.getInt("port"));
+			client = new Client(utils.Configuration.settings);
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter your username: ");
 			String login_info = scanner.nextLine();
@@ -67,7 +63,7 @@ public class Client
 			while (scanner.hasNextLine())
 			{
 				String line = scanner.nextLine();
-				if (line.equalsIgnoreCase(settings.get("ExitCommand")))
+				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
 				if (client.sendData(login_info + " " + line) == false)
 				{
@@ -120,13 +116,11 @@ public class Client
 	private byte[] 	bytes = null;
 	private int 	length = 0;
 	private String 	last_message;
-	private String 	standard_hostname = null;
-	private int 	standard_port;
+	private utils.Configuration settings;
 
-	public Client(String standard_hostname, int standard_port)
+	public Client(utils.Configuration settings)
 	{
-		this.standard_hostname = standard_hostname;
-		this.standard_port = standard_port;
+		this.settings = settings;
 		try
 		{
 			bytes = new byte[settings.getInt("keylength")];
@@ -210,11 +204,11 @@ public class Client
 			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
 			for (int i = 0; i < cert.length; ++i)
 			{
-				if (isContained(cert, i, public_server_key_separator))
+				if (isContained(cert, i, settings.get("PublicKeySeparator").getBytes()))
 				{
 					byte[] copy = java.util.Arrays.copyOfRange(cert, 0, i);
 					server_public_keys.add(copy);
-					cert = java.util.Arrays.copyOfRange(cert, i + public_server_key_separator.length, cert.length);
+					cert = java.util.Arrays.copyOfRange(cert, i + settings.get("PublicKeySeparator").getBytes().length, cert.length);
 					i = 0;
 				}
 			}
@@ -344,7 +338,7 @@ public class Client
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			trusted.write(server_public_keys.get(i));
-			trusted.write(public_server_key_separator);
+			trusted.write(settings.get("PublicKeySeparator").getBytes());
 		}
 	}
 }
