@@ -1,4 +1,4 @@
-Quick Documentation
+# Quick Documentation #
 
 "trusted" - File containing all public keys of trusted servers. Used by clients only.
 "privatekey" - File containing a server's private key.
@@ -7,7 +7,7 @@ Quick Documentation
 
 The program is divided into a server and a client component. Both communicate over the port specified in settings.conf.
 
-## How to Run the Server or Client ##
-
-First compile using "javac -cp ".;commons-cli-1.2.jar;derby.jar" server/Server.java", then run using "java -cp ".;commons-cli-1.2.jar;derby.jar" server.Server --cli".
-For the client; first compile: "javac -cp ".;commons-cli-1.2.jar;derbyclient.jar" client/Client.java", then run using "java -cp ".;commons-cli-1.2.jar;derbyclient.jar" client.Client --cli".
+## Setup ##
+1. `make dbreset` - this sets up the database in a completely fresh state. Note that the daabase will have 1 user named "root". This user will be added by the server program. Also install the program known as "make". This program is a generic build-file interpreter that executes commands within the build-file. On windows you may have to download MingW32. On GNU/Linux you may issue "sudo apt-get install make". On windows you may invoke `mingw32-make.exe`.
+2. Run the server (make vserver)
+3. Run the client (from another terminal, `make vclient`).

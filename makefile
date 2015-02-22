@@ -1,22 +1,25 @@
-
 SERVER_LIBS=".;commons-cli-1.2.jar;derby.jar"
 SERVER_RUNPATH="bin;commons-cli-1.2.jar;derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;derby.jar;derbyclient.jar"
 CLIENT_RUNPATH="bin;commons-cli-1.2.jar;derby.jar;derbyclient.jar"
 
 pserver:
+	mkdir bin
 	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
 	java -classpath $(SERVER_RUNPATH) server.Server --cli
 
 vserver:
+	mkdir bin
 	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
 	java -classpath $(SERVER_RUNPATH) server.Server -v --cli
 
 pclient:
+	mkdir bin
 	javac -classpath $(CLIENT_LIBS) -d bin client/Client.java
 	java -classpath $(CLIENT_RUNPATH) client.Client --cli
 
 vclient:
+	mkdir bin
 	javac -classpath $(CLIENT_LIBS) -d bin client/Client.java
 	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli
 
