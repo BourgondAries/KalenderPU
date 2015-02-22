@@ -50,12 +50,12 @@ public class Server
 			if (result.next() == false)
 			{
 	        	java.sql.PreparedStatement statement 
-				= conn.prepareStatement
-					(
-						"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
-						+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
-						, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
-					);
+					= conn.prepareStatement
+						(
+							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
+							+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
+							, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
+						);
 				statement.execute();
 			}
         }
