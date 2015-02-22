@@ -1,0 +1,3 @@
+connect 'jdbc:derby:database;create=true';
+run 'TABLES.sql';
+exit;
