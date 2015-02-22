@@ -118,6 +118,8 @@ public class Server
 	private java.security.PublicKey 	server_public_key;
 	private java.security.PublicKey 	client_public_key;
 
+	private java.security.Key 			symmetric_key;
+
 	private String last_message;
 
 
@@ -136,6 +138,7 @@ public class Server
 			announceServerPublicKey();
 			getPublicKeyFromClient();
 			sendCertificateToClient(signClientsPublicKey());
+			getSymmetricKeyFromClient();
 			readIncomingbytes();
 			String tmp = last_message;
 			last_message = null;
@@ -147,23 +150,35 @@ public class Server
 		return null;
 	}
 
+	public void getSymmetricKeyFromClient()
+	{
+		verbose("Fetching symmetric key.");
+		try
+		{
+			byte[] bytes = new byte[settings.getInt("keylength")];
+			int code = input_from_client.read(bytes);
+			bytes = java.util.Arrays.copyOf(bytes, code);
+			bytes = utils.Utils.decrypt(bytes, server_private_key);
+			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, "AES");
+			verbose("Fetched symkey: '" + new String(symmetric_key.getEncoded()) + "'");
+			verbose("Symkey stored");
+		}
+		catch (Exception exc_obj)
+		{
+			verbose(exc_obj.toString());
+		}
+	}
+
 	public void respondToMessage(String string)
 	{
 		verbose("Attempting to send back: '" + string + "'");
 		try
 		{
-			try
-			{
-				byte[] bytes = utils.Utils.escapeSpaces(string).getBytes();
-				bytes = utils.Utils.encrypt(bytes, client_public_key);
-				output_to_client.write(bytes);
-				output_to_client.flush();
-				finishConnection();
-			}
-			catch (javax.crypto.IllegalBlockSizeException exc)
-			{
-				output_to_client.write(utils.Utils.encrypt(utils.Utils.escapeSpaces("Illegal block size").getBytes(), client_public_key));
-			}
+			byte[] bytes = utils.Utils.encryptSymmetric(utils.Utils.escapeSpaces(string).getBytes(), symmetric_key);
+			output_to_client.write(bytes);
+			output_to_client.flush();
+			finishConnection();
+			
 		}
 		catch (java.io.IOException exc_object) 
 		{ 
@@ -269,7 +284,7 @@ public class Server
 		try
 		{
 			// System.out.println(new String(bytes));
-			last_message = new String(utils.Utils.decrypt(bytes, server_private_key));
+			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key));
 			System.out.println(">" + last_message);
 		}
 		catch (Exception exc_obj)

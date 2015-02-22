@@ -166,6 +166,7 @@ public class Client
 	private int 	length = 0;
 	private String 	last_message;
 	private utils.Configuration settings;
+	private java.security.Key symmetric_key;
 
 	public Client(utils.Configuration settings)
 	{
@@ -175,6 +176,7 @@ public class Client
 			bytes = new byte[settings.getInt("keylength")];
 			loadTrustedServers();
 			generatePair();
+			generateSymmetric();
 		}
 		catch (Exception exc_obj)
 		{
@@ -192,6 +194,7 @@ public class Client
 			getCertificateFromServer(); // Aka client's encrypted public key
 			if (queryWhetherItIsTrusted() == false)
 				return false;
+			sendSymmetricKey();
 			sendWhenTrusted(data);
 		}
 		catch (Exception exc_obj)
@@ -199,6 +202,12 @@ public class Client
 			verbose(exc_obj.toString());
 		}
 		return true;
+	}
+
+	public void sendSymmetricKey() throws java.io.IOException, Exception
+	{
+		verbose("Sent symkey: '" + new String(symmetric_key.getEncoded()) + "'");
+		output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
 	}
 
 	public void sendWhenTrusted(String data) throws Exception
@@ -279,7 +288,6 @@ public class Client
 		{
 			int number = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, number);
-			// System.out.println(new String(bytes));
 			server_public_key = utils.Utils.bytesToPublicKey(bytes);
 		}
 		catch (java.io.IOException exc_obj)
@@ -324,6 +332,19 @@ public class Client
 		client_public_key = pair.getPublic();
 	}
 
+	private void generateSymmetric()
+	{
+		verbose("Generating symmetric key.");
+		try
+		{
+			symmetric_key = utils.Utils.generateSymmetricKey();
+		}
+		catch (Exception exc)
+		{
+			verbose(exc.toString());
+		}
+	}
+
 	private void sendClientPublicKeyToServer() throws java.io.IOException
 	{
 		output_to_server.write(client_public_key.getEncoded());
@@ -334,9 +355,8 @@ public class Client
 		verbose("Sending packets to the server...");
 		try
 		{
-			bytes = utils.Utils.encrypt(data.getBytes(), server_public_key);
-			output_to_server.write(bytes);
-			output_to_server.flush();
+			verbose("test 3: '" + utils.Utils.decryptSymmetric(utils.Utils.encryptSymmetric(data.getBytes(), symmetric_key), symmetric_key));
+			output_to_server.write(utils.Utils.encryptSymmetric(data.getBytes(), symmetric_key));
 		}
 		catch (Exception exc_obj)
 		{
@@ -352,7 +372,7 @@ public class Client
 			bytes = new byte[settings.getInt("keylength")];
 			int length = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, length);
-			last_message = new String(utils.Utils.decrypt(bytes, client_private_key));
+			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key));
 		}
 		catch (Exception exc_obj)
 		{

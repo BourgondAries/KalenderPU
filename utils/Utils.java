@@ -178,20 +178,40 @@ public class Utils
 		return kg.generateKey();
 	}
 
-	/*
-	public static final String encrypt(final String message, final Key key, final IvParameterSpec iv) 
-		throws IllegalBlockSizeException,
-		BadPaddingException, NoSuchAlgorithmException,
-		NoSuchPaddingException, InvalidKeyException,
-		UnsupportedEncodingException, InvalidAlgorithmParameterException
+	public static final byte[] encryptSymmetric(final byte[] message, final java.security.Key key)
 	{
-
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-		cipher.init(Cipher.ENCRYPT_MODE,key,iv);
-		byte[] stringBytes = message.getBytes();
-		byte[] raw = cipher.doFinal(stringBytes);
-		return Base64.encodeBase64String(raw);
+		try
+		{
+			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    		javax.crypto.spec.IvParameterSpec ivspec = new javax.crypto.spec.IvParameterSpec(iv);
+			cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key, ivspec);
+			byte[] raw = cipher.doFinal(message);
+			return raw;
+		}
+		catch (Exception exc)
+		{
+			System.out.println(exc);
+			return null;
+		}
 	}
-	*/
+
+	public static final String decryptSymmetric(final byte[] message, final java.security.Key key)
+	{
+		try
+		{
+			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    		javax.crypto.spec.IvParameterSpec ivspec = new javax.crypto.spec.IvParameterSpec(iv);
+			cipher.init(javax.crypto.Cipher.DECRYPT_MODE, key, ivspec);
+			byte[] raw = cipher.doFinal(message);
+			return new String(raw);
+		}
+		catch (Exception exc)
+		{
+			System.out.println(exc);
+			return null;
+		}
+	}
 
 }
