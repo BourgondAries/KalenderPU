@@ -8,7 +8,7 @@ public class Client
 	////////////////////////////////////////////////////////////
 	// CLIENT PROGRAM ENTRY ////////////////////////////////////
 	////////////////////////////////////////////////////////////
-	
+
 	public static void main(String[] args)
 	{
 		ArgumentHandler arghandler = initializeConfiguration(args);
@@ -34,7 +34,6 @@ public class Client
 		ArgumentHandler argument_handler = new ArgumentHandler(args);
 		utils.Configuration.verbose_mode = argument_handler.is_verbose;
 		return argument_handler;
-
 	}
 
 	public static void commandLineInterface()
@@ -76,7 +75,6 @@ public class Client
 				System.out.print("Enter your password: ");
 				login_info = login_info + " " + utils.Utils.escapeSpaces(new String(console.readPassword()));
 			}
-
 
 			while (scanner.hasNextLine())
 			{
@@ -167,25 +165,6 @@ public class Client
 		}
 	}
 
-	public boolean sendData(String data)
-	{
-		try
-		{
-			connectAndSetUpChannels();
-			sendClientPublicKeyToServer();
-			getServerPublicKeyFromServer(); // For checking whether we already have this one later.
-			getCertificateFromServer(); // Aka client's encrypted public key
-			if (queryWhetherItIsTrusted() == false)
-				return false;
-			sendWhenTrusted(data);
-		}
-		catch (Exception exc_obj)
-		{
-			verbose(exc_obj.toString());
-		}
-		return true;
-	}
-
 	public boolean sendData(String data, String host, int port)
 	{
 		try
@@ -262,14 +241,6 @@ public class Client
 		{
 			verbose(exc_obj.toString());
 		}
-	}
-
-	private void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
-	{
-		verbose("Connecting to foreign host.");
-		client_socket = new java.net.Socket(settings.get("hostname"), settings.getInt("port"));
-		output_to_server = client_socket.getOutputStream();
-		input_from_server = client_socket.getInputStream();
 	}
 
 	private void connectAndSetUpChannels(String host, int port) throws java.net.UnknownHostException, java.io.IOException
