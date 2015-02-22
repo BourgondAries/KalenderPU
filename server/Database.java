@@ -4,7 +4,7 @@ import static utils.Configuration.verbose;
 
 public class Database
 {
-	private static String db_url = "jdbc:derby:database";
+	private static String db_url = null;
 	private static java.sql.Connection conn = null;
     private static java.sql.Statement stmt = null;
 
@@ -43,12 +43,12 @@ public class Database
 		{
 			verbose("Delegating input to the input handler.");
 
-			java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT hashedPW FROM SystemUser WHERE username=?");
+			java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
 			prepstmt.setString(1, username);
 			java.sql.ResultSet result = prepstmt.executeQuery();
 			if (result.next())
 			{
-				if (PasswordHash.validatePassword(password, result.getString(1)))
+				if (PasswordHash.validatePassword(password, result.getString("hashedPW")))
 				{
 					return "OK";
 				}
