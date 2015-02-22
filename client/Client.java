@@ -63,7 +63,7 @@ public class Client
 						if (result.equals("yes"))
 						{
 							client.addPublicServerKeyToTrusted();
-							client.sendRemainder(line);
+							client.sendIfTrusted(line);
 							break;
 						}
 						else if (result.equals("no"))
@@ -130,7 +130,7 @@ public class Client
 			getCertificateFromServer(); // Aka client's encrypted public key
 			if (queryWhetherItIsTrusted() == false)
 				return false;
-			sendRemainder(data);
+			sendIfTrusted(data);
 		}
 		catch (Exception exc_obj)
 		{
@@ -139,7 +139,7 @@ public class Client
 		return true;
 	}
 
-	public void sendRemainder(String data) throws Exception
+	public void sendIfTrusted(String data) throws Exception
 	{
 		if (verifyAuthenticity())
 		{
