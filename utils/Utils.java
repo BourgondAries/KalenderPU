@@ -170,19 +170,19 @@ public class Utils
 		return splits;
 	}
 
-	public final static java.security.Key generateSymmetricKey() throws java.security.NoSuchAlgorithmException
+	public final static java.security.Key generateSymmetricKey(String specstring) throws java.security.NoSuchAlgorithmException
 	{
-		javax.crypto.KeyGenerator kg = javax.crypto.KeyGenerator.getInstance("AES");
+		javax.crypto.KeyGenerator kg = javax.crypto.KeyGenerator.getInstance(specstring);
 		java.security.SecureRandom random = new java.security.SecureRandom();
 		kg.init(random);
 		return kg.generateKey();
 	}
 
-	public static final byte[] encryptSymmetric(final byte[] message, final java.security.Key key)
+	public static final byte[] encryptSymmetric(final byte[] message, final java.security.Key key, String ciphertype)
 	{
 		try
 		{
-			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(ciphertype);
 			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     		javax.crypto.spec.IvParameterSpec ivspec = new javax.crypto.spec.IvParameterSpec(iv);
 			cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key, ivspec);
@@ -196,11 +196,11 @@ public class Utils
 		}
 	}
 
-	public static final String decryptSymmetric(final byte[] message, final java.security.Key key)
+	public static final String decryptSymmetric(final byte[] message, final java.security.Key key, String ciphertype)
 	{
 		try
 		{
-			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+			javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(ciphertype);
 			byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     		javax.crypto.spec.IvParameterSpec ivspec = new javax.crypto.spec.IvParameterSpec(iv);
 			cipher.init(javax.crypto.Cipher.DECRYPT_MODE, key, ivspec);

@@ -159,7 +159,7 @@ public class Server
 			int code = input_from_client.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, code);
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
-			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, "AES");
+			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
 			verbose("Fetched symkey: '" + new String(symmetric_key.getEncoded()) + "'");
 			verbose("Symkey stored");
 		}
@@ -174,7 +174,7 @@ public class Server
 		verbose("Attempting to send back: '" + string + "'");
 		try
 		{
-			byte[] bytes = utils.Utils.encryptSymmetric(utils.Utils.escapeSpaces(string).getBytes(), symmetric_key);
+			byte[] bytes = utils.Utils.encryptSymmetric(utils.Utils.escapeSpaces(string).getBytes(), symmetric_key, settings.get("SymmetricCipher"));
 			output_to_client.write(bytes);
 			output_to_client.flush();
 			finishConnection();
@@ -284,7 +284,7 @@ public class Server
 		try
 		{
 			// System.out.println(new String(bytes));
-			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key));
+			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
 		}
 		catch (Exception exc_obj)
