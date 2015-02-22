@@ -10,32 +10,30 @@ public class Client
 	////////////////////////////////////////////////////////////
 	public static void main(String[] args)
 	{
-		initializeConfiguration(args);
+		ArgumentHandler arghandler = initializeConfiguration(args);
+
+		if (arghandler.hasOption("cli"))
+			commandLineInterface();
+		else if (arghandler.hasOption("gui"))
+			; // start gui
+		else if (arghandler.hasOption("test"))
+			; // Run tests
+		else if (arghandler.hasOption("help"))
+			printHelp();
+		else
+			printHelp();
 	}
 
-	public static void initializeConfiguration(String[] args)
+	public static ArgumentHandler initializeConfiguration(String[] args)
 	{
 		utils.Configuration settings = null;
 		try { settings = utils.Configuration.loadDefaultConfiguration(); }
 		catch ( java.io.IOException ioexc ) { System.out.println("Unable to load configuration data: " + ioexc); System.exit(1); }
 
 		ArgumentHandler argument_handler = new ArgumentHandler(args);
-		if (argument_handler.print_help)
-		{
-			printHelp();
-			System.exit(0);
-		}
 		utils.Configuration.verbose_mode = argument_handler.is_verbose;
-		if (argument_handler.hasOption("cli"))
-			commandLineInterface();
-	}
+		return argument_handler;
 
-	public static void printHelp()
-	{
-		System.out.println
-		(
-			"Help text for this program."
-		);
 	}
 
 	public static void commandLineInterface()
@@ -45,6 +43,25 @@ public class Client
 		{
 			client = new Client(utils.Configuration.settings);
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
+			System.out.print("Enter the hostname (leave blank for default): ");
+			String host = scanner.nextLine();
+			Integer port = null;
+			if (host.equals("") == false)
+			{
+				System.out.print("Enter the port (leave blank for default): ");
+				String portstring = scanner.nextLine();
+				if (portstring.equals(""))
+				{
+					port = utils.Configuration.settings.getInt("port");
+				}
+				else 
+					port = Integer.parseInt(portstring);
+			}
+			else
+			{
+				host = utils.Configuration.settings.get("hostname");
+				port = utils.Configuration.settings.getInt("port");
+			}
 			System.out.print("Enter your username: ");
 			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
 			java.io.Console console = System.console();
@@ -66,7 +83,7 @@ public class Client
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
 				System.out.println("Sending data: '" + login_info + " " + line + "'");
-				if (client.sendData(login_info + " " + line) == false)
+				if (client.sendData(login_info + " " + line, host, port) == false)
 				{
 					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
 					while (true)
@@ -107,6 +124,14 @@ public class Client
 				verbose("Unable to store public server keys");
 			}
 		}
+	}
+
+	public static void printHelp()
+	{
+		System.out.println
+		(
+			"Help text for this program."
+		);
 	}
 
 	////////////////////////////////////////////////////////////
