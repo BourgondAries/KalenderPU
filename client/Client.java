@@ -47,7 +47,7 @@ public class Client
 		Client client = null;
 		try
 		{
-			client = new Client();
+			client = new Client(settings.get("hostname"), settings.getInt("port"));
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter your username: ");
 			String login_info = scanner.nextLine();
@@ -120,9 +120,13 @@ public class Client
 	private byte[] 	bytes = null;
 	private int 	length = 0;
 	private String 	last_message;
+	private String 	standard_hostname = null;
+	private int 	standard_port;
 
-	public Client()
+	public Client(String standard_hostname, int standard_port)
 	{
+		this.standard_hostname = standard_hostname;
+		this.standard_port = standard_port;
 		try
 		{
 			bytes = new byte[settings.getInt("keylength")];
@@ -140,6 +144,25 @@ public class Client
 		try
 		{
 			connectAndSetUpChannels();
+			sendClientPublicKeyToServer();
+			getServerPublicKeyFromServer(); // For checking whether we already have this one later.
+			getCertificateFromServer(); // Aka client's encrypted public key
+			if (queryWhetherItIsTrusted() == false)
+				return false;
+			sendWhenTrusted(data);
+		}
+		catch (Exception exc_obj)
+		{
+			verbose(exc_obj.toString());
+		}
+		return true;
+	}
+
+	public boolean sendData(String data, String host, int port)
+	{
+		try
+		{
+			connectAndSetUpChannels(host, port);
 			sendClientPublicKeyToServer();
 			getServerPublicKeyFromServer(); // For checking whether we already have this one later.
 			getCertificateFromServer(); // Aka client's encrypted public key
@@ -210,6 +233,15 @@ public class Client
 		output_to_server = client_socket.getOutputStream();
 		input_from_server = client_socket.getInputStream();
 	}
+
+	public void connectAndSetUpChannels(String host, int port) throws java.net.UnknownHostException, java.io.IOException
+	{
+		verbose("Connecting to foreign host.");
+		client_socket = new java.net.Socket(host, port);
+		output_to_server = client_socket.getOutputStream();
+		input_from_server = client_socket.getInputStream();
+	}
+
 
 	public void getServerPublicKeyFromServer()
 	{
