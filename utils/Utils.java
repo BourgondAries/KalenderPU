@@ -109,7 +109,7 @@ public class Utils
 
 	private static final String HEXES = "0123456789ABCDEF";
 
-	static String getHex(byte[] raw) 
+	public static String getHex(byte[] raw) 
 	{
 	    final StringBuilder hex = new StringBuilder(2 * raw.length);
 	    for (final byte b : raw) 
@@ -117,5 +117,16 @@ public class Utils
 	        hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
 	    }
     	return hex.toString();
-	}	
+	}
+
+	public static String escapeSpaces(String to_escape)
+	{
+		// java.util.StringBuilder sbldr = new java.util.StringBuilder(to_escape);
+		return null;
+	}
+
+	public static String unescapeSpaces(String to_unescape)
+	{
+		return null;
+	}
 }

@@ -183,7 +183,7 @@ public class Server
 	public void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
-		bytes = new byte[1024];
+		bytes = new byte[settings.getInt("keylength")];
 		int code = input_from_client.read(bytes);
 		bytes = java.util.Arrays.copyOf(bytes, code);
 		try
@@ -203,6 +203,7 @@ public class Server
 		verbose("Delegating input to the input handler.");
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
+		
 
 		System.out.println("Executing query " + last_message);
 		try
