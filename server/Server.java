@@ -43,7 +43,15 @@ public class Server
         {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             conn = java.sql.DriverManager.getConnection(db_url);
-        	
+
+        	java.sql.PreparedStatement statement 
+			= conn.prepareStatement
+				(
+					"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
+					+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
+					, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
+				);
+			statement.execute();
         }
         catch (Exception except)
         {
@@ -207,16 +215,27 @@ public class Server
 	public void handleLastMessage() throws java.io.IOException, Exception
 	{
 		verbose("Delegating input to the input handler.");
-		// Need to check the validity: check if the grammar is correct.
-		// If correct, apply the update. Let the client know that it was succesful.
 
-		// Need to split and unescape
 		java.util.ArrayList<String> client_input = utils.Utils.splitAndUnescapeString(last_message);
+		verbose("User: " + client_input.get(0));
+		verbose("Password: " + client_input.get(1));
+		verbose("Message: " + client_input.get(2));
 
-		for (String x : client_input)
-			System.out.println("FROM CLIENT: '" + x + "'");
-
-
+		java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT hashedPW FROM SystemUser WHERE username=?");
+		prepstmt.setString(1, client_input.get(0));
+		java.sql.ResultSet result = prepstmt.executeQuery();
+		if (result.next())
+		{
+			if (PasswordHash.validatePassword(client_input.get(1), result.getString(1)))
+				System.out.println("USER VALIDATED!");
+			else 
+				System.out.println("INVALID PASS");
+		}
+		else
+		{
+			// USER NOT FOUND!
+		}
+		/*
 		System.out.println("Executing query " + last_message);
 		try
 		{
@@ -243,6 +262,7 @@ public class Server
 		{
 			System.out.println("An exception ocurred during execution: " + exc.toString());
 		}
+		*/
 		
 		boolean success = true;
 		if (success)
