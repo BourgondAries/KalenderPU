@@ -5,10 +5,6 @@ import static utils.Configuration.verbose;
 public class Server
 {
 
-	private static String db_url = "jdbc:derby:database";
-	private static java.sql.Connection conn = null;
-    private static java.sql.Statement stmt = null;
-
     ////////////////////////////////////////////////////////////
 	// SERVER PROGRAM ENTRY ////////////////////////////////////
 	////////////////////////////////////////////////////////////
@@ -45,34 +41,6 @@ public class Server
 		return argument_handler;
 	}
 
-	private static void createConnection()
-    {
-        try
-        {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            conn = java.sql.DriverManager.getConnection(db_url);
-
-            java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
-			prepstmt.setString(1, "root");
-			java.sql.ResultSet result = prepstmt.executeQuery();
-			if (result.next() == false)
-			{
-	        	java.sql.PreparedStatement statement 
-					= conn.prepareStatement
-						(
-							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
-							+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
-							, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
-						);
-				statement.execute();
-			}
-        }
-        catch (Exception except)
-        {
-            except.printStackTrace();
-        }
-    }
-
     public static class ServerFinalizer extends Thread
 	{
 		Server server;
@@ -99,6 +67,7 @@ public class Server
 	public static void commandLineInterface()
 	{
 		Server server = null;
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		try
 		{
 			server = new Server(utils.Configuration.settings);
@@ -116,9 +85,14 @@ public class Server
 				if (message == null)
 					continue;
 				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
-				for (String ins : message_parts)
-					System.out.println(ins);
-				server.respondToMessage("OK");
+				if (message_parts.size() == 3)
+				{
+					server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
+				}
+				else
+				{
+					server.respondToMessage("INVALID: Amount of tokens do not match the desired amount of 3 tokens.");
+				}
 			}
 		}
 		catch (Exception exc)
@@ -296,60 +270,6 @@ public class Server
 			verbose(exc_obj.toString());
 		}
 	}
-
-	public void handleLastMessage() throws java.io.IOException, Exception
-	{
-		verbose("Delegating input to the input handler.");
-
-		java.util.ArrayList<String> client_input = utils.Utils.splitAndUnescapeString(last_message);
-		verbose("User: " + client_input.get(0));
-		verbose("Password: " + client_input.get(1));
-		verbose("Message: " + client_input.get(2));
-
-		java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT hashedPW FROM SystemUser WHERE username=?");
-		prepstmt.setString(1, client_input.get(0));
-		java.sql.ResultSet result = prepstmt.executeQuery();
-		if (result.next())
-		{
-			if (PasswordHash.validatePassword(client_input.get(1), result.getString(1)))
-				System.out.println("USER VALIDATED!");
-			else 
-				System.out.println("INVALID PASS");
-		}
-		else
-		{
-			// USER NOT FOUND!
-		}
-		/*
-		System.out.println("Executing query " + last_message);
-		try
-		{
-			if 
-			(
-				last_message.startsWith("UPDATE") 
-				|| last_message.startsWith("INSERT")
-				|| last_message.startsWith("EXECUTE")
-				|| last_message.startsWith("INSERT")
-			)
-			{
-				java.sql.PreparedStatement statement = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-				statement.execute();
-			}
-			else
-			{
-				stmt = conn.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-				java.sql.ResultSet result = stmt.executeQuery(last_message);
-				while (result.next())
-					System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");	
-			}
-		}
-		catch (Exception exc)
-		{
-			System.out.println("An exception ocurred during execution: " + exc.toString());
-		}
-		*/
-	}
-
 
 	private void finishConnection() throws java.io.IOException
 	{
