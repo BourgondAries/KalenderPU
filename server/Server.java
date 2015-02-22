@@ -24,10 +24,6 @@ public class Server
 			printHelp();
 		else
 			printHelp();
-
-		// createConnection();
-		// conn = java.sql.DriverManager.getConnection("jdbc:derby:derbyDB;shutdown=true");
-		// conn.close();
 	}
 
 	public static ArgumentHandler initializeConfiguration(String[] args)
@@ -43,24 +39,24 @@ public class Server
 
     public static class ServerFinalizer extends Thread
 	{
-		Server server;
+		Database db;
 
-		ServerFinalizer(Server server)
+		ServerFinalizer(Database db)
 		{
-			this.server = server;
+			this.db = db;
 		}
 
 		public void run()
 		{
-			/*try
-			{*/
-				verbose("UNIMPLEMENTED Closing database gracefully.");
-				
-			/*}
-			catch (java.io.IOException exc)
+			try
 			{
-				verbose("Unable to code database.");
-			}*/
+				verbose("Closing database gracefully.");
+				db.closeDatabase();	
+			}
+			catch (java.sql.SQLException exc)
+			{
+				verbose("Unable to close database.");
+			}
 		}
 	}
 
@@ -71,7 +67,7 @@ public class Server
 		try
 		{
 			server = new Server(utils.Configuration.settings);
-			Runtime.getRuntime().addShutdownHook(new ServerFinalizer(server));
+			Runtime.getRuntime().addShutdownHook(new ServerFinalizer(db));
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter the port to listen and send to (leave blank for default): ");
 			String portnumber = scanner.nextLine();

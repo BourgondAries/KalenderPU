@@ -5,8 +5,8 @@ import static utils.Configuration.verbose;
 public class Database
 {
 	private static String db_url = null;
-	private static java.sql.Connection conn = null;
-    private static java.sql.Statement stmt = null;
+	private static java.sql.Connection connection = null;
+    private static java.sql.Statement statement = null;
 
 	public Database(String db_url)
 	{
@@ -14,15 +14,15 @@ public class Database
 		try
         {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            conn = java.sql.DriverManager.getConnection(db_url);
+            connection = java.sql.DriverManager.getConnection(db_url);
 
-            java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
-			prepstmt.setString(1, "root");
-			java.sql.ResultSet result = prepstmt.executeQuery();
+            java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
+			prepstatement.setString(1, "root");
+			java.sql.ResultSet result = prepstatement.executeQuery();
 			if (result.next() == false)
 			{
 	        	java.sql.PreparedStatement statement 
-					= conn.prepareStatement
+					= connection.prepareStatement
 						(
 							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
 							+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
@@ -37,15 +37,20 @@ public class Database
         }
 	}
 
+	public void closeDatabase() throws java.sql.SQLException
+	{
+		connection.close();
+	}
+
 	public String execute(String username, String password, String query)
 	{
 		try
 		{
 			verbose("Delegating input to the input handler.");
 
-			java.sql.PreparedStatement prepstmt = conn.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
-			prepstmt.setString(1, username);
-			java.sql.ResultSet result = prepstmt.executeQuery();
+			java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
+			prepstatement.setString(1, username);
+			java.sql.ResultSet result = prepstatement.executeQuery();
 			if (result.next())
 			{
 				if (PasswordHash.validatePassword(password, result.getString("hashedPW")))
@@ -59,7 +64,18 @@ public class Database
 			{
 				return "User '" + username + "' does not exist.";
 			}
-			/*
+			
+		}
+		catch (Exception exc)
+		{
+			verbose(exc.toString());
+			return "Internal database error.";
+		}
+	}
+
+	public String executeWithValidUser(User user, String query)
+	{
+		/*
 			System.out.println("Executing query " + last_message);
 			try
 			{
@@ -71,13 +87,13 @@ public class Database
 					|| last_message.startsWith("INSERT")
 				)
 				{
-					java.sql.PreparedStatement statement = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+					java.sql.PreparedStatement statement = connection.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
 					statement.execute();
 				}
 				else
 				{
-					stmt = conn.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-					java.sql.ResultSet result = stmt.executeQuery(last_message);
+					statement = connection.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+					java.sql.ResultSet result = statement.executeQuery(last_message);
 					while (result.next())
 						System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");	
 				}
@@ -87,11 +103,5 @@ public class Database
 				System.out.println("An exception ocurred during execution: " + exc.toString());
 			}
 			*/
-		}
-		catch (Exception exc)
-		{
-			verbose(exc.toString());
-			return "Internal database error.";
-		}
 	}
 }
