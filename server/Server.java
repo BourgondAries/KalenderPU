@@ -210,6 +210,12 @@ public class Server
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
 
+		// Need to split and unescape
+		java.util.ArrayList<String> client_input = utils.Utils.splitAndUnescapeString(last_message);
+
+		for (String x : client_input)
+			System.out.println("FROM CLIENT: '" + x + "'");
+
 
 		System.out.println("Executing query " + last_message);
 		try

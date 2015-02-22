@@ -122,11 +122,53 @@ public class Utils
 	public static String escapeSpaces(String to_escape)
 	{
 		StringBuilder sbldr = new StringBuilder(to_escape);
-		return null;
+		for (int i = 0; i < sbldr.length(); ++i)
+		{
+			if (sbldr.charAt(i) == ' ')
+			{
+				sbldr.insert(i, '\\');
+				i += 1;
+			}
+		}
+		return sbldr.toString();
 	}
 
 	public static String unescapeSpaces(String to_unescape)
 	{
-		return null;
+		StringBuilder sbldr = new StringBuilder(to_unescape);
+		for (int i = 0; i < sbldr.length() - 1; ++i)
+		{
+			if (sbldr.charAt(i) == '\\')
+			{
+				if (sbldr.charAt(i + 1) == ' ')
+				{
+					sbldr.deleteCharAt(i);
+				}
+			}
+		}
+		return sbldr.toString();
 	}
+
+	public static java.util.ArrayList<String> splitAndUnescapeString(String message)
+	{
+		java.util.ArrayList<String> splits = new java.util.ArrayList<>();
+		int last_split_pos = 0;
+		for (int i = 0; i < message.length() - 1; ++i)
+		{
+			System.out.println(message.charAt(i));
+			if (message.charAt(i) == '\\' && message.charAt(i + 1) == ' ')
+			{
+				i += 1;
+				continue;
+			}
+			if (message.charAt(i) == ' ')
+			{
+				splits.add(utils.Utils.unescapeSpaces(message.substring(last_split_pos, i)));
+				last_split_pos = i + 1;
+			}
+		}
+		splits.add(utils.Utils.unescapeSpaces(message.substring(last_split_pos)));
+		return splits;
+	}
+
 }

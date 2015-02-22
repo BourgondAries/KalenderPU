@@ -46,25 +46,26 @@ public class Client
 			client = new Client(utils.Configuration.settings);
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter your username: ");
-			String login_info = scanner.nextLine();
+			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
 			java.io.Console console = System.console();
 			if (console == null)
 			{
 				System.out.println("No console found.\nYou have to visibly enter your password: ");
-				login_info = login_info + " " + scanner.nextLine();
+				login_info = login_info + " " + utils.Utils.escapeSpaces(scanner.nextLine());
 			}
 			else
 			{
 				System.out.print("Enter your password: ");
-				login_info = login_info + " " + new String(console.readPassword());
+				login_info = login_info + " " + utils.Utils.escapeSpaces(new String(console.readPassword()));
 			}
 
 
 			while (scanner.hasNextLine())
 			{
-				String line = scanner.nextLine();
+				String line = utils.Utils.escapeSpaces(scanner.nextLine());
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
+				System.out.println("Sending data: '" + login_info + " " + line + "'");
 				if (client.sendData(login_info + " " + line) == false)
 				{
 					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
