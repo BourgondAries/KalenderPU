@@ -49,7 +49,7 @@ public class Client
 		try
 		{
 			
-			bytes = new byte[Integer.parseInt(settings.get("keylength"))];
+			bytes = new byte[settings.getInt("keylength")];
 			loadTrustedServers();
 			connectAndSetUpChannels();
 			generatePairAndSendPublicKeyToServer();
@@ -117,7 +117,7 @@ public class Client
 	public void connectAndSetUpChannels() throws java.net.UnknownHostException, java.io.IOException
 	{
 		verbose("Connecting to foreign host.");
-		client_socket = new java.net.Socket(settings.get("hostname"), Integer.parseInt(settings.get("port")));
+		client_socket = new java.net.Socket(settings.get("hostname"), settings.getInt("port"));
 		output_to_server = client_socket.getOutputStream();
 		input_from_server = client_socket.getInputStream();
 	}
@@ -125,7 +125,7 @@ public class Client
 	public void getPublicKeyFromServer()
 	{
 		verbose("Waiting for host public key.");
-		bytes = new byte[Integer.parseInt(settings.get("keylength"))];
+		bytes = new byte[settings.getInt("keylength")];
 		try
 		{
 			int number = input_from_server.read(bytes);

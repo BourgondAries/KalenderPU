@@ -10,6 +10,11 @@ public class Configuration extends java.util.HashMap<String, String>
 			System.out.println(string);
 	}
 
+	public int getInt(String key)
+	{
+		return Integer.parseInt(this.get(key));
+	}
+
 	public static Configuration loadConfiguration(String filename) throws java.io.IOException
 	{
 		verbose("Loading configuration from " + filename);

@@ -21,7 +21,7 @@ public class Server
 
 	private ArgumentHandler argument_handler = null;
 
-	private static String db_url = "jdbc:derby:derbyDB;create=true;user=me;password=mine";
+	private static String db_url = "jdbc:derby:derbyDB";
 	private static java.sql.Connection conn = null;
     private static java.sql.Statement stmt = null;
 
@@ -118,10 +118,10 @@ public class Server
 	public void waitForIncomingConnection() throws java.io.IOException
 	{
 		verbose("Waiting for incoming connection...");
-		server_socket = new java.net.ServerSocket(Integer.parseInt(settings.get("port")));
+		server_socket = new java.net.ServerSocket(settings.getInt("port"));
 		verbose("Waiting for a response");
 		client_socket = server_socket.accept();
-		client_socket.setSoTimeout(Integer.parseInt(utils.Configuration.settings.get("SocketTimeOut")));
+		client_socket.setSoTimeout(settings.getInt("SocketTimeOut"));
 	}
 
 	public void setup2WayCommunicationChannels() throws java.io.IOException
@@ -140,7 +140,7 @@ public class Server
 	public void getPublicKeyFromClient()
 	{
 		verbose("Fetching the public key from the client.");
-		byte[] bytes = new byte[Integer.parseInt(settings.get("keylength"))];
+		byte[] bytes = new byte[settings.getInt("keylength")];
 		try
 		{
 			int number = input_from_client.read(bytes);
@@ -148,6 +148,7 @@ public class Server
 			// System.out.println(new String(bytes));
 			try
 			{
+
 				java.security.spec.X509EncodedKeySpec pubkey_spec = new java.security.spec.X509EncodedKeySpec(bytes);
 				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance(settings.get("keypairgen"));
 				client_public_key = key_factory.generatePublic(pubkey_spec);
@@ -214,6 +215,7 @@ public class Server
 				last_message.startsWith("UPDATE") 
 				|| last_message.startsWith("INSERT")
 				|| last_message.startsWith("EXECUTE")
+				|| last_message.startsWith("INSERT")
 			)
 			{
 				java.sql.PreparedStatement statement = conn.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
