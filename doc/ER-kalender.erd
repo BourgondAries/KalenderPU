@@ -47,13 +47,6 @@
 <attribute is_hidden="false" is_key="false" name="duration" type=""/>
 </attributes>
 </entity>
-<entity id="42" is_weak="false" name="Message" x="96" y="112">
-<attributes>
-<attribute is_hidden="false" is_key="false" name="" type=""/>
-<attribute is_hidden="false" is_key="false" name="" type=""/>
-<attribute is_hidden="false" is_key="false" name="" type=""/>
-</attributes>
-</entity>
 <diamond id="6" is_weak="false" name="memberOf" x="298" y="75">
 <attributes/>
 </diamond>
@@ -81,12 +74,6 @@
 <attributes/>
 </diamond>
 <diamond id="39" is_weak="false" name="parent-group" x="519" y="12">
-<attributes/>
-</diamond>
-<diamond id="43" is_weak="false" name="" x="101" y="217">
-<attributes/>
-</diamond>
-<diamond id="47" is_weak="false" name="" x="214" y="126">
 <attributes/>
 </diamond>
 <line cardinality_string="(0,n)" has_u="false" id="9" is_weak="false" role="" style="0" turned="false">
@@ -160,21 +147,5 @@
 <line cardinality_string="(1,1)" has_u="false" id="41" is_weak="false" role="" style="0" turned="false">
 <connection connection_side="2" direction="0" object_id="1" relation_point_x="497" relation_point_y="74"/>
 <connection connection_side="3" direction="1" object_id="39" relation_point_x="535" relation_point_y="44"/>
-</line>
-<line cardinality_string="" has_u="false" id="45" is_weak="false" role="" style="0" turned="false">
-<connection connection_side="3" direction="1" object_id="42" relation_point_x="133" relation_point_y="187"/>
-<connection connection_side="1" direction="1" object_id="43" relation_point_x="117" relation_point_y="217"/>
-</line>
-<line cardinality_string="" has_u="false" id="46" is_weak="false" role="" style="0" turned="false">
-<connection connection_side="0" direction="0" object_id="0" relation_point_x="281" relation_point_y="238"/>
-<connection connection_side="2" direction="0" object_id="43" relation_point_x="133" relation_point_y="233"/>
-</line>
-<line cardinality_string="" has_u="false" id="48" is_weak="false" role="" style="0" turned="false">
-<connection connection_side="2" direction="0" object_id="42" relation_point_x="169" relation_point_y="150"/>
-<connection connection_side="0" direction="0" object_id="47" relation_point_x="214" relation_point_y="142"/>
-</line>
-<line cardinality_string="" has_u="false" id="49" is_weak="false" role="" style="0" turned="false">
-<connection connection_side="1" direction="1" object_id="0" relation_point_x="304" relation_point_y="203"/>
-<connection connection_side="2" direction="0" object_id="47" relation_point_x="246" relation_point_y="142"/>
 </line>
 </diagram>
