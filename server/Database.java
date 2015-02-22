@@ -6,7 +6,6 @@ public class Database
 {
 	private static String db_url = null;
 	private static java.sql.Connection connection = null;
-    private static java.sql.Statement statement = null;
 
 	public Database(String db_url)
 	{
@@ -55,7 +54,7 @@ public class Database
 			{
 				if (PasswordHash.validatePassword(password, result.getString("hashedPW")))
 				{
-					return "OK";
+					return executeWithValidUser(new User(), query);
 				}
 				else 
 					return "Invalid password for user '" + username + "'.";
@@ -75,33 +74,45 @@ public class Database
 
 	public String executeWithValidUser(User user, String query)
 	{
-		/*
-			System.out.println("Executing query " + last_message);
-			try
+		verbose("Executing query " + query);
+		try
+		{
+			if 
+			(
+				query.startsWith("UPDATE") 
+				|| query.startsWith("INSERT")
+				|| query.startsWith("EXECUTE")
+				|| query.startsWith("INSERT")
+			)
 			{
-				if 
-				(
-					last_message.startsWith("UPDATE") 
-					|| last_message.startsWith("INSERT")
-					|| last_message.startsWith("EXECUTE")
-					|| last_message.startsWith("INSERT")
-				)
-				{
-					java.sql.PreparedStatement statement = connection.prepareStatement(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-					statement.execute();
-				}
-				else
-				{
-					statement = connection.createStatement(); //(last_message, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-					java.sql.ResultSet result = statement.executeQuery(last_message);
-					while (result.next())
-						System.out.println("'" + result.getInt(1) + ", " + result.getString(2) + "'");	
-				}
+				java.sql.PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+				return String.valueOf(statement.executeUpdate());
 			}
-			catch (Exception exc)
+			else if (query.startsWith("SELECT"))
 			{
-				System.out.println("An exception ocurred during execution: " + exc.toString());
+				java.sql.PreparedStatement statement = connection.prepareStatement(query);
+				java.sql.ResultSet result = statement.executeQuery();
+				java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
+				int columns = resultmetadata.getColumnCount();
+
+				String answer = String.valueOf(columns);
+				while (result.next())
+					for (int i = 0; i < columns; ++i)
+					{
+						answer += " " + result.getString(i + 1);
+					}
+				return answer;
 			}
-			*/
+			else
+			{
+				return "Invalid query provided";
+			}
+		}
+		catch (Exception exc)
+		{
+			verbose("An exception ocurred during execution: " + exc.toString());
+		}
+
+		return null;
 	}
 }
