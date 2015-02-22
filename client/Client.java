@@ -136,18 +136,6 @@ public class Client
 		{
 			verbose(exc.toString());
 		}
-		finally
-		{
-			/*try
-			{
-				//verbose("Storing trusted keys");
-				//client.storeAllTrustedKeys();
-			}
-			catch (java.io.IOException exc)
-			{
-				verbose("Unable to store public server keys");
-			}*/
-		}
 	}
 
 	public static void printHelp()
