@@ -127,10 +127,14 @@ public class Database
 
 					String answer = String.valueOf(columns);
 					while (result.next())
+					{
+						String tmp = "";
 						for (int i = 0; i < columns; ++i)
 						{
-							answer += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+							tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
 						}
+						answer += " " + utils.Utils.escapeSpaces(tmp);
+					}
 					return answer;
 				}
 				else

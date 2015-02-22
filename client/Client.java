@@ -130,6 +130,7 @@ public class Client
 				else
 				{
 					String response = client.fetchResponse();
+					System.out.println("Direct response: " + response);
 					if (response != null)
 					{
 						java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
