@@ -1,11 +1,10 @@
 CREATE TABLE SystemUser
 (
-	SystemUserId  	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	systemUserId  	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	rank 		int,
-	username 	varchar(255) UNIQUE, 
+	username 	varchar(255) 	UNIQUE, 
 	fname 		varchar(255),
 	lname 		varchar(255),
-	salt		varchar(255),
 	hashedPW 	varchar(255),
 	PRIMARY KEY (SystemUserId)
 );
