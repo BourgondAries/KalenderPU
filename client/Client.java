@@ -259,23 +259,6 @@ public class Client
 		output_to_server.write(client_public_key.getEncoded());
 	}
 
-	public void generatePairAndSendPublicKeyToServer()
-	{
-		verbose("Generating keypair to send to the remote.");
-		try
-		{
-			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-			client_private_key = pair.getPrivate();
-			client_public_key = pair.getPublic();
-			output_to_server.write(client_public_key.getEncoded());
-			// System.out.println(new String(client_public_key.getEncoded()));
-		}
-		catch (java.io.IOException exc_obj)
-		{
-			verbose(exc_obj.toString());
-		}
-	}
-
 	public void writeMessageToServer(String data)
 	{
 		verbose("Sending packets to the server...");
