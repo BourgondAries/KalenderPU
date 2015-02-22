@@ -14,9 +14,9 @@ CREATE TABLE PersonalEvent
 	eventId 	int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	description	varchar(255),
 	time 		timestamp,
-	SystemUserId 		int,
+	systemUserId 		int,
 	PRIMARY KEY (eventId),
-	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(SystemUserId)
+	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(systemUserId)
 );
 
 CREATE TABLE Room
@@ -36,7 +36,7 @@ CREATE TABLE Booking
 	roomId			int,
 	PRIMARY KEY (bookingId),
 	FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
-	FOREIGN KEY (adminId) REFERENCES SystemUser(SystemUserId)
+	FOREIGN KEY (adminId) REFERENCES SystemUser(systemUserId)
 );
 
 CREATE TABLE SystemGroup
@@ -52,18 +52,18 @@ CREATE TABLE SystemGroup
 
 CREATE TABLE Groupmember
 (
-	SystemUserId		int		NOT NULL,
+	systemUserId		int		NOT NULL,
 	groupId		int		NOT NULL,
-	PRIMARY KEY (SystemUserId, groupId),
-	FOREIGN KEY (SystemUserId) REFERENCES SystemUser (SystemUserId),
+	PRIMARY KEY (systemUserId, groupId),
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId),
 	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId)
 );
 CREATE TABLE Invitation
 (
-	SystemUserId 		int NOT NULL,
+	systemUserId 		int NOT NULL,
 	bookingId 	int NOT NULL,
 	status		boolean,
-	PRIMARY KEY (SystemUserId, bookingId)
+	PRIMARY KEY (systemUserId, bookingId)
 );
 
 CREATE TABLE Notification
@@ -74,10 +74,10 @@ CREATE TABLE Notification
 	seen 			boolean,
 	bookingId		int NOT NULL,
 	groupId 		int, 
-	SystemUserId 			int, 
-	CHECK (groupId IS NOT NULL OR SystemUserId IS NOT NULL),
+	systemUserId 			int, 
+	CHECK (groupId IS NOT NULL OR systemUserId IS NOT NULL),
 	PRIMARY KEY (n_Id),
 	FOREIGN KEY (bookingId) REFERENCES Booking(bookingId),
 	FOREIGN KEY (groupId) REFERENCES SystemGroup(groupId),
-	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(SystemUserId)
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
 );
