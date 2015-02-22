@@ -148,7 +148,6 @@ public class Server
 	private java.security.PublicKey 	server_public_key;
 	private java.security.PublicKey 	client_public_key;
 
-	private byte[] bytes;
 	private String last_message;
 
 
@@ -168,7 +167,9 @@ public class Server
 			getPublicKeyFromClient();
 			sendCertificateToClient(signClientsPublicKey());
 			readIncomingbytes();
-			return last_message;
+			String tmp = last_message;
+			last_message = null;
+			return tmp;
 		}
 		catch (java.net.BindException exc_obj) { try { finishConnection(); } catch (java.io.IOException exc_object) { verbose("Unable to unbind"); } }
 		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
@@ -241,7 +242,6 @@ public class Server
 		{
 			int number = input_from_client.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, number);
-			// System.out.println(new String(bytes));
 			try
 			{
 
@@ -282,7 +282,7 @@ public class Server
 	private void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
-		bytes = new byte[settings.getInt("keylength")];
+		byte[] bytes = new byte[settings.getInt("keylength")];
 		int code = input_from_client.read(bytes);
 		bytes = java.util.Arrays.copyOf(bytes, code);
 		try
