@@ -49,12 +49,19 @@ public class Client
 		{
 			client = new Client();
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
+			System.out.print("Enter your username: ");
+			String login_info = scanner.nextLine();
+			System.out.print("Enter your password: ");
+			java.io.Console console = System.console();
+			login_info = login_info + " " + new String(console.readPassword());
+
+
 			while (scanner.hasNextLine())
 			{
 				String line = scanner.nextLine();
 				if (line.equalsIgnoreCase(settings.get("ExitCommand")))
 					break;
-				if (client.sendData(line) == false)
+				if (client.sendData(login_info + " " + line) == false)
 				{
 					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
 					while (true)
@@ -63,7 +70,7 @@ public class Client
 						if (result.equals("yes"))
 						{
 							client.addPublicServerKeyToTrusted();
-							client.sendWhenTrusted(line);
+							client.sendWhenTrusted(login_info + " " + line);
 							break;
 						}
 						else if (result.equals("no"))
@@ -145,7 +152,7 @@ public class Client
 		{
 			verbose("Server authenticated!");
 			writeMessageToServer(data);
-			ensureCorrectServerResponse();
+			getServerResponse();
 		}
 		else
 		{
@@ -274,17 +281,15 @@ public class Client
 		}
 	}
 
-	public void ensureCorrectServerResponse()
+	public void getServerResponse()
 	{
 		verbose("Verifying server integrity.");
 		try
 		{
-			bytes = new byte[1024];
+			bytes = new byte[settings.getInt("keylength")];
 			int length = input_from_server.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, length);
-			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decrypt(bytes, client_private_key));
-			System.out.println(last_message);
 		}
 		catch (Exception exc_obj)
 		{
@@ -294,8 +299,8 @@ public class Client
 
 	public void storeAllTrustedKeys() throws java.io.IOException
 	{
-		verbose("Storing the trusted keys in \"" + utils.Configuration.settings.get("TrustedServers") + "\"");
-		java.io.FileOutputStream trusted = new java.io.FileOutputStream(utils.Configuration.settings.get("TrustedServers"));
+		verbose("Storing the trusted keys in \"" + settings.get("TrustedServers") + "\"");
+		java.io.FileOutputStream trusted = new java.io.FileOutputStream(settings.get("TrustedServers"));
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			trusted.write(server_public_keys.get(i));
