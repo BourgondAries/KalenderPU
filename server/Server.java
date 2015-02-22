@@ -149,11 +149,22 @@ public class Server
 
 	public void respondToMessage(String string)
 	{
+		verbose("Attempting to send back: '" + string + "'");
 		try
 		{
-			output_to_client.write(utils.Utils.encrypt(utils.Utils.escapeSpaces(string).getBytes(), client_public_key));
-			finishConnection();
-		} 
+			try
+			{
+				byte[] bytes = utils.Utils.escapeSpaces(string).getBytes();
+				bytes = utils.Utils.encrypt(bytes, client_public_key);
+				output_to_client.write(bytes);
+				output_to_client.flush();
+				finishConnection();
+			}
+			catch (javax.crypto.IllegalBlockSizeException exc)
+			{
+				output_to_client.write(utils.Utils.encrypt(utils.Utils.escapeSpaces("Illegal block size").getBytes(), client_public_key));
+			}
+		}
 		catch (java.io.IOException exc_object) 
 		{ 
 			verbose("Unable to unbind");
