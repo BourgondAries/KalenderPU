@@ -196,7 +196,7 @@ public class Server
 		{
 			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decrypt(bytes, server_private_key));
-			System.out.println(last_message);
+			System.out.println(">" + last_message);
 		}
 		catch (Exception exc_obj)
 		{

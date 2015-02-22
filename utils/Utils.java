@@ -121,7 +121,7 @@ public class Utils
 
 	public static String escapeSpaces(String to_escape)
 	{
-		// java.util.StringBuilder sbldr = new java.util.StringBuilder(to_escape);
+		StringBuilder sbldr = new StringBuilder(to_escape);
 		return null;
 	}
 
