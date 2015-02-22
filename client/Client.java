@@ -104,6 +104,14 @@ public class Client
 				String line = utils.Utils.escapeSpaces(scanner.nextLine());
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
+				if (line.equalsIgnoreCase("help"))
+				{
+					System.out.println
+					(
+						".help - print this help text"
+						+ "\n.register - start new user registration"
+					);
+				}
 				System.out.println("Sending data: '" + login_info + " " + line + "'.");
 				if (client.sendData(login_info + " " + line, host, port) == false)
 				{
