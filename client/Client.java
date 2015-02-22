@@ -51,9 +51,17 @@ public class Client
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 			System.out.print("Enter your username: ");
 			String login_info = scanner.nextLine();
-			System.out.print("Enter your password: ");
 			java.io.Console console = System.console();
-			login_info = login_info + " " + new String(console.readPassword());
+			if (console == null)
+			{
+				System.out.println("No console found.\nYou have to visibly enter your password: ");
+				login_info = login_info + " " + scanner.nextLine();
+			}
+			else
+			{
+				System.out.print("Enter your password: ");
+				login_info = login_info + " " + new String(console.readPassword());
+			}
 
 
 			while (scanner.hasNextLine())
