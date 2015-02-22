@@ -127,7 +127,7 @@ public class Client
 				}
 				else
 				{
-					System.out.println("Server response: " + client.fetchResponse());
+					System.out.println("Server response: " + utils.Utils.unescapeSpaces(client.fetchResponse()));
 				}
 
 			}
