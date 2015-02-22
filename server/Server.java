@@ -25,6 +25,9 @@ public class Server
 	private static java.sql.Connection conn = null;
     private static java.sql.Statement stmt = null;
 
+    ////////////////////////////////////////////////////////////
+	// SERVER PROGRAM ENTRY ////////////////////////////////////
+	////////////////////////////////////////////////////////////
 	public static void main(String[] args) throws java.sql.SQLException, java.io.IOException
 	{
 		createConnection();
@@ -48,6 +51,9 @@ public class Server
         }
     }
 
+    ////////////////////////////////////////////////////////////
+	// SERVER OBJECT DEPENDENT DEFINITIONS /////////////////////
+	////////////////////////////////////////////////////////////
 	public Server(String[] args) throws java.io.IOException
 	{
 		argument_handler = new ArgumentHandler(args);
@@ -203,7 +209,7 @@ public class Server
 		verbose("Delegating input to the input handler.");
 		// Need to check the validity: check if the grammar is correct.
 		// If correct, apply the update. Let the client know that it was succesful.
-		
+
 
 		System.out.println("Executing query " + last_message);
 		try
