@@ -102,11 +102,10 @@ public class Database
 					{
 						return "You do not have the privilege to register users.";
 					}
-			}
+				}
 
-			verbose("Executing query " + query);
-			try
-			{
+				verbose("Executing query " + query);
+
 				if 
 				(
 					query.startsWith("UPDATE") 
@@ -145,13 +144,7 @@ public class Database
 			catch (Exception exc)
 			{
 				verbose("An exception ocurred during execution: " + exc.toString());
+				return exc.toString();
 			}
-
-			return null;
-		}
-		catch (Exception exc)
-		{
-			return exc.toString();
-		}
 	}
 }
