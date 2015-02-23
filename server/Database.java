@@ -112,6 +112,7 @@ public class Database
 					|| query.startsWith("INSERT")
 					|| query.startsWith("EXECUTE")
 					|| query.startsWith("INSERT")
+					|| query.startsWith("DELETE")
 				)
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
