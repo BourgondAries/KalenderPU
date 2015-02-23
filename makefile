@@ -30,6 +30,14 @@ dbreset:
 clean:
 	find . -name "*.class" | xargs rm
 
+mclient:
+	javac -d bin client/MinimalClient.java
+	java -cp "bin" client.MinimalClient
+
+mserver:
+	javac -d bin server/MinimalServer.java
+	java -cp "bin" server.MinimalServer
+
 SERVER_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar"
 SERVER_RUNPATH_MAC=".:./bin:./commons-cli-1.2.jar:./derby.jar"
 CLIENT_LIBS_MAC=".:commons-cli-1.2.jar:./derby.jar:./derbyclient.jar"
