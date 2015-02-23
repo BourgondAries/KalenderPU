@@ -1,5 +1,5 @@
 SERVER_LIBS=".;./commons-cli-1.2.jar;./derby.jar"
-SERVER_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar"
+SERVER_RUNPATH="./;bin;./commons-cli-1.2.jar;./derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 
