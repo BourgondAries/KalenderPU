@@ -38,6 +38,14 @@ mserver:
 	javac -d bin server/MinimalServer.java
 	java -cp "bin" server.MinimalServer
 
+sclient:
+	javac client/MinimalClient.java
+	java -Djavax.net.ssl.trustStore=mySrvKeystore -Djavax.net.ssl.trustStorePassword=123456 client.MinimalClient
+
+sserver:
+	javac server/MinimalServer.java
+	java -Djavax.net.ssl.keyStore=mySrvKeystore -Djavax.net.ssl.keyStorePassword=123456 server.MinimalServer
+
 SERVER_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar"
 SERVER_RUNPATH_MAC=".:./bin:./commons-cli-1.2.jar:./derby.jar"
 CLIENT_LIBS_MAC=".:commons-cli-1.2.jar:./derby.jar:./derbyclient.jar"
