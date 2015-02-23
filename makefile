@@ -25,7 +25,7 @@ vclient:
 
 dbreset:
 	rm -rf database
-	java -classpath "derby.jar;derbytools.jar" -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
+	java -classpath ".:derby.jar:derbytools.jar" -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
 
 clean:
 	find . -name "*.class" | xargs rm
