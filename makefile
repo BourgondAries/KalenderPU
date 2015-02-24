@@ -7,12 +7,19 @@ setup:
 	mkdir -p bin
 	$(MAKE) dbreset
 
-pserver:
+cserver:
 	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
+
+keymake:
+	$(MAKE) cserver
+	java -classpath $(SERVER_RUNPATH) server.Server --keygen
+
+pserver:
+	$(MAKE) cserver
 	java -classpath $(SERVER_RUNPATH) .server.Server --cli
 
 vserver:
-	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
+	$(MAKE) cserver
 	java -classpath $(SERVER_RUNPATH) server.Server -v --cli
 
 pclient:
@@ -77,5 +84,3 @@ dbreset-mac:
 
 clean-mac:
 	find . -name "*.class" | xargs rm
-
-# INSERT INTO SystemUser (rank, fname, lname) VALUES (32, 'hi', 'there')
