@@ -2,15 +2,19 @@ SERVER_LIBS=".;./commons-cli-1.2.jar;./derby.jar"
 SERVER_RUNPATH=".;./bin;./commons-cli-1.2.jar;./derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
+BIN_MAP=bin
 
 setup:
 	mkdir -p bin
 	$(MAKE) dbreset
 
 cserver:
-	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
+	javac -classpath $(SERVER_LIBS) -d $(BIN_MAP) server/Server.java
 
-keymake:
+cclient:
+	javac -classpath $(SERVER_LIBS) -d $(BIN_MAP) client/Client.java
+
+key:
 	$(MAKE) cserver
 	java -classpath $(SERVER_RUNPATH) server.Server --keygen
 
@@ -23,11 +27,11 @@ vserver:
 	java -classpath $(SERVER_RUNPATH) server.Server -v --cli
 
 pclient:
-	javac -classpath $(CLIENT_LIBS) -d bin client/Client.java
+	$(MAKE) cclient
 	java -classpath $(CLIENT_RUNPATH) client.Client --cli
 
 vclient:
-	javac -classpath $(CLIENT_LIBS) -d bin client/Client.java
+	$(MAKE) cclient
 	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli
 
 dbreset:
