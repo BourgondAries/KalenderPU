@@ -135,7 +135,7 @@ public class Database
 				}
 				case "GET_EVENTS":
 				{
-					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=?");
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=? ORDER BY time ASC");
 					statement.setInt(1, user.user_id);
 					return resultToString(statement.executeQuery());
 				}

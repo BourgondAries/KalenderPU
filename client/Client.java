@@ -76,7 +76,7 @@ public class Client
 
 	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner) throws Exception
 	{
-		System.out.println("Sending data: '" + login_info + " " + command + "'.");
+		verbose("Sending data: '" + login_info + " " + command + "'.");
 		if (client.sendData(login_info + " " + command, host, port) == false)
 		{
 			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
@@ -102,7 +102,7 @@ public class Client
 		else
 		{
 			String response = client.fetchResponse();
-			System.out.println("Direct response: " + response);
+			verbose("Direct response: " + response);
 			if (response != null)
 			{
 				/*
@@ -245,8 +245,11 @@ public class Client
 						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
 					}
 
+					int i = 0;
 					for (String tmp : final_set)
 					{
+						if (i++ % 2 == 0)
+							System.out.println();
 						System.out.println(tmp);
 					}
 				}
