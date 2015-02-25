@@ -291,11 +291,11 @@ public class Client
 				}
 				else if (line.equalsIgnoreCase("register_room"))
 				{
-					System.out.println("Enter the new room name: ");
+					System.out.print("Enter the new room name: ");
 					String room_name = scanner.nextLine();
-					System.out.println("Enter the new room's capacity (people): ");
+					System.out.print("Enter the new room's capacity (people): ");
 					String room_cap = scanner.nextLine();
-					System.out.println("Enter the new room's location: ");
+					System.out.print("Enter the new room's location: ");
 					String room_location = scanner.nextLine();
 					line = 
 						utils.Utils.escapeSpaces
@@ -312,7 +312,7 @@ public class Client
 					{
 						if (result.equals("1"))
 						{
-							System.out.println("Server response: 'OK: Changed password.'");
+							System.out.println("Server response: 'OK: Room registered.'");
 						}
 						else
 						{

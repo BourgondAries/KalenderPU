@@ -35,6 +35,9 @@ CREATE TABLE Booking
 	description		varchar(255),
 	bookingName		varchar(255),
 	roomId			int,
+	warntime		timestamp,
+	timeBegin		timestamp,
+	timeEnd			timestamp,
 	PRIMARY KEY (bookingId),
 	FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
 	FOREIGN KEY (adminId) REFERENCES SystemUser(systemUserId)
@@ -62,8 +65,9 @@ CREATE TABLE Groupmember
 CREATE TABLE Invitation
 (
 	systemUserId 		int NOT NULL,
-	bookingId 	int NOT NULL,
-	status		boolean,
+	bookingId 			int NOT NULL,
+	status				boolean WITH DEFAULT false,
+	wantsWarning		boolean WITH DEFAULT true,
 	PRIMARY KEY (systemUserId, bookingId)
 );
 
