@@ -89,13 +89,13 @@ public class Database
 					if (user.rank < 10)
 					{
 						query = query.substring(query.indexOf(" ") + 1);
-						String[] parts = query.split(" ");
+						java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
 						java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-						statement.setString(1, parts[0]);
-						statement.setInt(2, Integer.parseInt(parts[1]));
-						statement.setString(3, parts[2]);
-						statement.setString(4, parts[3]);
-						statement.setString(5, PasswordHash.createHash(parts[4]));
+						statement.setString(1, parts.get(0));
+						statement.setInt(2, Integer.parseInt(parts.get(1)));
+						statement.setString(3, parts.get(2));
+						statement.setString(4, parts.get(3));
+						statement.setString(5, PasswordHash.createHash(parts.get(4)));
 						return String.valueOf(statement.executeUpdate());
 					}
 					else
@@ -107,7 +107,7 @@ public class Database
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
 					statement.setString(1, components.get(1));
 					statement.setTimestamp(2, java.sql.Timestamp.valueOf(components.get(2)));
-					statement.setInt(3, Integer.parseInt(components.get(3)));
+					statement.setInt(3, user.user_id);
 					return String.valueOf(statement.executeUpdate());
 				}
 
