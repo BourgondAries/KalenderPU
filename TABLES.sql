@@ -24,6 +24,7 @@ CREATE TABLE Room
 	roomId		int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	size 		int,
 	location	varchar(255),
+	roomName	varchar(255) UNIQUE,
 	PRIMARY KEY (roomId)
 );
 

@@ -215,6 +215,42 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
+				else if (line.equalsIgnoreCase("change_pass"))
+				{
+					String password;
+					do 
+					{
+						password = getPasswordFromConsole(scanner, "Enter the new password for the user: ");
+						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
+						if (password.equals(passcheck) == false)
+							System.out.println("Passwords do not match, retry.");
+						else
+							break;
+					}
+					while (true);
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"CHANGE_PASSWORD "
+							+ utils.Utils.escapeSpaces(password)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					if (result != null)
+					{
+						if (result.equals("1"))
+						{
+							System.out.println("Server response: 'OK: Changed password.'");
+						}
+						else
+						{
+							System.out.println("Server response: 'ERR: Something went wrong.'");
+						}
+					}
+					else
+					{
+						System.out.println("Server failed to respond.");
+					}
+				}
 				else if (line.equalsIgnoreCase("new_event"))
 				{
 					System.out.print("Enter a description of the event: ");
@@ -251,6 +287,41 @@ public class Client
 						if (i++ % 2 == 0)
 							System.out.println();
 						System.out.println(tmp);
+					}
+				}
+				else if (line.equalsIgnoreCase("register_room"))
+				{
+					System.out.println("Enter the new room name: ");
+					String room_name = scanner.nextLine();
+					System.out.println("Enter the new room's capacity (people): ");
+					String room_cap = scanner.nextLine();
+					System.out.println("Enter the new room's location: ");
+					String room_location = scanner.nextLine();
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"REGISTER_ROOM "
+							+ utils.Utils.escapeSpaces(room_name)
+							+ " "
+							+ utils.Utils.escapeSpaces(room_cap)
+							+ " "
+							+ utils.Utils.escapeSpaces(room_location)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					if (result != null)
+					{
+						if (result.equals("1"))
+						{
+							System.out.println("Server response: 'OK: Changed password.'");
+						}
+						else
+						{
+							System.out.println("Server response: 'ERR: Something went wrong.'");
+						}
+					}
+					else
+					{
+						System.out.println("Server failed to respond.");
 					}
 				}
 				

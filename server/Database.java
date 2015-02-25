@@ -124,6 +124,14 @@ public class Database
 					{
 						return "You do not have the privilege to register users.";
 					}
+				case "CHANGE_PASSWORD":
+				{
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
+					statement.setString(1, PasswordHash.createHash(components.get(1)));
+					statement.setInt(2, user.user_id);
+					return String.valueOf(statement.executeUpdate());
+				}
 				case "NEW_EVENT":
 				{
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
@@ -137,6 +145,15 @@ public class Database
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=? ORDER BY time ASC");
 					statement.setInt(1, user.user_id);
+					return resultToString(statement.executeQuery());
+				}
+				case "REGISTER_ROOM":
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					statement.setString(1, components.get(1));
+					statement.setInt(2, Integer.parseInt(components.get(2)));
+					statement.setString(3, components.get(3));
 					return resultToString(statement.executeQuery());
 				}
 			}
