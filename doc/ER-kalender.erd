@@ -62,6 +62,9 @@
 <diamond id="26" is_weak="false" name="invitation" x="515" y="352">
 <attributes>
 <attribute name="status" type=""/>
+<attribute name="alarm" type=""/>
+<attribute name="" type=""/>
+<attribute name="" type=""/>
 </attributes>
 </diamond>
 <diamond id="30" is_weak="false" name="receive" x="378" y="235">
