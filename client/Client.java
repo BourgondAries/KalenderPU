@@ -74,6 +74,51 @@ public class Client
 
 	}
 
+	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner) throws Exception
+	{
+		verbose("Sending data: '" + login_info + " " + command + "'.");
+		if (client.sendData(login_info + " " + command, host, port) == false)
+		{
+			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
+			while (true)
+			{
+				String result = scanner.nextLine();
+				if (result.equals("yes"))
+				{
+					client.addPublicServerKeyToTrusted();
+					client.sendWhenTrusted(login_info + " " + command);
+					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
+					System.out.println("Server response:");
+					for (String string : answer)
+						System.out.println(string);
+					break;
+				}
+				else if (result.equals("no"))
+					break;
+				else
+					System.out.print("Please enter \"yes\" or \"no\": ");
+			}
+		}
+		else
+		{
+			String response = client.fetchResponse();
+			verbose("Direct response: " + response);
+			if (response != null)
+			{
+				/*
+				java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
+				System.out.println("Server response:");
+				for (String string : answer)
+					System.out.println(string);
+				*/
+				return response;
+			}
+			else
+				System.out.println("No response from server");
+		}
+		return null;
+	}
+
 	public static void commandLineInterface()
 	{
 		Client client = null;
@@ -153,8 +198,24 @@ public class Client
 							+ " "
 							+ utils.Utils.escapeSpaces(password)
 						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					if (result != null)
+					{
+						if (result.equals("1"))
+						{
+							System.out.println("Server response: 'OK: Registered new user.'");
+						}
+						else
+						{
+							System.out.println("Server response: 'ERR: User already exists.'");
+						}
+					}
+					else
+					{
+						System.out.println("Server failed to respond.");
+					}
 				}
-				else if (line.equalsIgnoreCase("new event"))
+				else if (line.equalsIgnoreCase("new_event"))
 				{
 					System.out.print("Enter a description of the event: ");
 					String description = scanner.nextLine();
@@ -168,50 +229,31 @@ public class Client
 							+ " "
 							+ utils.Utils.escapeSpaces(datetime)
 						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 				}
-				else if (line.equalsIgnoreCase("get events"))
+				else if (line.equalsIgnoreCase("get_events"))
 				{
 					line =
 						utils.Utils.escapeSpaces("GET_EVENTS");
-				}
-				System.out.println("Sending data: '" + login_info + " " + line + "'.");
-				if (client.sendData(login_info + " " + line, host, port) == false)
-				{
-					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
-					while (true)
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
 					{
-						String result = scanner.nextLine();
-						if (result.equals("yes"))
-						{
-							client.addPublicServerKeyToTrusted();
-							client.sendWhenTrusted(login_info + " " + line);
-							java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
-							System.out.println("Server response:");
-							for (String string : answer)
-								System.out.println(string);
-							break;
-						}
-						else if (result.equals("no"))
-							break;
-						else
-							System.out.print("Please enter \"yes\" or \"no\": ");
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
 					}
-				}
-				else
-				{
-					String response = client.fetchResponse();
-					System.out.println("Direct response: " + response);
-					if (response != null)
-					{
-						java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
-						System.out.println("Server response:");
-						for (String string : answer)
-							System.out.println(string);
-					}
-					else
-						System.out.println("No response from server");
 
+					int i = 0;
+					for (String tmp : final_set)
+					{
+						if (i++ % 2 == 0)
+							System.out.println();
+						System.out.println(tmp);
+					}
 				}
+				
 
 			}
 		}
