@@ -14,4 +14,9 @@ public class User
 		this.lname = lname;
 		this.hashedPW = hashedPW;
 	}
+
+	public User getUser()
+	{
+		return this;
+	}
 }

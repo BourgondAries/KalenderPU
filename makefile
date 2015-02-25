@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+SERVER_LIBS=".:commons-cli-1.2.jar:derby.jar"
+SERVER_RUNPATH="bin:commons-cli-1.2.jar:derby.jar"
+CLIENT_LIBS=".:commons-cli-1.2.jar:derby.jar:derbyclient.jar"
+CLIENT_RUNPATH="bin:commons-cli-1.2.jar:derby.jar:derbyclient.jar"
+=======
 SERVER_LIBS=".;./commons-cli-1.2.jar;./derby.jar"
 SERVER_RUNPATH=".;./bin;./commons-cli-1.2.jar;./derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 BIN_MAP=bin
+>>>>>>> c6b94aac9f9c6bfcb2bdcf030ad54f72cbadcb4a
 
 setup:
 	mkdir -p bin
@@ -19,8 +26,13 @@ key:
 	java -classpath $(SERVER_RUNPATH) server.Server --keygen
 
 pserver:
+<<<<<<< HEAD
+	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
+	java -classpath $(SERVER_RUNPATH) server.Server --cli
+=======
 	$(MAKE) cserver
 	java -classpath $(SERVER_RUNPATH) .server.Server --cli
+>>>>>>> c6b94aac9f9c6bfcb2bdcf030ad54f72cbadcb4a
 
 vserver:
 	$(MAKE) cserver
@@ -36,7 +48,7 @@ vclient:
 
 dbreset:
 	rm -rf database
-	java -classpath ".;./derby.jar;./derbytools.jar" -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
+	java -classpath ".:derby.jar:derbytools.jar" -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
 
 clean:
 	find . -name "*.class" | xargs rm
