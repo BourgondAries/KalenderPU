@@ -64,6 +64,7 @@ public class Database
 			{
 				return "User '" + username + "' does not exist.";
 			}
+			
 		}
 		catch (Exception exc)
 		{
@@ -106,7 +107,7 @@ public class Database
 
 			switch (firstword)
 			{
-				case "REGISTER": 
+				case "REGISTER":
 					if (user.rank < 10)
 					{
 						query = query.substring(query.indexOf(" ") + 1);
@@ -127,11 +128,16 @@ public class Database
 				{
 					if (user.username.equals("root"))
 					{
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-					statement.setString(1, PasswordHash.createHash(components.get(1)));
-					statement.setInt(2, user.user_id);
-					return String.valueOf(statement.executeUpdate());
+						java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+						java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
+						statement.setString(1, PasswordHash.createHash(components.get(1)));
+						statement.setInt(2, user.user_id);
+						return String.valueOf(statement.executeUpdate());
+					}
+					else
+					{
+						return "Only root can change other users' passwords.";
+					}
 				}
 				case "CHANGE_PASSWORD":
 				{
@@ -165,50 +171,14 @@ public class Database
 					statement.setString(3, components.get(3));
 					return String.valueOf(statement.executeUpdate());
 				}
+				default:
+					return "No more information provided.";
 			}
-
-				verbose("Executing query " + query);
-
-				if 
-				(
-					query.startsWith("UPDATE") 
-					|| query.startsWith("INSERT")
-					|| query.startsWith("EXECUTE")
-					|| query.startsWith("INSERT")
-					|| query.startsWith("DELETE")
-				)
-				{
-					java.sql.PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-					return String.valueOf(statement.executeUpdate());
-				}
-				else if (query.startsWith("SELECT"))
-				{
-					java.sql.PreparedStatement statement = connection.prepareStatement(query);
-					java.sql.ResultSet result = statement.executeQuery();
-					java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
-					int columns = resultmetadata.getColumnCount();
-
-					String answer = String.valueOf(columns);
-					while (result.next())
-					{
-						String tmp = "";
-						for (int i = 0; i < columns; ++i)
-						{
-							tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
-						}
-						answer += " " + utils.Utils.escapeSpaces(tmp);
-					}
-					return answer;
-				}
-				else
-				{
-					return "Invalid query provided";
-				}
-			}
-			catch (Exception exc)
-			{
-				verbose("An exception ocurred during execution: " + exc.toString());
-				return exc.toString();
-			}
+		}
+		catch (Exception exc)
+		{
+			verbose("An exception ocurred during execution: " + exc.toString());
+			return exc.toString();
+		}
 	}
 }

@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-SERVER_LIBS=".:commons-cli-1.2.jar:derby.jar"
-SERVER_RUNPATH="bin:commons-cli-1.2.jar:derby.jar"
-CLIENT_LIBS=".:commons-cli-1.2.jar:derby.jar:derbyclient.jar"
-CLIENT_RUNPATH="bin:commons-cli-1.2.jar:derby.jar:derbyclient.jar"
-=======
 SERVER_LIBS=".;./commons-cli-1.2.jar;./derby.jar"
 SERVER_RUNPATH=".;./bin;./commons-cli-1.2.jar;./derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 BIN_MAP=bin
->>>>>>> c6b94aac9f9c6bfcb2bdcf030ad54f72cbadcb4a
 
 setup:
 	mkdir -p bin
@@ -26,13 +19,8 @@ key:
 	java -classpath $(SERVER_RUNPATH) server.Server --keygen
 
 pserver:
-<<<<<<< HEAD
-	javac -classpath $(SERVER_LIBS) -d bin server/Server.java
-	java -classpath $(SERVER_RUNPATH) server.Server --cli
-=======
 	$(MAKE) cserver
-	java -classpath $(SERVER_RUNPATH) .server.Server --cli
->>>>>>> c6b94aac9f9c6bfcb2bdcf030ad54f72cbadcb4a
+	java -classpath $(SERVER_RUNPATH) server.Server --cli
 
 vserver:
 	$(MAKE) cserver
