@@ -37,7 +37,7 @@ CLIENT_RUNPATH_MAC="bin:./commons-cli-1.2.jar:./derby.jar:./derbyclient.jar"
 
 setup-mac:
 	mkdir -p bin
-	$(MAKE) dbreset
+	$(MAKE) dbreset-mac
 
 pserver-mac:
 	javac -classpath $(SERVER_LIBS_MAC) -d bin server/Server.java
