@@ -58,6 +58,67 @@ public class Client
 		}
 	}
 
+	public static String getPasswordFromConsole(java.util.Scanner scanner, String message)
+	{
+		java.io.Console console = System.console();
+		if (console == null)
+		{
+			System.out.println("No console found: typing is echod.\n" + message);
+			return scanner.nextLine();
+		}
+		else
+		{
+			System.out.print(message);
+			return new String(console.readPassword());
+		}
+
+	}
+
+	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner) throws Exception
+	{
+		verbose("Sending data: '" + login_info + " " + command + "'.");
+		if (client.sendData(login_info + " " + command, host, port) == false)
+		{
+			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
+			while (true)
+			{
+				String result = scanner.nextLine();
+				if (result.equals("yes"))
+				{
+					client.addPublicServerKeyToTrusted();
+					client.sendWhenTrusted(login_info + " " + command);
+					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
+					System.out.println("Server response:");
+					for (String string : answer)
+						System.out.println(string);
+					break;
+				}
+				else if (result.equals("no"))
+					break;
+				else
+					System.out.print("Please enter \"yes\" or \"no\": ");
+			}
+		}
+		else
+		{
+			String response = client.fetchResponse();
+			verbose("Direct response: " + response);
+			if (response != null)
+			{
+				/*
+				java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
+				System.out.println("Server response:");
+				for (String string : answer)
+					System.out.println(string);
+				*/
+				return response;
+			}
+			else
+				System.out.println("No response from server");
+		}
+		return null;
+	}
+
 	public static void commandLineInterface()
 	{
 		Client client = null;
@@ -87,17 +148,7 @@ public class Client
 			}
 			System.out.print("Enter your username: ");
 			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
-			java.io.Console console = System.console();
-			if (console == null)
-			{
-				System.out.println("No console found.\nYou have to visibly enter your password: ");
-				login_info = login_info + " " + utils.Utils.escapeSpaces(scanner.nextLine());
-			}
-			else
-			{
-				System.out.print("Enter your password: ");
-				login_info = login_info + " " + utils.Utils.escapeSpaces(new String(console.readPassword()));
-			}
+			login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
 
 			while (scanner.hasNextLine())
 			{
@@ -112,44 +163,97 @@ public class Client
 						+ "\n.register - start new user registration"
 					);
 				}
-				System.out.println("Sending data: '" + login_info + " " + line + "'.");
-				if (client.sendData(login_info + " " + line, host, port) == false)
+				else if (line.equalsIgnoreCase("register"))
 				{
-					System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
-					while (true)
+					System.out.print("Enter a new username: ");
+					String username = scanner.nextLine();
+					System.out.print("Enter a rank (positive integer): ");
+					String rank = scanner.nextLine();
+					System.out.print("Enter the first name: ");
+					String fname = scanner.nextLine();
+					System.out.print("Enter the last name: ");
+					String lname = scanner.nextLine();
+					String password;
+					do 
 					{
-						String result = scanner.nextLine();
-						if (result.equals("yes"))
-						{
-							client.addPublicServerKeyToTrusted();
-							client.sendWhenTrusted(login_info + " " + line);
-							java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
-							System.out.println("Server response:");
-							for (String string : answer)
-								System.out.println(string);
-							break;
-						}
-						else if (result.equals("no"))
-							break;
+						password = getPasswordFromConsole(scanner, "Enter the password for the new user: ");
+						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
+						if (password.equals(passcheck) == false)
+							System.out.println("Passwords do not match, retry.");
 						else
-							System.out.print("Please enter \"yes\" or \"no\": ");
+							break;
 					}
-				}
-				else
-				{
-					String response = client.fetchResponse();
-					System.out.println("Direct response: " + response);
-					if (response != null)
+					while (true);
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"REGISTER "
+							+ utils.Utils.escapeSpaces(username)
+							+ " "
+							+ utils.Utils.escapeSpaces(rank)
+							+ " "
+							+ utils.Utils.escapeSpaces(fname)
+							+ " "
+							+ utils.Utils.escapeSpaces(lname)
+							+ " "
+							+ utils.Utils.escapeSpaces(password)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					if (result != null)
 					{
-						java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
-						System.out.println("Server response:");
-						for (String string : answer)
-							System.out.println(string);
+						if (result.equals("1"))
+						{
+							System.out.println("Server response: 'OK: Registered new user.'");
+						}
+						else
+						{
+							System.out.println("Server response: 'ERR: User already exists.'");
+						}
 					}
 					else
-						System.out.println("No response from server");
-
+					{
+						System.out.println("Server failed to respond.");
+					}
 				}
+				else if (line.equalsIgnoreCase("new_event"))
+				{
+					System.out.print("Enter a description of the event: ");
+					String description = scanner.nextLine();
+					System.out.print("Enter a date-time of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime = scanner.nextLine();
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"NEW_EVENT "
+							+ utils.Utils.escapeSpaces(description)
+							+ " "
+							+ utils.Utils.escapeSpaces(datetime)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+				}
+				else if (line.equalsIgnoreCase("get_events"))
+				{
+					line =
+						utils.Utils.escapeSpaces("GET_EVENTS");
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
+					{
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+					}
+
+					int i = 0;
+					for (String tmp : final_set)
+					{
+						if (i++ % 2 == 0)
+							System.out.println();
+						System.out.println(tmp);
+					}
+				}
+				
 
 			}
 		}
