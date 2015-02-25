@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 
 public class MinimalServer
 {
-
     public static void main(String[] arstring)
     {
         try

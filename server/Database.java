@@ -102,6 +102,13 @@ public class Database
 					{
 						return "You do not have the privilege to register users.";
 					}
+				case "NEW_EVENT":
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
+					statement.setString(1, components.get(1));
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(components.get(2)));
+					statement.setInt(3, Integer.parseInt(components.get(3)));
+					return String.valueOf(statement.executeUpdate());
 				}
 
 				verbose("Executing query " + query);
