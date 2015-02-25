@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 
 public class TestUser
 {
-	
+
+
 	public static void fieldsShouldBeSet() 
 	{
 		int id = 0;
@@ -21,6 +22,16 @@ public class TestUser
 		assertEquals(fname, user.fname);
 		assertEquals(lname, user.lname);
 		assertEquals(hashedPW, user.hashedPW);
+	}
+	public static void getUserShouldReturnUser()
+	{
+		int id = 0;
+		int rank = 1;
+		String u_name = "oar", fname = "Ole Andreas" , lname = "Ramsdal", hashedPW = "hash";
+
+		User user = new User(id,rank,u_name,fname,lname,hashedPW);
+		assertEquals(user,user.getUser());
+
 	}
 	public static void main(String[] args)
 	{
