@@ -73,6 +73,24 @@ public class Database
 		}
 	}
 
+	public String resultToString(java.sql.ResultSet result) throws Exception
+	{
+		java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
+		int columns = resultmetadata.getColumnCount();
+
+		String answer = String.valueOf(columns);
+		while (result.next())
+		{
+			String tmp = "";
+			for (int i = 0; i < columns; ++i)
+			{
+				tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+			}
+			answer += " " + utils.Utils.escapeSpaces(tmp);
+		}
+		return answer;
+	}
+
 	public String executeWithValidUser(User user, String query)
 	{
 		try
@@ -81,7 +99,7 @@ public class Database
 			if (query.contains(" "))
 				firstword = query.substring(0, query.indexOf(" "));
 			if (firstword == null)
-				return "No separable input.";
+				firstword = query;
 
 			switch (firstword)
 			{
@@ -103,6 +121,7 @@ public class Database
 						return "You do not have the privilege to register users.";
 					}
 				case "NEW_EVENT":
+				{
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
 					statement.setString(1, components.get(1));
@@ -110,6 +129,13 @@ public class Database
 					statement.setInt(3, user.user_id);
 					return String.valueOf(statement.executeUpdate());
 				}
+				case "GET_EVENTS":
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=?");
+					statement.setInt(1, user.user_id);
+					return resultToString(statement.executeQuery());
+				}
+			}
 
 				verbose("Executing query " + query);
 
