@@ -229,11 +229,26 @@ public class Client
 							+ " "
 							+ utils.Utils.escapeSpaces(datetime)
 						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 				}
 				else if (line.equalsIgnoreCase("get_events"))
 				{
 					line =
 						utils.Utils.escapeSpaces("GET_EVENTS");
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
+					{
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+					}
+
+					for (String tmp : final_set)
+					{
+						System.out.println(tmp);
+					}
 				}
 				
 

@@ -82,7 +82,11 @@ public class Database
 		while (result.next())
 		{
 			String tmp = "";
-			for (int i = 0; i < columns; ++i)
+			if (columns > 0)
+			{
+				tmp = utils.Utils.escapeSpaces(result.getString(1));
+			}
+			for (int i = 1; i < columns; ++i)
 			{
 				tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
 			}
