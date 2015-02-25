@@ -154,6 +154,26 @@ public class Client
 							+ utils.Utils.escapeSpaces(password)
 						);
 				}
+				else if (line.equalsIgnoreCase("new event"))
+				{
+					System.out.print("Enter a description of the event: ");
+					String description = scanner.nextLine();
+					System.out.print("Enter a date-time of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime = scanner.nextLine();
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"NEW_EVENT "
+							+ utils.Utils.escapeSpaces(description)
+							+ " "
+							+ utils.Utils.escapeSpaces(datetime)
+						);
+				}
+				else if (line.equalsIgnoreCase("get events"))
+				{
+					line =
+						utils.Utils.escapeSpaces("GET_EVENTS");
+				}
 				System.out.println("Sending data: '" + login_info + " " + line + "'.");
 				if (client.sendData(login_info + " " + line, host, port) == false)
 				{

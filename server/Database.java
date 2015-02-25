@@ -107,7 +107,7 @@ public class Database
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
 					statement.setString(1, components.get(1));
 					statement.setTimestamp(2, java.sql.Timestamp.valueOf(components.get(2)));
-					statement.setInt(3, Integer.parseInt(components.get(3)));
+					statement.setInt(3, user.user_id);
 					return String.valueOf(statement.executeUpdate());
 				}
 
