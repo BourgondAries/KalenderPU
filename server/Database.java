@@ -82,7 +82,11 @@ public class Database
 		while (result.next())
 		{
 			String tmp = "";
-			for (int i = 0; i < columns; ++i)
+			if (columns > 0)
+			{
+				tmp = utils.Utils.escapeSpaces(result.getString(1));
+			}
+			for (int i = 1; i < columns; ++i)
 			{
 				tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
 			}
@@ -131,7 +135,7 @@ public class Database
 				}
 				case "GET_EVENTS":
 				{
-					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=?");
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=? ORDER BY time ASC");
 					statement.setInt(1, user.user_id);
 					return resultToString(statement.executeQuery());
 				}
