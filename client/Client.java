@@ -58,6 +58,22 @@ public class Client
 		}
 	}
 
+	public static String getPasswordFromConsole(java.util.Scanner scanner, String message)
+	{
+		java.io.Console console = System.console();
+		if (console == null)
+		{
+			System.out.println("No console found: typing is echod.\n" + message);
+			return scanner.nextLine();
+		}
+		else
+		{
+			System.out.print(message);
+			return new String(console.readPassword());
+		}
+
+	}
+
 	public static void commandLineInterface()
 	{
 		Client client = null;
@@ -87,17 +103,7 @@ public class Client
 			}
 			System.out.print("Enter your username: ");
 			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
-			java.io.Console console = System.console();
-			if (console == null)
-			{
-				System.out.println("No console found.\nYou have to visibly enter your password: ");
-				login_info = login_info + " " + utils.Utils.escapeSpaces(scanner.nextLine());
-			}
-			else
-			{
-				System.out.print("Enter your password: ");
-				login_info = login_info + " " + utils.Utils.escapeSpaces(new String(console.readPassword()));
-			}
+			login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
 
 			while (scanner.hasNextLine())
 			{
@@ -111,6 +117,42 @@ public class Client
 						".help - print this help text"
 						+ "\n.register - start new user registration"
 					);
+				}
+				else if (line.equalsIgnoreCase("register"))
+				{
+					System.out.print("Enter a new username: ");
+					String username = scanner.nextLine();
+					System.out.print("Enter a rank (positive integer): ");
+					String rank = scanner.nextLine();
+					System.out.print("Enter the first name: ");
+					String fname = scanner.nextLine();
+					System.out.print("Enter the last name: ");
+					String lname = scanner.nextLine();
+					String password;
+					do 
+					{
+						password = getPasswordFromConsole(scanner, "Enter the password for the new user: ");
+						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
+						if (password.equals(passcheck) == false)
+							System.out.println("Passwords do not match, retry.");
+						else
+							break;
+					}
+					while (true);
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							"REGISTER "
+							+ utils.Utils.escapeSpaces(username)
+							+ " "
+							+ utils.Utils.escapeSpaces(rank)
+							+ " "
+							+ utils.Utils.escapeSpaces(fname)
+							+ " "
+							+ utils.Utils.escapeSpaces(lname)
+							+ " "
+							+ utils.Utils.escapeSpaces(password)
+						);
 				}
 				System.out.println("Sending data: '" + login_info + " " + line + "'.");
 				if (client.sendData(login_info + " " + line, host, port) == false)
