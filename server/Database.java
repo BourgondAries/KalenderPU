@@ -106,7 +106,11 @@ public class Database
 
 			switch (firstword)
 			{
+<<<<<<< HEAD
 				case "REGISTER": 
+=======
+				case "REGISTER":
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 					if (user.rank < 10)
 					{
 						query = query.substring(query.indexOf(" ") + 1);
@@ -127,11 +131,24 @@ public class Database
 				{
 					if (user.username.equals("root"))
 					{
+<<<<<<< HEAD
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
 					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
 					statement.setString(1, PasswordHash.createHash(components.get(1)));
 					statement.setInt(2, user.user_id);
 					return String.valueOf(statement.executeUpdate());
+=======
+						java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+						java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
+						statement.setString(1, PasswordHash.createHash(components.get(1)));
+						statement.setInt(2, user.user_id);
+						return String.valueOf(statement.executeUpdate());
+					}
+					else
+					{
+						return "Only root can change other users' passwords.";
+					}
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				}
 				case "CHANGE_PASSWORD":
 				{
@@ -157,6 +174,7 @@ public class Database
 					return resultToString(statement.executeQuery());
 				}
 				case "REGISTER_ROOM":
+<<<<<<< HEAD
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
@@ -177,38 +195,32 @@ public class Database
 					|| query.startsWith("INSERT")
 					|| query.startsWith("DELETE")
 				)
+=======
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				{
-					java.sql.PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					statement.setString(1, components.get(1));
+					statement.setInt(2, Integer.parseInt(components.get(2)));
+					statement.setString(3, components.get(3));
 					return String.valueOf(statement.executeUpdate());
 				}
-				else if (query.startsWith("SELECT"))
+				case "FIND_PERSON":
 				{
-					java.sql.PreparedStatement statement = connection.prepareStatement(query);
-					java.sql.ResultSet result = statement.executeQuery();
-					java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
-					int columns = resultmetadata.getColumnCount();
-
-					String answer = String.valueOf(columns);
-					while (result.next())
-					{
-						String tmp = "";
-						for (int i = 0; i < columns; ++i)
-						{
-							tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
-						}
-						answer += " " + utils.Utils.escapeSpaces(tmp);
-					}
-					return answer;
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+					statement.setString(1, components.get(1));
+					statement.setString(2, components.get(1));
+					return resultToString(statement.executeQuery());
 				}
-				else
-				{
-					return "Invalid query provided";
-				}
+				default:
+					return "No more information provided.";
 			}
-			catch (Exception exc)
-			{
-				verbose("An exception ocurred during execution: " + exc.toString());
-				return exc.toString();
-			}
+		}
+		catch (Exception exc)
+		{
+			verbose("An exception ocurred during execution: " + exc.toString());
+			return exc.toString();
+		}
 	}
 }

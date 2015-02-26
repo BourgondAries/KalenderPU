@@ -324,6 +324,39 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
+<<<<<<< HEAD
+=======
+				else if (line.equalsIgnoreCase("find_person"))
+				{
+					System.out.print("Enter the name you'd like to search for: ");
+					String like = scanner.nextLine();
+					line =
+						utils.Utils.escapeSpaces
+						(
+							"FIND_PERSON "								
+							+ utils.Utils.escapeSpaces("FIND_PERSON")
+							+ " "
+							+ utils.Utils.escapeSpaces(like)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
+					{
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+					}
+
+					int i = 0;
+					for (String tmp : final_set)
+					{
+						if (i++ % 2 == 0)
+							System.out.println();
+						System.out.println(tmp);
+					}
+				}
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				
 
 			}
