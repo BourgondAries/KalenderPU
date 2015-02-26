@@ -139,7 +139,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("ChangePassCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-				statement.setString(1, PasswordHash.createHash(parts.get(2)));
+				statement.setString(1, PasswordHash.createHash(parts.get(1)));
 				statement.setInt(2, user.user_id);
 				return String.valueOf(statement.executeUpdate());
 			}
