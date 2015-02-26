@@ -103,8 +103,8 @@ public class Utils
 
 	public static java.security.PrivateKey getServerPrivateKey() throws java.io.IOException
 	{
-		byte[] pubkey_raw = fileToBytes(Configuration.settings.get("ServerPrivateKeyFile"));
-		return bytesToPrivateKey(pubkey_raw);
+		byte[] privkey_raw = fileToBytes(Configuration.settings.get("ServerPrivateKeyFile"));
+		return bytesToPrivateKey(privkey_raw);
 	}
 
 	private static final String HEXES = "0123456789ABCDEF";
