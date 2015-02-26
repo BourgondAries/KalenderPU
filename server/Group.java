@@ -3,7 +3,7 @@ import java.util.ArrayList;
 java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
-
+import java.sql.PreparedStatement;
 
 public class Group{
 
@@ -24,18 +24,20 @@ public class Group{
 	Database con = new Database("jdbc:derby:database");
 	Statement stmt = new con.createStatement();
 	ResultSet rs = new ResultSet(string sql);
+	PreparedStatement prepStatement = new PreparedStatement();
 	}
 
 
 	//save- og get metoder
-	public Group getGroup(int groupID, Database con){
-		string sqlSelect = "SELECT * FROM SystemGroup WHERE groupID =?";
-		Group gr = rs(sqlSelect);
-		return gr;
+	public Group getGroup(int groupID){
+		prepStatement = connection.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
+		prepStatement.setString(1, groupID);
+		rs = executeQuery();
+		return rs;
 	}
 
 	public void saveGroup(int groupID){
-		---
+		prepStatement = connection.prepareStatement("INSERT INTO SystemGroup ")
 	}
 
 
