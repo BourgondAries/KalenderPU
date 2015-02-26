@@ -192,5 +192,6 @@ public class Database
 			verbose("An exception ocurred during execution: " + exc.toString());
 			return exc.toString();
 		}
+		return "Impossible.";
 	}
 }
