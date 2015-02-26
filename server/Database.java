@@ -171,6 +171,14 @@ public class Database
 					statement.setString(3, components.get(3));
 					return String.valueOf(statement.executeUpdate());
 				}
+				case "FIND_PERSON":
+				{
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+					statement.setString(1, components.get(1));
+					statement.setString(2, components.get(1));
+					return resultToString(statement.executeQuery());
+				}
 				default:
 					return "No more information provided.";
 			}
