@@ -174,10 +174,13 @@ public class Database
 				case "FIND_PERSON":
 				{
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-					statement.setString(1, components.get(1));
-					statement.setString(2, components.get(1));
-					return resultToString(statement.executeQuery());
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT username FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+					System.out.println("Setting string to: " + components.get(2));
+					statement.setString(1, components.get(2));
+					statement.setString(2, components.get(2));
+					String tmp =resultToString(statement.executeQuery());
+					System.out.println(tmp);
+					return tmp;
 				}
 				default:
 					return "No more information provided.";
