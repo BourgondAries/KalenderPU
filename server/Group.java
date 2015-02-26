@@ -45,6 +45,7 @@ public class Group{
 		prepStatement.setString(3, parts.get(2));
 		prepStatement.setString(4, parts.get(3));
 		rs = prepStatement.executeQuery();
+		
 	}
 
 
