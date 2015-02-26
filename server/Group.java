@@ -23,16 +23,18 @@ public class Group{
 	this.groupAdmin = groupAdmin;
 	Database con = new Database("jdbc:derby:database");
 	Statement stmt = new con.createStatement();
-	ResultSet rs = new ResultSet();
+	ResultSet rs = new ResultSet(string sql);
 	}
 
 
 	//save- og get metoder
-	public Group getGroup(groupID, con){
-		
+	public Group getGroup(int groupID, Database con){
+		string sqlSelect = "SELECT * FROM SystemGroup WHERE groupID =?";
+		Group gr = rs(sqlSelect);
+		return gr;
 	}
 
-	public void saveGroup(groupID){
+	public void saveGroup(int groupID){
 		---
 	}
 
