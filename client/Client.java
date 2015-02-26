@@ -324,6 +324,8 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
+<<<<<<< HEAD
+=======
 				else if (line.equalsIgnoreCase("find_person"))
 				{
 					System.out.print("Enter the name you'd like to search for: ");
@@ -354,6 +356,7 @@ public class Client
 						System.out.println(tmp);
 					}
 				}
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				
 
 			}

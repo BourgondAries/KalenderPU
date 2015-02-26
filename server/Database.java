@@ -64,7 +64,6 @@ public class Database
 			{
 				return "User '" + username + "' does not exist.";
 			}
-			
 		}
 		catch (Exception exc)
 		{
@@ -107,7 +106,11 @@ public class Database
 
 			switch (firstword)
 			{
+<<<<<<< HEAD
+				case "REGISTER": 
+=======
 				case "REGISTER":
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 					if (user.rank < 10)
 					{
 						query = query.substring(query.indexOf(" ") + 1);
@@ -128,6 +131,13 @@ public class Database
 				{
 					if (user.username.equals("root"))
 					{
+<<<<<<< HEAD
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
+					statement.setString(1, PasswordHash.createHash(components.get(1)));
+					statement.setInt(2, user.user_id);
+					return String.valueOf(statement.executeUpdate());
+=======
 						java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
 						java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
 						statement.setString(1, PasswordHash.createHash(components.get(1)));
@@ -138,6 +148,7 @@ public class Database
 					{
 						return "Only root can change other users' passwords.";
 					}
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				}
 				case "CHANGE_PASSWORD":
 				{
@@ -163,6 +174,29 @@ public class Database
 					return resultToString(statement.executeQuery());
 				}
 				case "REGISTER_ROOM":
+<<<<<<< HEAD
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
+					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
+					statement.setString(1, components.get(1));
+					statement.setInt(2, Integer.parseInt(components.get(2)));
+					statement.setString(3, components.get(3));
+					return String.valueOf(statement.executeUpdate());
+				}
+			}
+
+				verbose("Executing query " + query);
+
+				if 
+				(
+					query.startsWith("UPDATE") 
+					|| query.startsWith("INSERT")
+					|| query.startsWith("EXECUTE")
+					|| query.startsWith("INSERT")
+					|| query.startsWith("DELETE")
+				)
+=======
+>>>>>>> be34943e770f3902a819a8827ea617489588351c
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
 					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
