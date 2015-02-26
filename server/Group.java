@@ -1,6 +1,9 @@
 package server;
 import java.util.ArrayList; 
 java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
+
 
 public class Group{
 
@@ -18,16 +21,20 @@ public class Group{
 	this.groupRank = groupRank;
 	this.groupName = groupName;
 	this.groupAdmin = groupAdmin;
-	this.database = database(jdbc:derby:database);
+	Database con = new Database("jdbc:derby:database");
+	Statement stmt = new con.createStatement();
+	ResultSet rs = new ResultSet();
 	}
+
 
 	//save- og get metoder
-	public Group getGroup(groupID, connection){
-		Group fetch = 
-		return fetch;
+	public Group getGroup(groupID, con){
+		
 	}
 
-	public void saveGroup(groupID)
+	public void saveGroup(groupID){
+		---
+	}
 
 
 }
