@@ -2,6 +2,7 @@ SERVER_LIBS=".;./commons-cli-1.2.jar;./derby.jar"
 SERVER_RUNPATH=".;./bin;./commons-cli-1.2.jar;./derby.jar"
 CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
+DBRESET_RUNPATH=".;derby.jar;derbytools.jar"
 BIN_MAP=bin
 
 setup:
@@ -36,7 +37,7 @@ vclient:
 
 dbreset:
 	rm -rf database
-	java -classpath ".:derby.jar:derbytools.jar" -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
+	java -classpath $(DBRESET_RUNPATH) -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
 
 clean:
 	find . -name "*.class" | xargs rm
