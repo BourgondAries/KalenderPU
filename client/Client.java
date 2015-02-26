@@ -150,20 +150,28 @@ public class Client
 			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
 			login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
 
+			System.out.print("Command (type 'help' for info): ");
 			while (scanner.hasNextLine())
 			{
-				String line = utils.Utils.escapeSpaces(scanner.nextLine());
+				String line = scanner.nextLine();
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 					break;
 				if (line.equalsIgnoreCase("help"))
 				{
 					System.out.println
 					(
-						".help - print this help text"
-						+ "\n.register - start new user registration"
+						"help - print this help text."
+						+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
+						+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
+						+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
+						+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
+						+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
+						+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch all unfetched events."
+						+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
+						+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
 					);
 				}
-				else if (line.equalsIgnoreCase("register"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterCommand")))
 				{
 					System.out.print("Enter a new username: ");
 					String username = scanner.nextLine();
@@ -187,7 +195,8 @@ public class Client
 					line = 
 						utils.Utils.escapeSpaces
 						(
-							"REGISTER "
+							utils.Configuration.settings.getAndEscape("RegisterCommand")
+							+ " "
 							+ utils.Utils.escapeSpaces(username)
 							+ " "
 							+ utils.Utils.escapeSpaces(rank)
@@ -215,8 +224,10 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
-				else if (line.equalsIgnoreCase("change_pass"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangePassOfCommand")))
 				{
+					System.out.print("Enter the username to change the password of: ");
+					String username = scanner.nextLine();
 					String password;
 					do 
 					{
@@ -231,7 +242,10 @@ public class Client
 					line = 
 						utils.Utils.escapeSpaces
 						(
-							"CHANGE_PASSWORD "
+							utils.Configuration.settings.getAndEscape("ChangePassOfCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(username)
+							+ " "
 							+ utils.Utils.escapeSpaces(password)
 						);
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
@@ -251,7 +265,44 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
-				else if (line.equalsIgnoreCase("new_event"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangePassCommand")))
+				{
+					String password;
+					do 
+					{
+						password = getPasswordFromConsole(scanner, "Enter the new password for the user: ");
+						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
+						if (password.equals(passcheck) == false)
+							System.out.println("Passwords do not match, retry.");
+						else
+							break;
+					}
+					while (true);
+					line = 
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.getAndEscape("ChangePassCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(password)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					if (result != null)
+					{
+						if (result.equals("1"))
+						{
+							System.out.println("Server response: 'OK: Changed password.'");
+						}
+						else
+						{
+							System.out.println("Server response: 'ERR: Something went wrong.'");
+						}
+					}
+					else
+					{
+						System.out.println("Server failed to respond.");
+					}
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("NewEventCommand")))
 				{
 					System.out.print("Enter a description of the event: ");
 					String description = scanner.nextLine();
@@ -260,17 +311,17 @@ public class Client
 					line = 
 						utils.Utils.escapeSpaces
 						(
-							"NEW_EVENT "
+							utils.Configuration.settings.getAndEscape("NewEventCommand")
 							+ utils.Utils.escapeSpaces(description)
 							+ " "
 							+ utils.Utils.escapeSpaces(datetime)
 						);
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 				}
-				else if (line.equalsIgnoreCase("get_events"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetEventsCommand")))
 				{
 					line =
-						utils.Utils.escapeSpaces("GET_EVENTS");
+						utils.Utils.escapeSpaces(utils.Configuration.settings.get("GetEventsCommand"));
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
 					result = result.substring(result.indexOf(" ") + 1);
@@ -289,7 +340,7 @@ public class Client
 						System.out.println(tmp);
 					}
 				}
-				else if (line.equalsIgnoreCase("register_room"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterRoomCommand")))
 				{
 					System.out.print("Enter the new room name: ");
 					String room_name = scanner.nextLine();
@@ -300,7 +351,8 @@ public class Client
 					line = 
 						utils.Utils.escapeSpaces
 						(
-							"REGISTER_ROOM "
+							utils.Configuration.settings.getAndEscape("RegisterRoomCommand")
+							+ " "
 							+ utils.Utils.escapeSpaces(room_name)
 							+ " "
 							+ utils.Utils.escapeSpaces(room_cap)
@@ -324,18 +376,15 @@ public class Client
 						System.out.println("Server failed to respond.");
 					}
 				}
-<<<<<<< HEAD
-=======
-				else if (line.equalsIgnoreCase("find_person"))
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("FindPersonCommand")))
 				{
 					System.out.print("Enter the name you'd like to search for: ");
 					String like = scanner.nextLine();
 					line =
 						utils.Utils.escapeSpaces
 						(
-							"FIND_PERSON "								
-							+ utils.Utils.escapeSpaces("FIND_PERSON")
-							+ " "
+							utils.Configuration.settings.getAndEscape("FindPersonCommand")
+							+ " "							
 							+ utils.Utils.escapeSpaces(like)
 						);
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
@@ -356,9 +405,11 @@ public class Client
 						System.out.println(tmp);
 					}
 				}
->>>>>>> be34943e770f3902a819a8827ea617489588351c
-				
-
+				else
+				{
+					System.out.println("Command not found");
+				}
+				System.out.print("Command (type 'help' for info): ");
 			}
 		}
 		catch (Exception exc)

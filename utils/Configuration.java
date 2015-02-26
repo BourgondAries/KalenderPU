@@ -15,6 +15,11 @@ public class Configuration extends java.util.HashMap<String, String>
 		return Integer.parseInt(this.get(key));
 	}
 
+	public String getAndEscape(String key)
+	{
+		return utils.Utils.escapeSpaces(this.get(key));
+	}
+
 	public static Configuration loadConfiguration(String filename) throws java.io.IOException
 	{
 		verbose("Loading configuration from " + filename);

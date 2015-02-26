@@ -98,72 +98,56 @@ public class Database
 	{
 		try
 		{
-			String firstword = null;
-			if (query.contains(" "))
-				firstword = query.substring(0, query.indexOf(" "));
-			if (firstword == null)
-				firstword = query;
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
+			for (int i = 0; i < parts.size(); ++i)
+				System.out.println("Parts: '" + parts.get(i) + "'.");
+			utils.Configuration coms = utils.Configuration.settings;
 
-			switch (firstword)
+			switch (parts.get(0))
 			{
-<<<<<<< HEAD
-				case "REGISTER": 
-=======
-				case "REGISTER":
->>>>>>> be34943e770f3902a819a8827ea617489588351c
+				case "register":
+				{
 					if (user.rank < 10)
 					{
-						query = query.substring(query.indexOf(" ") + 1);
-						java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
 						java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-						statement.setString(1, parts.get(0));
-						statement.setInt(2, Integer.parseInt(parts.get(1)));
-						statement.setString(3, parts.get(2));
-						statement.setString(4, parts.get(3));
-						statement.setString(5, PasswordHash.createHash(parts.get(4)));
+						statement.setString(1, parts.get(1));
+						statement.setInt(2, Integer.parseInt(parts.get(2)));
+						statement.setString(3, parts.get(3));
+						statement.setString(4, parts.get(4));
+						statement.setString(5, PasswordHash.createHash(parts.get(5)));
 						return String.valueOf(statement.executeUpdate());
 					}
 					else
 					{
 						return "You do not have the privilege to register users.";
 					}
+				}
 				case "CHANGE_PASSWORD_OF":
 				{
 					if (user.username.equals("root"))
 					{
-<<<<<<< HEAD
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-					statement.setString(1, PasswordHash.createHash(components.get(1)));
-					statement.setInt(2, user.user_id);
-					return String.valueOf(statement.executeUpdate());
-=======
-						java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-						java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-						statement.setString(1, PasswordHash.createHash(components.get(1)));
-						statement.setInt(2, user.user_id);
+						java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE username=?");
+						statement.setString(1, PasswordHash.createHash(parts.get(2)));
+						statement.setString(2, parts.get(1));
 						return String.valueOf(statement.executeUpdate());
 					}
 					else
 					{
 						return "Only root can change other users' passwords.";
 					}
->>>>>>> be34943e770f3902a819a8827ea617489588351c
 				}
 				case "CHANGE_PASSWORD":
 				{
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
 					java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-					statement.setString(1, PasswordHash.createHash(components.get(1)));
+					statement.setString(1, PasswordHash.createHash(parts.get(2)));
 					statement.setInt(2, user.user_id);
 					return String.valueOf(statement.executeUpdate());
 				}
 				case "NEW_EVENT":
 				{
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
-					statement.setString(1, components.get(1));
-					statement.setTimestamp(2, java.sql.Timestamp.valueOf(components.get(2)));
+					statement.setString(1, parts.get(1));
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2)));
 					statement.setInt(3, user.user_id);
 					return String.valueOf(statement.executeUpdate());
 				}
@@ -174,47 +158,21 @@ public class Database
 					return resultToString(statement.executeQuery());
 				}
 				case "REGISTER_ROOM":
-<<<<<<< HEAD
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					statement.setString(1, components.get(1));
-					statement.setInt(2, Integer.parseInt(components.get(2)));
-					statement.setString(3, components.get(3));
-					return String.valueOf(statement.executeUpdate());
-				}
-			}
-
-				verbose("Executing query " + query);
-
-				if 
-				(
-					query.startsWith("UPDATE") 
-					|| query.startsWith("INSERT")
-					|| query.startsWith("EXECUTE")
-					|| query.startsWith("INSERT")
-					|| query.startsWith("DELETE")
-				)
-=======
->>>>>>> be34943e770f3902a819a8827ea617489588351c
-				{
-					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					statement.setString(1, components.get(1));
-					statement.setInt(2, Integer.parseInt(components.get(2)));
-					statement.setString(3, components.get(3));
+					statement.setString(1, parts.get(1));
+					statement.setInt(2, Integer.parseInt(parts.get(2)));
+					statement.setString(3, parts.get(3));
 					return String.valueOf(statement.executeUpdate());
 				}
 				case "FIND_PERSON":
 				{
-					java.util.ArrayList<String> components = utils.Utils.splitAndUnescapeString(query);
-					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-					statement.setString(1, components.get(1));
-					statement.setString(2, components.get(1));
+					java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+					statement.setString(1, parts.get(1));
 					return resultToString(statement.executeQuery());
 				}
 				default:
-					return "No more information provided.";
+					return "No handler for the command: ";
 			}
 		}
 		catch (Exception exc)
