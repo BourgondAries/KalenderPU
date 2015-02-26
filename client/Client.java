@@ -210,14 +210,7 @@ public class Client
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 					if (result != null)
 					{
-						if (result.equals("1"))
-						{
-							System.out.println("Server response: 'OK: Registered new user.'");
-						}
-						else
-						{
-							System.out.println("Server response: 'ERR: User already exists.'");
-						}
+						System.out.println(result);
 					}
 					else
 					{

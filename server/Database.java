@@ -62,13 +62,13 @@ public class Database
 			}
 			else
 			{
-				return "User '" + username + "' does not exist.";
+				return "Login username '" + username + "' does not exist.";
 			}
 		}
 		catch (Exception exc)
 		{
 			verbose(exc.toString());
-			return "Internal database error.";
+			return "Unable to execute the query. Please contact the system administrator.";
 		}
 	}
 
@@ -99,10 +99,8 @@ public class Database
 		try
 		{
 			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-			if (parts.size() == 0)
-				return "User successfully authenticated.";
 			for (int i = 0; i < parts.size(); ++i)
-				System.out.println("Parts: '" + parts.get(i) + "'.");
+				verbose("Parts: '" + parts.get(i) + "'.");
 			utils.Configuration coms = utils.Configuration.settings;
 
 			if (parts.get(0).equals(coms.get("RegisterCommand")))
@@ -115,7 +113,18 @@ public class Database
 					statement.setString(3, parts.get(3));
 					statement.setString(4, parts.get(4));
 					statement.setString(5, PasswordHash.createHash(parts.get(5)));
-					return String.valueOf(statement.executeUpdate());
+					try
+					{
+						int n = statement.executeUpdate();
+						if (n == 1)
+						{
+							return "User '" + parts.get(1) + "' registered!";
+						}
+					}
+					catch (java.sql.SQLException exc)
+					{
+						return "It's likely that the user you're trying to add (" + parts.get(1) + ") already exists.";
+					}
 				}
 				else
 				{
