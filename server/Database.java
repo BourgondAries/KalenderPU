@@ -64,7 +64,6 @@ public class Database
 			{
 				return "User '" + username + "' does not exist.";
 			}
-			
 		}
 		catch (Exception exc)
 		{
@@ -107,6 +106,7 @@ public class Database
 			switch (parts.get(0))
 			{
 				case "register":
+				{
 					if (user.rank < 10)
 					{
 						java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
@@ -121,6 +121,7 @@ public class Database
 					{
 						return "You do not have the privilege to register users.";
 					}
+				}
 				case "CHANGE_PASSWORD_OF":
 				{
 					if (user.username.equals("root"))

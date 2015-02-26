@@ -1,6 +1,9 @@
 package server;
 import java.util.ArrayList; 
 java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 
 public class Group{
 
@@ -18,16 +21,24 @@ public class Group{
 	this.groupRank = groupRank;
 	this.groupName = groupName;
 	this.groupAdmin = groupAdmin;
-	this.database = database(jdbc:derby:database);
+	Database con = new Database("jdbc:derby:database");
+	Statement stmt = new con.createStatement();
+	ResultSet rs = new ResultSet(string sql);
+	PreparedStatement prepStatement = new PreparedStatement();
 	}
+
 
 	//save- og get metoder
-	public Group getGroup(groupID, connection){
-		Group fetch = 
-		return fetch;
+	public Group getGroup(int groupID){
+		prepStatement = connection.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
+		prepStatement.setString(1, groupID);
+		rs = executeQuery();
+		return rs;
 	}
 
-	public void saveGroup(groupID)
+	public void saveGroup(int groupID){
+		prepStatement = connection.prepareStatement("INSERT INTO SystemGroup ")
+	}
 
 
 }
