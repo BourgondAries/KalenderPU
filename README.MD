@@ -26,9 +26,11 @@ USERNAME PASSWORD OPERATION
 Where spaces separate the 3 items. There will always be 3 items. If a username or password or operation itself contains spaces, its string is escaped. Here is an example of a username that has a space inside it:
 user\ name PASSWORD OPERATION
 
-The above is split into:
+The above is split into (this happens on the server):
 1) 'user name'
 2) 'PASSWORD'
 3) 'OPERATION'
 
 The same rules go for password and operation. If they contain spaces, they must be escaped.
+
+The Database class will take in a user and an OPERATION. It will at the start split OPERATION into different parts (OPERATION is also escaped.)
