@@ -97,7 +97,7 @@ public class Database
 		}
 	}
 
-	public String resultToString(java.sql.ResultSet result) throws Exception
+	public static String resultToString(java.sql.ResultSet result) throws Exception
 	{
 		java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
 		int columns = resultmetadata.getColumnCount();
@@ -210,7 +210,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
 			{
 				// Need to return all entries in the calendar for this month.
-				if (parts.size() == 3) // "CMD year month"
+				if (parts.size() == 4 && parts.get(3).equals("ALL")) // "CMD year month ALL"
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement
 					(
