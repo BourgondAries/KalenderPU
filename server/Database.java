@@ -105,14 +105,16 @@ public class Database
 		String answer = String.valueOf(columns);
 		while (result.next())
 		{
-			String tmp = "";
+			String tmp = " ";
 			if (columns > 0)
 			{
-				tmp = utils.Utils.escapeSpaces(result.getString(1));
+				if (result.getString(1) != null)
+					tmp = utils.Utils.escapeSpaces(result.getString(1));
 			}
 			for (int i = 1; i < columns; ++i)
 			{
-				tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+				if (result.getString(i + 1) != null)
+					tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
 			}
 			answer += " " + utils.Utils.escapeSpaces(tmp);
 		}
@@ -204,6 +206,46 @@ public class Database
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
 				statement.setString(1, parts.get(1));
 				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
+			{
+				// Need to return all entries in the calendar for this month.
+				if (parts.size() == 3) // "CMD year month"
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement
+					(
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ?"
+					);
+					statement.setInt(1, user.user_id);
+					verbose("Creating timestamp: '" + parts.get(1) + "-" + parts.get(2) + "-01 00:00:00'");
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-01 00:00:00"));
+					if (parts.get(2).equals("12"))
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(1)) + 1) + "-" + parts.get(2) + "-01 00:00:00"));
+					else
+					{
+						verbose("Creating timestamp: '" + parts.get(1) + "-" + String.format("%02d", Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00'");
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + String.format("%02d", Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00"));
+					}
+					java.sql.ResultSet result = statement.executeQuery();
+					if (result == null)
+						return "We got a null result.";
+					else 
+					{
+						System.out.println("Not a null result");
+						try
+						{
+							return resultToString(result);
+						}
+						catch (Exception exc)
+						{
+							exc.printStackTrace();
+						}
+					}
+				}
+				else if (parts.size() == 2)
+				{
+
+				}
 			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
