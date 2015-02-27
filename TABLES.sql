@@ -6,13 +6,9 @@ CREATE TABLE SystemUser
 	fname 		varchar(255),
 	lname 		varchar(255),
 	hashedPW 	varchar(255),
-<<<<<<< HEAD
-	PRIMARY KEY (SystemUserId)
-);.
-=======
+
 	PRIMARY KEY (systemUserId)
 );
->>>>>>> 72d48524b41b9786a84236f0f7655a72bfeb7ed1
 
 CREATE TABLE PersonalEvent
 (
