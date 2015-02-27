@@ -2,6 +2,18 @@ package utils;
 
 public class Utils
 {
+
+	public static String makeRandomString(int n)
+	{
+		java.util.Random r = new java.util.Random();
+		String alphabet = "abcdefghijklmnopqrstuvwxyz";
+		String randString = "";
+		for (int i = 0; i < n; i++)
+		{
+			randString += alphabet.charAt(r.nextInt(alphabet.length())); 
+		}
+		return randString;
+	}
 	public static String fileToString(String filename) throws java.io.IOException
 	{
 		return new java.util.Scanner(new java.io.File(filename)).useDelimiter("\\Z").next();
