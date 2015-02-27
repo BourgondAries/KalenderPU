@@ -60,8 +60,31 @@ public class Server
 		}
 	}
 
+	static class ExitListener extends Thread
+	{
+		public java.util.Scanner scanner = null;
+		@Override
+		public void run()
+		{
+			while (true)
+			{
+				String string = scanner.nextLine();
+				if (string.equals(utils.Configuration.settings.get("ExitCommand")))
+				{
+					System.exit(0);	
+				}
+				else
+				{
+					System.out.println("UNIMPLEMENTED Running SQL query.");
+				}
+			}
+		}
+	}
+
 	public static void commandLineInterface()
 	{
+
+
 		Server server = null;
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		try
@@ -69,11 +92,16 @@ public class Server
 			server = new Server(utils.Configuration.settings);
 			Runtime.getRuntime().addShutdownHook(new ServerFinalizer(db));
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
+
 			System.out.print("Enter the port to listen and send to (leave blank for default): ");
 			String portnumber = scanner.nextLine();
 			Integer port = null;
 			if (!portnumber.equals(""))
 				port = Integer.parseInt(portnumber);
+
+			ExitListener exit_listener = new ExitListener();
+			exit_listener.scanner =  scanner;
+			exit_listener.start();
 
 			while (true)
 			{
