@@ -41,6 +41,12 @@ public class Database
 		connection.close();
 	}
 
+	// Only call this method from within the server. Runs a query without bounds. For sysadmin purposes ONLY!
+	public String runQuery(String query)
+	{
+
+	}
+
 	public String execute(String username, String password, String query)
 	{
 		try
