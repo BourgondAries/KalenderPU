@@ -44,7 +44,25 @@ public class Database
 	// Only call this method from within the server. Runs a query without bounds. For sysadmin purposes ONLY!
 	public String runQuery(String query)
 	{
-
+		try
+		{
+			java.sql.PreparedStatement statement = connection.prepareStatement(query);
+			if 
+			(
+				query.startsWith("UPDATE")
+				|| query.startsWith("DELETE")
+				|| query.startsWith("INSERT INTO")
+				|| query.startsWith("ALTER TABLE")
+				|| query.startsWith("DROP")
+			)
+				return String.valueOf(statement.executeUpdate());
+			else
+				return resultToString(statement.executeQuery());
+		}
+		catch (Exception exc)
+		{
+			return exc.toString();
+		}
 	}
 
 	public String execute(String username, String password, String query)

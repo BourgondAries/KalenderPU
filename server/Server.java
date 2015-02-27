@@ -63,9 +63,12 @@ public class Server
 	static class ExitListener extends Thread
 	{
 		public java.util.Scanner scanner = null;
+		public Database db = null;
+
 		@Override
 		public void run()
 		{
+			System.out.println("Press '" + utils.Configuration.settings.get("ExitCommand") + "' to exit.\nOr type any SQL query here to run it.");
 			while (true)
 			{
 				String string = scanner.nextLine();
@@ -75,7 +78,7 @@ public class Server
 				}
 				else
 				{
-					System.out.println("UNIMPLEMENTED Running SQL query.");
+					System.out.println(db.runQuery(string));
 				}
 			}
 		}
@@ -83,8 +86,6 @@ public class Server
 
 	public static void commandLineInterface()
 	{
-
-
 		Server server = null;
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		try
@@ -101,6 +102,7 @@ public class Server
 
 			ExitListener exit_listener = new ExitListener();
 			exit_listener.scanner =  scanner;
+			exit_listener.db = db;
 			exit_listener.start();
 
 			while (true)
