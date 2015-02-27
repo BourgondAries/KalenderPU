@@ -205,6 +205,24 @@ public class Database
 				statement.setString(1, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
+			{
+				// Need to return all entries in the calendar for this month.
+				if (parts.size() == 3) // "CMD year month"
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement
+					(
+						"SELECT * FROM PersonalEvent WHERE "
+					);
+					statement.setString(1, parts.get(1));
+					statement.setInt(2, Integer.parseInt(parts.get(2)));
+					statement.setString(3, parts.get(3));
+				}
+				else if (parts.size() == 2)
+				{
+
+				}
+			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";

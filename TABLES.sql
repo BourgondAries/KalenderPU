@@ -17,7 +17,7 @@ CREATE TABLE PersonalEvent
 	systemUserId 		int,
 	timeEnd		timestamp,
 	PRIMARY KEY (eventId),
-	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(systemUserId)
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
 );
 
 CREATE TABLE Room
