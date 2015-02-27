@@ -7,7 +7,7 @@ CREATE TABLE SystemUser
 	lname 		varchar(255),
 	hashedPW 	varchar(255),
 	PRIMARY KEY (SystemUserId)
-);
+);.
 
 CREATE TABLE PersonalEvent
 (
@@ -16,6 +16,7 @@ CREATE TABLE PersonalEvent
 	time 		timestamp,
 	systemUserId 		int,
 	timeEnd		timestamp,
+	warntime    timestamp,
 	PRIMARY KEY (eventId),
 	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(systemUserId)
 );
