@@ -212,11 +212,15 @@ public class Database
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement
 					(
-						"SELECT * FROM PersonalEvent WHERE "
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND timeEnd =< ?"
 					);
-					statement.setString(1, parts.get(1));
-					statement.setInt(2, Integer.parseInt(parts.get(2)));
-					statement.setString(3, parts.get(3));
+					statement.setInt(1, user.user_id);
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-01 00:00:00"));
+					if (parts.get(2).equals("12"))
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(1)) + 1) + "-" + parts.get(2) + "-01 00:00:00"));
+					else
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00"));
+					return resultToString(statement.executeQuery());
 				}
 				else if (parts.size() == 2)
 				{
