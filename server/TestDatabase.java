@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 public class TestDatabase
 {
 	//@org.junit.Test
-	public static void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException
+	public static void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException
 	{	
 		utils.Configuration.loadDefaultConfiguration();
 		User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
@@ -25,8 +25,11 @@ public class TestDatabase
 		}
 		catch(java.security.spec.InvalidKeySpecException ikse)
 		{
-			//TODO
+			//TODOjava.io.IOException e
 		}
-		
+		catch(java.io.IOException e)
+		{
+
+		}	
 	}
 }
