@@ -305,6 +305,7 @@ public class Client
 						utils.Utils.escapeSpaces
 						(
 							utils.Configuration.settings.getAndEscape("NewEventCommand")
+							+ " "
 							+ utils.Utils.escapeSpaces(description)
 							+ " "
 							+ utils.Utils.escapeSpaces(datetime)

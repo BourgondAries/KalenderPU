@@ -17,3 +17,4 @@ The program is divided into a server and a client component. Both communicate ov
 Now that the client and server are running, press enter on the server terminal. This will set the standard port. Now press enter on the client to set the hostname to be default.  
 You enter "root" as username and password. Note that the password field does not echo your input.  
 After you have written your password and pressed enter, you can write a command. The guide will take you through the various steps in assigning data to the fields. When the final field is complete, your data is sent to the server where it will be checked, and stored if correct.
+

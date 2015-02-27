@@ -205,6 +205,28 @@ public class Database
 				statement.setString(1, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
+			{
+				// Need to return all entries in the calendar for this month.
+				if (parts.size() == 3) // "CMD year month"
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement
+					(
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND timeEnd =< ?"
+					);
+					statement.setInt(1, user.user_id);
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-01 00:00:00"));
+					if (parts.get(2).equals("12"))
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(1)) + 1) + "-" + parts.get(2) + "-01 00:00:00"));
+					else
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00"));
+					return resultToString(statement.executeQuery());
+				}
+				else if (parts.size() == 2)
+				{
+
+				}
+			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";
