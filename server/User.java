@@ -19,4 +19,12 @@ public class User
 	{
 		return this;
 	}
+
+	public void getUserFromDatabase(int user_id)
+	{
+
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+
+		return ;
+	}
 }

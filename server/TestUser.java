@@ -33,9 +33,16 @@ public class TestUser
 		assertEquals(user,user.getUser());
 
 	}
-	public static void main(String[] args)
+	public static void getUserFromDatabse()
 	{
+
+	}
+	public static void main(String[] args)
+
+	{
+		//utils.Configuration.loadDefaultConfigurations();
 		fieldsShouldBeSet();
+		getUserShouldReturnUser();
 	}
 }
 

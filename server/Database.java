@@ -55,6 +55,7 @@ public class Database
 				if (PasswordHash.validatePassword(password, result.getString("hashedPW")))
 				{
 					User user = new User(result.getInt(1), result.getInt(2), result.getString(3), result.getString(4), result.getString(5), result.getString(6));
+					//System.out.println(query);
 					return executeWithValidUser(user, query);
 				}
 				else 

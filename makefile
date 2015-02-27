@@ -90,3 +90,7 @@ dbreset-mac:
 
 clean-mac:
 	find . -name "*.class" | xargs rm
+
+testDatabase:
+	javac -cp ".;junit-4.12.jar" server/TestDatabase.java
+	java -cp ".;junit-4.12.jar" server.TestDatabase
