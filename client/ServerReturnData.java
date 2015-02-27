@@ -32,12 +32,15 @@ public class ServerReturnData
 
 	public String getPrettyStringRepresentation()
 	{
-		int i = 1;
+		int i = 0;
 		StringBuilder string_builder = new StringBuilder();
 		for (String tmp : final_set)
 		{
-			if (++i % columns == 0)
+			if (++i > columns)
+			{
 				string_builder.append('\n');
+				i = 1;
+			}
 			string_builder.append("'" + tmp + "', ");
 		}
 		return string_builder.toString().trim();

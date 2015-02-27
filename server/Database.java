@@ -105,16 +105,20 @@ public class Database
 		String answer = String.valueOf(columns);
 		while (result.next())
 		{
-			String tmp = " ";
+			String tmp = "";
 			if (columns > 0)
 			{
 				if (result.getString(1) != null)
 					tmp = utils.Utils.escapeSpaces(result.getString(1));
+				else
+					tmp = "null";
 			}
 			for (int i = 1; i < columns; ++i)
 			{
 				if (result.getString(i + 1) != null)
 					tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+				else
+					tmp += " null";
 			}
 			answer += " " + utils.Utils.escapeSpaces(tmp);
 		}
