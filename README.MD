@@ -18,3 +18,17 @@ Now that the client and server are running, press enter on the server terminal. 
 You enter "root" as username and password. Note that the password field does not echo your input.  
 After you have written your password and pressed enter, you can write a command. The guide will take you through the various steps in assigning data to the fields. When the final field is complete, your data is sent to the server where it will be checked, and stored if correct.
 
+
+## Message Protocol For Server ##
+The message protocol for sending from the client to the server is of the following format.
+USERNAME PASSWORD OPERATION
+
+Where spaces separate the 3 items. There will always be 3 items. If a username or password or operation itself contains spaces, its string is escaped. Here is an example of a username that has a space inside it:
+user\ name PASSWORD OPERATION
+
+The above is split into:
+1) 'user name'
+2) 'PASSWORD'
+3) 'OPERATION'
+
+The same rules go for password and operation. If they contain spaces, they must be escaped.

@@ -2,8 +2,7 @@ package client;
 
 public class ServerReturnData
 {
-	private java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
-	private Integer columns = 0;
+	private java.util.ArrayList<java.util.ArrayList<String>> final_set = new java.util.ArrayList<>();
 
 	public ServerReturnData()
 	{}
@@ -21,20 +20,20 @@ public class ServerReturnData
 		final_set = new java.util.ArrayList<>();
 		for (String str : result_set)
 		{
-			final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+			final_set.add(utils.Utils.splitAndUnescapeString(str));
 		}
 	}
 
 	public String getPrettyStringRepresentation()
 	{
-		int i = 1;
+		int i = 0;
 		StringBuilder string_builder = new StringBuilder();
 		for (String tmp : final_set)
 		{
-			if (i++ % columns == 0)
+			if (++i % columns == 0)
 				string_builder.append('\n');
-			string_builder.append(tmp);
+			string_builder.append("'" + tmp + "', ");
 		}
-		return string_builder.toString();
+		return string_builder.toString().trim();
 	}
 }
