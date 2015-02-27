@@ -2,7 +2,8 @@ package client;
 
 public class ServerReturnData
 {
-	private java.util.ArrayList<java.util.ArrayList<String>> final_set = new java.util.ArrayList<>();
+	private java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+	private Integer columns = 0;
 
 	public ServerReturnData()
 	{}
@@ -20,13 +21,18 @@ public class ServerReturnData
 		final_set = new java.util.ArrayList<>();
 		for (String str : result_set)
 		{
-			final_set.add(utils.Utils.splitAndUnescapeString(str));
+			final_set.addAll(utils.Utils.splitAndUnescapeString(str));
 		}
+	}
+
+	public static String getPrettyStringWithoutObject(String input)
+	{
+		return (new ServerReturnData(input)).getPrettyStringRepresentation();
 	}
 
 	public String getPrettyStringRepresentation()
 	{
-		int i = 0;
+		int i = 1;
 		StringBuilder string_builder = new StringBuilder();
 		for (String tmp : final_set)
 		{
