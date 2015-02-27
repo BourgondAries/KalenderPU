@@ -63,6 +63,8 @@ public class Server
 	static class ExitListener extends Thread
 	{
 		public java.util.Scanner scanner = null;
+		public Database db = null;
+
 		@Override
 		public void run()
 		{
@@ -75,7 +77,7 @@ public class Server
 				}
 				else
 				{
-					System.out.println("UNIMPLEMENTED Running SQL query.");
+					System.out.println(db.runQuery(string));
 				}
 			}
 		}
@@ -101,6 +103,7 @@ public class Server
 
 			ExitListener exit_listener = new ExitListener();
 			exit_listener.scanner =  scanner;
+			exit_listener.db = db;
 			exit_listener.start();
 
 			while (true)
