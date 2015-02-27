@@ -19,4 +19,9 @@ public class User
 	{
 		return this;
 	}
+
+	void saveUser(){
+
+		
+	}
 }
