@@ -15,6 +15,7 @@ CREATE TABLE PersonalEvent
 	description	varchar(255),
 	time 		timestamp,
 	systemUserId 		int,
+	timeEnd		timestamp,
 	PRIMARY KEY (eventId),
 	FOREIGN KEY (SystemUserId) REFERENCES SystemUser(systemUserId)
 );
