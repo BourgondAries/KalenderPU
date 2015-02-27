@@ -5,15 +5,17 @@ public class Utils
 
 	public static String makeRandomString(int n)
 	{
-		java.util.Random r = new java.util.Random();
-		String alphabet = "abcdefghijklmnopqrstuvwxyz";
-		String randString = "";
+		java.util.Random random = new java.util.Random();
+		random.setSeed(System.currentTimeMillis());
+		StringBuilder rand_string = new StringBuilder();
+		rand_string.setLength(n);
 		for (int i = 0; i < n; i++)
 		{
-			randString += alphabet.charAt(r.nextInt(alphabet.length())); 
+			rand_string.setCharAt(i, (char) (32 + random.nextInt(126 - 32))); 
 		}
-		return randString;
+		return rand_string.toString();
 	}
+
 	public static String fileToString(String filename) throws java.io.IOException
 	{
 		return new java.util.Scanner(new java.io.File(filename)).useDelimiter("\\Z").next();

@@ -97,7 +97,7 @@ public class Database
 		}
 	}
 
-	public String resultToString(java.sql.ResultSet result) throws Exception
+	public static String resultToString(java.sql.ResultSet result) throws Exception
 	{
 		java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
 		int columns = resultmetadata.getColumnCount();
@@ -105,14 +105,16 @@ public class Database
 		String answer = String.valueOf(columns);
 		while (result.next())
 		{
-			String tmp = "";
+			String tmp = " ";
 			if (columns > 0)
 			{
-				tmp = utils.Utils.escapeSpaces(result.getString(1));
+				if (result.getString(1) != null)
+					tmp = utils.Utils.escapeSpaces(result.getString(1));
 			}
 			for (int i = 1; i < columns; ++i)
 			{
-				tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+				if (result.getString(i + 1) != null)
+					tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
 			}
 			answer += " " + utils.Utils.escapeSpaces(tmp);
 		}
@@ -208,19 +210,37 @@ public class Database
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
 			{
 				// Need to return all entries in the calendar for this month.
-				if (parts.size() == 3) // "CMD year month"
+				if (parts.size() == 4 && parts.get(3).equals("ALL")) // "CMD year month ALL"
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement
 					(
-						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND timeEnd =< ?"
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ?"
 					);
 					statement.setInt(1, user.user_id);
+					verbose("Creating timestamp: '" + parts.get(1) + "-" + parts.get(2) + "-01 00:00:00'");
 					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-01 00:00:00"));
 					if (parts.get(2).equals("12"))
 						statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(1)) + 1) + "-" + parts.get(2) + "-01 00:00:00"));
 					else
-						statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00"));
-					return resultToString(statement.executeQuery());
+					{
+						verbose("Creating timestamp: '" + parts.get(1) + "-" + String.format("%02d", Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00'");
+						statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + String.format("%02d", Integer.valueOf(parts.get(2)) + 1) + "-01 00:00:00"));
+					}
+					java.sql.ResultSet result = statement.executeQuery();
+					if (result == null)
+						return "We got a null result.";
+					else 
+					{
+						System.out.println("Not a null result");
+						try
+						{
+							return resultToString(result);
+						}
+						catch (Exception exc)
+						{
+							exc.printStackTrace();
+						}
+					}
 				}
 				else if (parts.size() == 2)
 				{

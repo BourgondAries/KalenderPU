@@ -169,6 +169,7 @@ public class Client
 						+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch all unfetched events."
 						+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 						+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
+						+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
 					);
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterCommand")))
@@ -398,6 +399,47 @@ public class Client
 							System.out.println();
 						System.out.println(tmp);
 					}
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetCalendarCommand")))
+				{
+					System.out.print("Enter the year: ");
+					String year = scanner.nextLine();
+					System.out.print("Enter the month: ");
+					String month = scanner.nextLine();
+					System.out.print("Enter the day (leave blank for entire month): ");
+					String day = scanner.nextLine();
+					if (day.equals(""))
+						day = "ALL";
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.getAndEscape("GetCalendarCommand")
+							+ " "							
+							+ utils.Utils.escapeSpaces(year)
+							+ " "
+							+ utils.Utils.escapeSpaces(month)
+							+ " "
+							+ utils.Utils.escapeSpaces(day)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					ServerReturnData server_return_data = new ServerReturnData(result);
+					System.out.println(server_return_data.getPrettyStringRepresentation());
+					/*int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
+					{
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+					}
+
+					int i = 0;
+					for (String tmp : final_set)
+					{
+						if (i++ % 2 == 0)
+							System.out.println();
+						System.out.println(tmp);
+					}*/
 				}
 				else
 				{
