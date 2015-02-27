@@ -399,6 +399,39 @@ public class Client
 						System.out.println(tmp);
 					}
 				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetCalendarCommand")))
+				{
+					System.out.print("Enter the year: ");
+					String year = scanner.nextLine();
+					System.out.print("Enter the month: ");
+					String month = scanner.nextLine();
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.getAndEscape("GetCalendarCommand")
+							+ " "							
+							+ utils.Utils.escapeSpaces(year)
+							+ " "
+							+ utils.Utils.escapeSpaces(month)
+						);
+					String result = commandLineSendData(client, host, port, login_info, line, scanner);
+					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
+					result = result.substring(result.indexOf(" ") + 1);
+					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
+					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
+					for (String str : result_set)
+					{
+						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
+					}
+
+					int i = 0;
+					for (String tmp : final_set)
+					{
+						if (i++ % 2 == 0)
+							System.out.println();
+						System.out.println(tmp);
+					}
+				}
 				else
 				{
 					System.out.println("Defaulting to checking password.\n" + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
