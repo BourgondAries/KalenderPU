@@ -4,6 +4,7 @@ CLIENT_LIBS=".;commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 DBRESET_RUNPATH=".;derby.jar;derbytools.jar"
 BIN_MAP=bin
+TEST_LIBS=".;./commons-cli-1.2.jar;./derby.jar;./junit-4.12.jar"
 
 setup:
 	mkdir -p bin
@@ -92,5 +93,5 @@ clean-mac:
 	find . -name "*.class" | xargs rm
 
 testDatabase:
-	javac -cp ".;junit-4.12.jar" server/TestDatabase.java
-	java -cp ".;junit-4.12.jar" server.TestDatabase
+	javac -cp $(TEST_LIBS) server/TestDatabase.java
+	java -cp $(TEST_LIBS) server.TestDatabase
