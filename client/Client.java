@@ -121,7 +121,6 @@ public class Client
 
 	public static void commandLineInterface()
 	{
-		System.out.println(utils.Utils.makeRandomString(Integer.MAX_VALUE));
 		Client client = null;
 		try
 		{
