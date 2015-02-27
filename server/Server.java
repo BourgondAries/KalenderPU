@@ -68,6 +68,7 @@ public class Server
 		@Override
 		public void run()
 		{
+			System.out.println("Press '" + utils.Configuration.settings.get("ExitCommand") + "' to exit.\nOr type any SQL query here to run it.");
 			while (true)
 			{
 				String string = scanner.nextLine();
@@ -85,8 +86,6 @@ public class Server
 
 	public static void commandLineInterface()
 	{
-
-
 		Server server = null;
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		try
