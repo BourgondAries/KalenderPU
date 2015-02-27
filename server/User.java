@@ -20,8 +20,17 @@ public class User
 		return this;
 	}
 
+<<<<<<< HEAD
 	void saveUser(){
 
 		
+=======
+	public void getUserFromDatabase(int user_id)
+	{
+
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+
+		return ;
+>>>>>>> 2e9392cba030e1fd5e74ab2505d6f001b17264ed
 	}
 }

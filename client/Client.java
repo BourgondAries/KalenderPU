@@ -210,14 +210,7 @@ public class Client
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 					if (result != null)
 					{
-						if (result.equals("1"))
-						{
-							System.out.println("Server response: 'OK: Registered new user.'");
-						}
-						else
-						{
-							System.out.println("Server response: 'ERR: User already exists.'");
-						}
+						System.out.println(result);
 					}
 					else
 					{
@@ -312,6 +305,7 @@ public class Client
 						utils.Utils.escapeSpaces
 						(
 							utils.Configuration.settings.getAndEscape("NewEventCommand")
+							+ " "
 							+ utils.Utils.escapeSpaces(description)
 							+ " "
 							+ utils.Utils.escapeSpaces(datetime)
@@ -407,7 +401,7 @@ public class Client
 				}
 				else
 				{
-					System.out.println("Command not found");
+					System.out.println("Defaulting to checking password.\n" + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
 				}
 				System.out.print("Command (type 'help' for info): ");
 			}
