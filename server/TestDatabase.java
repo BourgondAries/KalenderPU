@@ -32,7 +32,7 @@ public class TestDatabase
 		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		String rndStr = utils.Utils.makeRandomString(8);
-		System.out.println(rndStr);
+		//System.out.println(rndStr);
 		db.executeWithValidUser(userR, 
 							utils.Configuration.settings.getAndEscape("RegisterCommand")
 							+ " "
@@ -47,7 +47,7 @@ public class TestDatabase
 							+ utils.Utils.escapeSpaces("12345"));
 
 		String result = db.runQuery("SELECT COUNT(*) FROM systemUser WHERE username = '" + rndStr + "'");
-		System.out.println(result);
+		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
 	}
 
 	public static void main(String[] args)
