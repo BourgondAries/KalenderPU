@@ -214,11 +214,11 @@ public class Database
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
 			{
 				// Need to return all entries in the calendar for this month.
-				if (parts.size() == 4 && parts.get(3).equals("ALL")) // "CMD year month ALL"
+				if (parts.size() == 4 && parts.get(3).equals("")) // "CMD 'year' 'month' 'day'"
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement
 					(
-						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ?"
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ? ORDER BY time"
 					);
 					statement.setInt(1, user.user_id);
 					verbose("Creating timestamp: '" + parts.get(1) + "-" + parts.get(2) + "-01 00:00:00'");
@@ -246,7 +246,7 @@ public class Database
 						}
 					}
 				}
-				else if (parts.size() == 2)
+				else // Incorrect data size...
 				{
 
 				}

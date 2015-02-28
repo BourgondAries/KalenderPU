@@ -408,8 +408,8 @@ public class Client
 					String month = scanner.nextLine();
 					System.out.print("Enter the day (leave blank for entire month): ");
 					String day = scanner.nextLine();
-					if (day.equals(""))
-						day = "ALL";
+					// if (day.equals(""))
+					//	day = "ALL";
 					line =
 						utils.Utils.escapeSpaces
 						(
