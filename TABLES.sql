@@ -65,6 +65,7 @@ CREATE TABLE Groupmember
 	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId),
 	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId)
 );
+
 CREATE TABLE Invitation
 (
 	systemUserId 		int NOT NULL,
