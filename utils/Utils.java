@@ -138,7 +138,7 @@ public class Utils
 		StringBuilder sbldr = new StringBuilder(to_escape);
 		for (int i = 0; i < sbldr.length(); ++i)
 		{
-			if (sbldr.charAt(i) == ' ')
+			if (sbldr.charAt(i) == ' ' || sbldr.charAt(i) == '\\')
 			{
 				sbldr.insert(i, '\\');
 				i += 1;
@@ -154,9 +154,12 @@ public class Utils
 		{
 			if (sbldr.charAt(i) == '\\')
 			{
-				if (sbldr.charAt(i + 1) == ' ')
+				if (i + 1 < sbldr.length())
 				{
-					sbldr.deleteCharAt(i);
+					if (sbldr.charAt(i + 1) == ' ' || sbldr.charAt(i + 1) == '\\')
+					{
+						sbldr.deleteCharAt(i);
+					}
 				}
 			}
 		}
@@ -166,7 +169,38 @@ public class Utils
 	public static java.util.ArrayList<String> splitAndUnescapeString(String message)
 	{
 		java.util.ArrayList<String> splits = new java.util.ArrayList<>();
+		StringBuilder string_builder = new StringBuilder(message);
 		int last_split_pos = 0;
+		for (int i = 0; i < string_builder.length(); ++i)
+		{
+			if (string_builder.charAt(i) == '\\')
+			{
+				if (i + 1 < string_builder.length())
+				{
+					if (string_builder.charAt(i + 1) == '\\')
+					{
+						string_builder.deleteCharAt(i);
+					}
+					else if (string_builder.charAt(i + 1) == ' ')
+					{
+						string_builder.deleteCharAt(i);
+					}
+				}
+				else
+				{
+					return null;
+				}
+			}
+			else if (string_builder.charAt(i) == ' ')
+			{
+				splits.add(string_builder.substring(last_split_pos, i));
+				last_split_pos = i + 1;
+			}
+		}
+		splits.add(string_builder.substring(last_split_pos));
+		return splits;
+		/*
+
 		for (int i = 0; i < message.length() - 1; ++i)
 		{
 			if (message.charAt(i) == '\\' && message.charAt(i + 1) == ' ')
@@ -182,6 +216,7 @@ public class Utils
 		}
 		splits.add(utils.Utils.unescapeSpaces(message.substring(last_split_pos)));
 		return splits;
+		*/
 	}
 
 	public final static java.security.Key generateSymmetricKey(String specstring) throws java.security.NoSuchAlgorithmException
