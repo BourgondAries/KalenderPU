@@ -188,7 +188,7 @@ public class Utils
 				}
 				else
 				{
-					return null;
+					throw new Error("The string is not escaped properly. Found \\ without a \\ or space after it.");
 				}
 			}
 			else if (string_builder.charAt(i) == ' ')

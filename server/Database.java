@@ -209,6 +209,7 @@ public class Database
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
 				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))

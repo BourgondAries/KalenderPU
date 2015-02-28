@@ -34,3 +34,10 @@ The above is split into (this happens on the server):
 The same rules go for password and operation. If they contain spaces, they must be escaped.
 
 The Database class will take in a user and an OPERATION. It will at the start split OPERATION into different parts (OPERATION is also escaped.)
+
+## Draft of Second Protocol ##
+Escaping is unnecessary. Sets of data are enclosed inside quotes as: "inside this thing".  
+A space separates the different strings: "This is a single entity" "as well as this being a single entity".  
+For sub-data we may escape the quote with a preceding quote: "This is ""a"" ""single"" ""Entity""".  
+The above is escaped into 'This is "a" "single" "entity"'.  
+I don't think we need to use this protocol. 
