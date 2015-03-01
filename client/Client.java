@@ -300,8 +300,13 @@ public class Client
 				{
 					System.out.print("Enter a description of the event: ");
 					String description = scanner.nextLine();
-					System.out.print("Enter a date-time of the format 'yyyy-mm-dd hh:mm:ss': ");
-					String datetime = scanner.nextLine();
+					System.out.print("Enter when the event starts of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime_start = scanner.nextLine();
+					System.out.print("Enter when the event ends of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime_end = scanner.nextLine();
+					System.out.print("How many minutes before the event do you want to be warned (Blank for no warning): ");
+					String warn_minutes = scanner.nextLine();
+
 					line = 
 						utils.Utils.escapeSpaces
 						(
@@ -309,7 +314,11 @@ public class Client
 							+ " "
 							+ utils.Utils.escapeSpaces(description)
 							+ " "
-							+ utils.Utils.escapeSpaces(datetime)
+							+ utils.Utils.escapeSpaces(datetime_start)
+							+ " "
+							+ utils.Utils.escapeSpaces(datetime_end)
+							+ " "
+							+ utils.Utils.escapeSpaces(warn_minutes)
 						);
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 				}
@@ -408,8 +417,6 @@ public class Client
 					String month = scanner.nextLine();
 					System.out.print("Enter the day (leave blank for entire month): ");
 					String day = scanner.nextLine();
-					// if (day.equals(""))
-					//	day = "ALL";
 					line =
 						utils.Utils.escapeSpaces
 						(

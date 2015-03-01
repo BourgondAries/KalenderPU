@@ -17,7 +17,7 @@ CREATE TABLE PersonalEvent
 	time 		timestamp,
 	systemUserId 		int,
 	timeEnd		timestamp,
-	warntime    timestamp,
+	warntime    int,
 	PRIMARY KEY (eventId),
 	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
 );

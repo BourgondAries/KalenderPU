@@ -185,10 +185,12 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("NewEventCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, timeEnd, systemUserId, warnTime) VALUES (?, ?, ?, ?, ?)");
 				statement.setString(1, parts.get(1));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2)));
-				statement.setInt(3, user.user_id);
+				statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(3)));
+				statement.setInt(4, user.user_id);
+				statement.setInt(5, parts.get(4).equals("") ? 0 : Integer.valueOf(parts.get(4)));
 				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("GetEventsCommand")))
