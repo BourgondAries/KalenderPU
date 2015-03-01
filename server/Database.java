@@ -162,6 +162,13 @@ public class Database
 					return "You do not have the privilege to register users.";
 				}
 			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("StatusCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM PersonalEvent WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				statement.setMaxRows(5);
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
 				if (user.username.equals("root"))
