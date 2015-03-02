@@ -23,29 +23,29 @@ public class Group{
 	this.groupAdmin = groupAdmin;
 	Database con = new Database("jdbc:derby:database");
 	//Statement stmt = new con.createStatement();
-	ResultSet rs = new ResultSet(string sql);
+	ResultSet rs = new ResultSet();
 	PreparedStatement prepStatement = new PreparedStatement();
 	}
 
 
 	//save- og get metoder
 	public Group getGroup(int groupID){
-		prepStatement = connection.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
-		prepStatement.setString(1, groupID);
-		rs = executeQuery();
+		prepStatement ps = connection.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
+		ps.setString(1, groupID);
+		rs result= ps.executeQuery();
 		return rs;
 	}
 
 	public void addGroup(int groupID, int groupRank, String groupName, User groupAdmin){
 		query = query.substring(query.indexOf(" ") + 1);
 		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-		prepStatement = connection.prepareStatement("INSERT INTO SystemGroup (groupID, groupRank, groupName, groupAdmin) VALUES (?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-		prepstatement.setInt(1, parts.get(0));
-		prepStatement.setInt(2, parts.get(1));
-		prepStatement.setString(3, parts.get(2));
-		prepStatement.setString(4, parts.get(3));
-		rs = prepStatement.executeQuery();
-		
+		prepStatement ps = connection.prepareStatement("INSERT INTO SystemGroup (groupID, groupRank, groupName, groupAdmin) VALUES (?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+		ps.setInt(1, parts.get(0));
+		ps.setInt(2, parts.get(1));
+		ps.setString(3, parts.get(2));
+		ps.setString(4, parts.get(3));
+		rs result = ps.executeQuery();
+		return rs;		
 	}
 
 
