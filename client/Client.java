@@ -119,6 +119,14 @@ public class Client
 		return null;
 	}
 
+	public static String setLoginInfo(java.util.Scanner scanner)
+	{
+		System.out.print("Enter your username: ");
+		String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
+		login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
+		return login_info;
+	}
+
 	public static void commandLineInterface()
 	{
 		Client client = null;
@@ -146,10 +154,9 @@ public class Client
 				host = utils.Configuration.settings.get("hostname");
 				port = utils.Configuration.settings.getInt("port");
 			}
-			System.out.print("Enter your username: ");
-			String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
-			login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
-
+			String login_info = setLoginInfo(scanner);
+			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
+		
 			System.out.print("Command (type 'help' for info): ");
 			while (scanner.hasNextLine())
 			{
@@ -170,7 +177,13 @@ public class Client
 						+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 						+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
 						+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
+						+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
+						+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc."
 					);
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeUser")))
+				{
+					login_info = setLoginInfo(scanner);
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterCommand")))
 				{
@@ -300,8 +313,13 @@ public class Client
 				{
 					System.out.print("Enter a description of the event: ");
 					String description = scanner.nextLine();
-					System.out.print("Enter a date-time of the format 'yyyy-mm-dd hh:mm:ss': ");
-					String datetime = scanner.nextLine();
+					System.out.print("Enter when the event starts of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime_start = scanner.nextLine();
+					System.out.print("Enter when the event ends of the format 'yyyy-mm-dd hh:mm:ss': ");
+					String datetime_end = scanner.nextLine();
+					System.out.print("How many minutes before the event do you want to be warned (Blank for no warning): ");
+					String warn_minutes = scanner.nextLine();
+
 					line = 
 						utils.Utils.escapeSpaces
 						(
@@ -309,7 +327,11 @@ public class Client
 							+ " "
 							+ utils.Utils.escapeSpaces(description)
 							+ " "
-							+ utils.Utils.escapeSpaces(datetime)
+							+ utils.Utils.escapeSpaces(datetime_start)
+							+ " "
+							+ utils.Utils.escapeSpaces(datetime_end)
+							+ " "
+							+ utils.Utils.escapeSpaces(warn_minutes)
 						);
 					String result = commandLineSendData(client, host, port, login_info, line, scanner);
 				}
@@ -408,8 +430,6 @@ public class Client
 					String month = scanner.nextLine();
 					System.out.print("Enter the day (leave blank for entire month): ");
 					String day = scanner.nextLine();
-					if (day.equals(""))
-						day = "ALL";
 					line =
 						utils.Utils.escapeSpaces
 						(

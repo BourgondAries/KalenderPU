@@ -111,6 +111,8 @@ public class Server
 				if (message == null)
 					continue;
 				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
+				for (int i = 0; i < message_parts.size(); ++i)
+					System.out.println(message_parts.get(i));
 				if (message_parts.size() == 3)
 				{
 					server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));

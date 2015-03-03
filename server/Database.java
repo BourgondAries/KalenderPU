@@ -162,6 +162,13 @@ public class Database
 					return "You do not have the privilege to register users.";
 				}
 			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("StatusCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM PersonalEvent WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				statement.setMaxRows(5);
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
 				if (user.username.equals("root"))
@@ -185,10 +192,12 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("NewEventCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, systemUserId) VALUES (?, ?, ?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO PersonalEvent (description, time, timeEnd, systemUserId, warnTime) VALUES (?, ?, ?, ?, ?)");
 				statement.setString(1, parts.get(1));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2)));
-				statement.setInt(3, user.user_id);
+				statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(3)));
+				statement.setInt(4, user.user_id);
+				statement.setInt(5, parts.get(4).equals("") ? 0 : Integer.valueOf(parts.get(4)));
 				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("GetEventsCommand")))
@@ -209,16 +218,17 @@ public class Database
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
 				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
 			{
 				// Need to return all entries in the calendar for this month.
-				if (parts.size() == 4 && parts.get(3).equals("ALL")) // "CMD year month ALL"
+				if (parts.size() == 4 && parts.get(3).equals("")) // "CMD 'year' 'month' 'day'"
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement
 					(
-						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ?"
+						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ? ORDER BY time"
 					);
 					statement.setInt(1, user.user_id);
 					verbose("Creating timestamp: '" + parts.get(1) + "-" + parts.get(2) + "-01 00:00:00'");
@@ -246,7 +256,7 @@ public class Database
 						}
 					}
 				}
-				else if (parts.size() == 2)
+				else // Incorrect data size...
 				{
 
 				}

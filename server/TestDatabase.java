@@ -50,7 +50,7 @@ public class TestDatabase
 		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
 	}
 
-	@Rule
+	/* @Rule
   	public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
 
 	@org.junit.Test(expected=java.sql.SQLException.class)
@@ -76,7 +76,7 @@ public class TestDatabase
 	
 	}
 
-
+	*/
 
 	public static void main(String[] args)
 	{

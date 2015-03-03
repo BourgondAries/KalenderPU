@@ -17,7 +17,7 @@ CREATE TABLE PersonalEvent
 	time 		timestamp,
 	systemUserId 		int,
 	timeEnd		timestamp,
-	warntime    timestamp,
+	warntime    int,
 	PRIMARY KEY (eventId),
 	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
 );
@@ -65,6 +65,7 @@ CREATE TABLE Groupmember
 	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId),
 	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId)
 );
+
 CREATE TABLE Invitation
 (
 	systemUserId 		int NOT NULL,
