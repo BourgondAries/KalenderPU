@@ -22,7 +22,7 @@ public class TestDatabase
 		utils.Configuration.loadDefaultConfiguration();
 		//User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-		assertEquals(db.execute("nonexistingname", "pass", "query"),"Login username 'nonexistingname' does not exist.");
+		assertEquals(db.execute("nonexistingname", "password", "query"),"Login username 'nonexistingname' does not exist.");
 	}
 
 	@org.junit.Test
@@ -50,6 +50,34 @@ public class TestDatabase
 		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
 	}
 
+	@Rule
+  	public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
+
+	@org.junit.Test(expected=java.sql.SQLException.class)
+	public static void testAddingDuplicateUserShouldFail() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		//System.out.println(rndStr);
+		exception.expect(java.sql.SQLException.class);
+		db.executeWithValidUser(userR, 
+							utils.Configuration.settings.getAndEscape("RegisterCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("sgdngsdkrjngsi")
+							+ " "
+							+ utils.Utils.escapeSpaces("1")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestFname")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestLname")
+							+ " "
+							+ utils.Utils.escapeSpaces("12345"));
+	
+	}
+
+
+
 	public static void main(String[] args)
 	{
 		utils.Configuration.verbose_mode = true;
@@ -58,6 +86,7 @@ public class TestDatabase
 			testWrongPasswordWhenExecute();
 			testUsernameNotExisting();
 			testRegisterCommand();
+			testAddingDuplicateUserShouldFail();
 		}
 		catch(java.security.NoSuchAlgorithmException nsae)
 		{
