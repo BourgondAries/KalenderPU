@@ -49,7 +49,7 @@ public class User
 
 	}
 
-
+	// husk at du holder paa med user-klassen, og ikke group! :P
 	public static void removeGroup(Group gruppe, int groupID, String groupName, User groupMember){
 			query = query.substring(query.indexOf(" ") + 1);
 			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
