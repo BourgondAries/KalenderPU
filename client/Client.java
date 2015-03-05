@@ -156,7 +156,7 @@ public class Client
 			}
 			String login_info = setLoginInfo(scanner);
 			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
-		
+			
 			System.out.print("Command (type 'help' for info): ");
 			while (scanner.hasNextLine())
 			{
@@ -179,6 +179,11 @@ public class Client
 						+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
 						+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
 						+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc."
+						+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
+						+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
+						+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
+						+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
+						+ "\n'" + utils.Configuration.settings.get("RoomBookingDenyInviteCommand") + "' - Deny someone's room booking invitation."
 					);
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeUser")))

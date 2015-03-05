@@ -32,7 +32,7 @@ CREATE TABLE Room
 );
 
 CREATE TABLE Booking
-( 
+(
 	bookingId		int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	adminId			int NOT NULL,
 	description		varchar(255),

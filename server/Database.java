@@ -23,10 +23,10 @@ public class Database
 	        	java.sql.PreparedStatement statement 
 					= connection.prepareStatement
 						(
-							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES ("
-							+ "0, 'root', '', '', '" + PasswordHash.createHash("root") + "')"
+							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES (0, 'root', '', '', ?)"
 							, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
 						);
+				statement.setString(1, PasswordHash.createHash("root"));
 				statement.execute();
 			}
         }
@@ -206,14 +206,6 @@ public class Database
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
-			else if (parts.get(0).equals(coms.get("RegisterRoomCommand")))
-			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
-				statement.setString(1, parts.get(1));
-				statement.setInt(2, Integer.parseInt(parts.get(2)));
-				statement.setString(3, parts.get(3));
-				return String.valueOf(statement.executeUpdate());
-			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
@@ -260,6 +252,60 @@ public class Database
 				{
 
 				}
+			}
+			else if (parts.get(0).equals(coms.get("RegisterRoomCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
+				statement.setString(1, parts.get(1));
+				statement.setInt(2, Integer.parseInt(parts.get(2)));
+				statement.setString(3, parts.get(3));
+				return String.valueOf(statement.executeUpdate());
+			}
+			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
+			{
+				// Have to check if the room is available.
+
+				// Then actual register the room under the user.
+				
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("RemoveRoomBookingCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				statement.setString(1, parts.get(1));
+				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{

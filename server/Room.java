@@ -5,8 +5,16 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 
 public class Room{
-	
-	public int roomID, room
+/*	
+	public int roomID, size
+	public String location, roomName
+
+	public Room(int roomID, int size, String location, String roomName){
+		this.roomID = roomID;
+		this.size = size;
+		this.location = location;
+		this.roomName = roomName;
+	}
 
 	public static Room getRoom(int roomID){
 		prepStatement = connection.prepareStatement("SELECT * FROM Room WHERE roomID =?");
@@ -26,6 +34,11 @@ public class Room{
 		rs = prepStatement.executeQuery();	
 	}
 
-	
+	public static boolean checkAvailabilityOfRoom(int roomID, String timeString){
+		java.sql.Timestamp timeStamp = java.sql.Timestamp.valueOf(timeString);
 
+
+	}
+
+*/
 }
