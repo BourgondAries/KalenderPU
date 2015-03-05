@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 
 public class Group{
-
+/*
 	public int groupID, groupRank;
 	public String groupName;
 	public User groupAdmin, groupMember; //hvor staar dette om i SQL?
@@ -49,5 +49,5 @@ public class Group{
 	
 	}
 
-
+*/
 }

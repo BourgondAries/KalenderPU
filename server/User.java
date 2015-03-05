@@ -6,24 +6,27 @@ import java.sql.PreparedStatement;
 
 public class User
 {
+	
 	public int systemUserI, rank;
+	public int user_id;
 	public String username, fname, lname, hashedPW;
 
 	public User(int systemUserId, int rank, String username, String fname, String lname, String hashedPW)
 	{
-		this.systemUserId = systemUserId
+		this.systemUserI = systemUserId
 ;
 		this.rank = rank;
 		this.username = username;
 		this.fname = fname;
 		this.lname = lname;
 		this.hashedPW = hashedPW;
+		user_id = systemUserId;
 
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-		ResultSet rs = new ResultSet();
-		PreparedStatement prepStatement = new PreparedStatement();
+		//ResultSet rs = new ResultSet();
+		//PreparedStatement prepStatement = new PreparedStatement();
 	}
-
+/*
 	public static User getUser(int systemUserId)
 	{
 		prepStatement = db.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId =?");
@@ -73,4 +76,5 @@ public class User
 		return ;
 
 	}
+*/
 }
