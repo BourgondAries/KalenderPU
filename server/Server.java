@@ -84,6 +84,16 @@ public class Server
 		}
 	}
 
+	public static Integer queryPort(java.util.Scanner scanner)
+	{
+		System.out.print("Enter the port to listen and send to (leave blank for default): ");
+		String portnumber = scanner.nextLine();
+		Integer port = null;
+		if (!portnumber.equals(""))
+			port = Integer.parseInt(portnumber);
+		return port;
+	}
+
 	public static void commandLineInterface()
 	{
 		Server server = null;
@@ -94,11 +104,7 @@ public class Server
 			Runtime.getRuntime().addShutdownHook(new ServerFinalizer(db));
 			java.util.Scanner scanner = new java.util.Scanner(System.in);
 
-			System.out.print("Enter the port to listen and send to (leave blank for default): ");
-			String portnumber = scanner.nextLine();
-			Integer port = null;
-			if (!portnumber.equals(""))
-				port = Integer.parseInt(portnumber);
+			Integer port = queryPort(scanner);
 
 			ExitListener exit_listener = new ExitListener();
 			exit_listener.scanner =  scanner;
@@ -107,7 +113,16 @@ public class Server
 
 			while (true)
 			{
-				String message = server.waitForMessage(port);
+				String message = "";
+				try
+				{
+					message = server.waitForMessage(port);
+				}
+				catch (WrongPortException exc_obj)
+				{
+					System.out.println("The port you specified '" + String.valueOf(port) + "' is already in use.");
+					queryPort(scanner);
+				}
 				if (message == null)
 					continue;
 				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
@@ -154,6 +169,15 @@ public class Server
 
 	private String last_message;
 
+	public static class WrongPortException extends Error
+	{
+		public String message;
+
+		public WrongPortException(String message)
+		{
+			this.message = message;
+		}
+	}
 
 	public Server(utils.Configuration settings) throws java.io.IOException
 	{
@@ -176,7 +200,7 @@ public class Server
 			last_message = null;
 			return tmp;
 		}
-		catch (java.net.BindException exc_obj) { try { finishConnection(); } catch (java.io.IOException exc_object) { verbose("Unable to unbind"); } }
+		catch (java.net.BindException exc_obj) { throw new WrongPortException("The specified port already in use."); }
 		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
 		catch (Exception exc_obj) { verbose(exc_obj.toString()); }
 		return null;
