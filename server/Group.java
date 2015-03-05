@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 
 public class Group{
-
+/*
 	public int groupID, groupRank;
 	public String groupName;
 	public User groupAdmin, groupMember; //hvor staar dette om i SQL?
@@ -43,23 +43,11 @@ public class Group{
 		prepStatement.setInt(2, parts.get(1));
 		prepStatement.setString(3, parts.get(2));
 		prepStatement.setString(4, parts.get(3));
-		rs = prepStatement.executeQuery(); //hvordan execute'er man disse?
+		prepStatement.executeQuery(); //hvordan execute'er man disse?
 	}
 
-	public static void removeGroup(int groupID, String groupName, User groupMember){
-		query = query.substring(query.indexOf(" ") + 1);
-		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-		if (user == Group.groupAdmin) {
-			prepStatement = db.prepareStatement("DELETE * FROM SystemGroup (groupID, groupName, groupAdmin) WHERE VALUES (?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-
-		}
-		else{
-			String errMessage = "You are not permitted to delete this group"
-		}
-		
-
-
+	
 	}
 
-
+*/
 }
