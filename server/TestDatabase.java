@@ -6,7 +6,7 @@ public class TestDatabase
 {
 	
 	@org.junit.Test
-	public static void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException
+	public void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException
 	{	
 		utils.Configuration.loadDefaultConfiguration();
 		User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
@@ -17,7 +17,7 @@ public class TestDatabase
 	}
 
 	@org.junit.Test
-	public static void testUsernameNotExisting() throws java.io.IOException
+	public void testUsernameNotExisting() throws java.io.IOException
 	{	
 		utils.Configuration.loadDefaultConfiguration();
 		//User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
@@ -26,7 +26,7 @@ public class TestDatabase
 	}
 
 	@org.junit.Test
-	public static void testRegisterCommand()  throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException, java.sql.SQLException
+	public void testRegisterCommand()  throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException, java.sql.SQLException
 	{
 		utils.Configuration.loadDefaultConfiguration();
 		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
@@ -49,22 +49,22 @@ public class TestDatabase
 		String result = db.runQuery("SELECT COUNT(*) FROM systemUser WHERE username = '" + rndStr + "'");
 		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
 	}
+	
+	//@org.junit.Rule
+  	//public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
 
-	/* @Rule
-  	public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
-
-	@org.junit.Test(expected=java.sql.SQLException.class)
-	public static void testAddingDuplicateUserShouldFail() throws Exception
+	@org.junit.Test 
+	public void testAddingDuplicateUserShouldFail() throws Exception
 	{
+
 		utils.Configuration.loadDefaultConfiguration();
 		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-		//System.out.println(rndStr);
-		exception.expect(java.sql.SQLException.class);
-		db.executeWithValidUser(userR, 
+
+		assertEquals("It's likely that the user you're trying to add (root) already exists.",db.executeWithValidUser(userR, 
 							utils.Configuration.settings.getAndEscape("RegisterCommand")
 							+ " "
-							+ utils.Utils.escapeSpaces("sgdngsdkrjngsi")
+							+ utils.Utils.escapeSpaces("root")
 							+ " "
 							+ utils.Utils.escapeSpaces("1")
 							+ " "
@@ -72,37 +72,13 @@ public class TestDatabase
 							+ " "
 							+ utils.Utils.escapeSpaces("TestLname")
 							+ " "
-							+ utils.Utils.escapeSpaces("12345"));
-	
+							+ utils.Utils.escapeSpaces("12345")));
 	}
 
-	*/
-
-	public static void main(String[] args)
+	@org.junit.Test(expected=IndexOutOfBoundsException.class)
+	public void testIndexOutOfBoundsException() 
 	{
-		utils.Configuration.verbose_mode = true;
-		try
-		{
-			testWrongPasswordWhenExecute();
-			testUsernameNotExisting();
-			testRegisterCommand();
-			testAddingDuplicateUserShouldFail();
-		}
-		catch(java.security.NoSuchAlgorithmException nsae)
-		{
-			//TODO
-		}
-		catch(java.security.spec.InvalidKeySpecException ikse)
-		{
-			//TODOjava.io.IOException e
-		}
-		catch(java.io.IOException e)
-		{
-
-		}
-		catch(java.lang.Exception e)
-		{
-
-		}	
+    java.util.ArrayList emptyList = new java.util.ArrayList();
+    Object o = emptyList.get(0);
 	}
 }
