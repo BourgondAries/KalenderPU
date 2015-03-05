@@ -156,7 +156,7 @@ public class Client
 			}
 			String login_info = setLoginInfo(scanner);
 			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
-		
+			
 			System.out.print("Command (type 'help' for info): ");
 			while (scanner.hasNextLine())
 			{
