@@ -6,7 +6,11 @@ import java.sql.PreparedStatement;
 
 public class User
 {
-	public int systemUserId, rank;
+
+	public int systemUserId, rank;	
+	public int systemUserI, rank;
+	public int user_id;
+
 	public String username, fname, lname, hashedPW;
 	Database db;
 	ResultSet rs;
@@ -19,14 +23,13 @@ public class User
 		this.username = username;
 		this.fname = fname;
 		this.lname = lname;
-		this.hashedPW = hashedPW;
+		this.hashedPW = hashedPW;S
 
 		db = new Database(utils.Configuration.settings.get("DBConnection"));
 		rs = new ResultSet();
-		prepStatement = new PreparedStatement();
-	
+		prepStatement = PreparedStatement();
 	}
-
+/*
 	public static User getUser(int systemUserId)
 	{
 		prepStatement = db.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId =?");
@@ -41,7 +44,7 @@ public class User
 		rs = prepStatement.executeQuery(prepStatement);
 		return rs;
 	}
-
+S
 	void saveUser()
 	{
 		assertEquals(db.execute("nonexistingname", "pass", "query"), "Login username 'nonexistingname' does not exist.");
@@ -52,10 +55,14 @@ public class User
 			"INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", 
 			java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
 		);
-
 		statement.execute();
 
+	}
+	*/	
+/*
 
+		statement.execute();
+	
 	public static void removeSystemUser(SystemUser systemUser, int systemUserId, String username)
 	{
 			String query = query.substring(query.indexOf(" ") + 1);
@@ -79,5 +86,5 @@ public class User
 		return ;
 
 	}
-
+*/
 }
