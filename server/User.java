@@ -25,17 +25,79 @@ public class User
 		this.lname = lname;
 		this.hashedPW = hashedPW;S
 
-		db = new Database(utils.Configuration.settings.get("DBConnection"));
-		rs = new ResultSet();
-		prepStatement = PreparedStatement();
 	}
-/*
-	public static User getUser(int systemUserId)
+
+	void setDatabase(Database db)
 	{
-		prepStatement = db.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId =?");
-		prepStatement.setString(1, groupID);
-		rs = prepStatement.executeQuery(prepStatement);
+		this.db = db;
 	}
+
+
+	void saveUser(String password)
+	{
+		//ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
+	
+		try
+        {
+        	boolean create_new = false;
+        	if (this.systemUserId != null)
+        	{
+	          	java.sql.PreparedStatement prepstatement = db.connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
+				prepstatement.setInt(1, this.systemUserId);
+				java.sql.ResultSet result = prepstatement.executeQuery();
+
+				if (result.next() == true)
+				{
+					java.sql.PreparedStatement statement 
+						= connection.prepareStatement
+							(
+								"UPDATE SystemUser 
+								SET rank=?, username=?, fname=?, lname=?, hashedPW=?
+								WHERE systemUserId=?"
+							);
+							statement.setInt(1, this.rank);
+							statement.set.String(2, this.username);
+							statement.setString(3, this.fname);
+							statement.setString(4, this.lname);
+							statement.setString(5, PasswordHash.createHash(password) );
+							statement.setInt(6, this.systemUserId);
+
+					statement.execute();
+				}	
+				else
+					create_new = true;
+        	}
+        	else
+        		create_new = true;
+
+			if (create_new)
+			{
+	        	java.sql.PreparedStatement statement 
+					= connection.prepareStatement
+						(
+							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)"
+						);
+						statement.setInt(1, this.rank);
+						statement.set.String(2, this.username);
+						statement.setString(3, this.fname);
+						statement.setString(4, this.lname);
+						statement.setString(5, PasswordHash.createHash(password) );
+
+				statement.execute();
+			}
+        }
+        catch (Exception except)
+        {
+            except.printStackTrace();
+        }
+
+    }  
+/*
+	prepStatement.setInt(1, parts.get(0));
+		prepStatement.setInt(2, parts.get(1));
+		prepStatement.setString(3, parts.get(2));
+		prepStatement.setString(4, parts.get(3));
+
 	
 	public static Group getGroup(int groupID)
 	{
