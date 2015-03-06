@@ -1,55 +1,49 @@
 package server;
+
 import java.util.ArrayList; 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 
-public class Group{
-
-	public int groupID, groupRank;
-	public String groupName;
-	public User groupAdmin, groupMember; //hvor staar dette om i SQL?
-	public ArrayList<User> groupMembers;
-	public ArrayList<Group> subGroups;
+public class Group
+{
+	public int group_id, group_rank;
+	public String group_name;
+	public User group_admin, group_member; //hvor staar dette om i SQL?
+	public ArrayList<User> group_members;
+	public ArrayList<Group> sub_groups;
 	private Database database;	
 
 	
-	public Group(int groupID, int groupRank, String groupName, User groupAdmin){
-	ArrayList<User> groupMembers = new ArrayList<User>();
-	ArrayList<Group> subGroups = new ArrayList<Group>();
-	this.groupID = groupID;
-	this.groupRank = groupRank;
-	this.groupName = groupName;
-	this.groupAdmin = groupAdmin;
-	this.groupMember = groupMember;
-	Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-	ResultSet rs = new ResultSet();
-	PreparedStatement prepStatement = new PreparedStatement();
+	public Group(int group_id, int group_rank, String group_name, User group_admin)
+	{
+		ArrayList<User> group_members = new ArrayList<User>();
+		ArrayList<Group> sub_groups = new ArrayList<Group>();
+		this.group_id = group_id;
+		this.group_rank = group_rank;
+		this.group_name = group_name;
+		this.group_admin = group_admin;
+		this.group_member = group_member;
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		ResultSet rs = new ResultSet();
+		PreparedStatement prep_statement = new PreparedStatement();
 	}
 
-
 	//save- og get metoder
-	public static Group getGroup(int groupID){
-		prepStatement = db.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
-		prepStatement.setString(1, groupID);
-		rs = prepStatement.executeQuery(prepStatement);
+	public static Group getGroup(int group_id)
+	{
+		prep_statement = db.prepareStatement("SELECT * FROM SystemGroup WHERE groupId=?");
+		prep_statement.setString(1, group_id);
+		rs = prep_statement.executeQuery(prep_statement);
 		return rs;
 	}
 
-	public static void addGroup(int groupID, int groupRank, String groupName, User groupAdmin){
-		query = query.substring(query.indexOf(" ") + 1);
-		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-		prepStatement = db.prepareStatement("INSERT INTO SystemGroup (groupID, groupRank, groupName, groupAdmin) VALUES (?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
-		prepStatement.setInt(1, parts.get(0));
-		prepStatement.setInt(2, parts.get(1));
-		prepStatement.setString(3, parts.get(2));
-		prepStatement.setString(4, parts.get(3));
-		prepStatement.executeQuery(); //hvordan execute'er man disse?
+	public static void addGroup(String group_name, User group_admin)
+	{
+		prep_statement = db.prepareStatement("INSERT INTO SystemGroup (groupName, groupAdmin) VALUES (?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
+		prep_statement.setString(1, group_name);
+		prep_statement.setString(2, group_admin);
+		prep_statement.executeUpdate();
 	}
-
-	
-	}
-
-
 }
 
