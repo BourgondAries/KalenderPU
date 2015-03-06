@@ -4,8 +4,9 @@ import static utils.Configuration.verbose;
 
 public class Database
 {
-	private static String db_url = null;
-	private static java.sql.Connection connection = null;
+	private String db_url = null;
+	private java.sql.Connection connection = null;
+	private java.util.BitSet status = new java.util.BitSet(Status.values().length);
 
 	public Database(String db_url)
 	{
@@ -34,6 +35,26 @@ public class Database
         {
             except.printStackTrace();
         }
+	}
+
+	public static enum Status
+	{
+		INCORRECT_PASSWORD
+	}
+
+	public boolean getStatus(Status state_check)
+	{
+		return status.get(state_check.ordinal());
+	}
+
+	private void setStatus(Status state)
+	{
+		status.set(state.ordinal());
+	}
+
+	public void clearStatus()
+	{
+		status.clear();
 	}
 
 	public void closeDatabase() throws java.sql.SQLException
@@ -87,8 +108,11 @@ public class Database
 					//System.out.println(query);
 					return executeWithValidUser(user, query);
 				}
-				else 
+				else
+				{
+					setStatus(Status.INCORRECT_PASSWORD);
 					return "Invalid password for user '" + username + "'.";
+				}
 			}
 			else
 			{
