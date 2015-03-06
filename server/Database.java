@@ -42,7 +42,8 @@ public class Database
 		INCORRECT_PASSWORD,
 		NONEXISTENT_USER,
 		CREATED_NEW_USER,
-		USER_ALREADY_EXISTS
+		USER_ALREADY_EXISTS,
+		NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS
 	}
 
 	public boolean getStatus(Status state_check)
@@ -215,6 +216,7 @@ public class Database
 				}
 				else
 				{
+					setStatus(Status.NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS);
 					return "Only root can change other users' passwords.";
 				}
 			}
