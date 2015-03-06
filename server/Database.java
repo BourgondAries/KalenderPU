@@ -65,6 +65,11 @@ public class Database
 		}
 	}
 
+	public java.sql.PreparedStatement getPreparedStatement(String query) throws java.sql.SQLException
+	{
+		return connection.prepareStatement(query);
+	}
+
 	public String execute(String username, String password, String query)
 	{
 		try
