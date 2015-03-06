@@ -298,42 +298,55 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
 			{
-				// Have to check if the room is available.
-
-				// Then actual register the room under the user.
-				
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
+				// Check if room is booked already in that timeslot:
+					// TODO
+				// Book the room
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Booking (adminId, description, bookingName, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
+				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
+				statement.setString(3, parts.get(2));
+				statement.setInt(4, Integer.valueOf(parts.get(3)));
+				statement.setTimestamp(5, java.sql.Timestamp.valueOf(parts.get(4)));
+				statement.setTimestamp(6, java.sql.Timestamp.valueOf(parts.get(5)));
+				statement.setTimestamp(7, java.sql.Timestamp.valueOf(parts.get(6)));
+				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("RemoveRoomBookingCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
+				if (!user.username.equals("root"))
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM Booking WHERE bookingId=? AND adminId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					statement.setInt(2, user.user_id);
+					return String.valueOf(statement.executeUpdate());
+				}
+				else
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM Booking WHERE bookingId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					return String.valueOf(statement.executeUpdate());
+				}
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
 				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
+				statement.setString(2, parts.get(2));
+				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=true WHERE systemUserId=? AND bookingId=?");
+				statement.setString(1, parts.get(user.user_id));
 				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
+				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=false WHERE systemUserId=? AND bookingId=?");
+				statement.setString(1, parts.get(user.user_id));
 				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
+				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
