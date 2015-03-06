@@ -40,7 +40,9 @@ public class Database
 	public static enum Status
 	{
 		INCORRECT_PASSWORD,
-		NONEXISTENT_USER
+		NONEXISTENT_USER,
+		CREATED_NEW_USER,
+		FAILED_TO_CREATE_NEW_USER
 	}
 
 	public boolean getStatus(Status state_check)
@@ -180,11 +182,13 @@ public class Database
 						int n = statement.executeUpdate();
 						if (n == 1)
 						{
+							setStatus(Status.CREATED_NEW_USER);
 							return "User '" + parts.get(1) + "' registered!";
 						}
 					}
 					catch (java.sql.SQLException exc)
 					{
+						setStatus(Status.FAILED_TO_CREATE_NEW_USER);
 						return "It's likely that the user you're trying to add (" + parts.get(1) + ") already exists.";
 					}
 				}
