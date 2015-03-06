@@ -137,9 +137,15 @@ public class Database
 		int columns = resultmetadata.getColumnCount();
 
 		String answer = String.valueOf(columns);
+		String tmp = "";
+		for (int i = 1; i < columns + 1; ++i)
+		{
+			tmp = resultmetadata.getColumnName(i);
+			answer += " " + utils.Utils.escapeSpaces(tmp);
+		}
+		tmp = "";
 		while (result.next())
 		{
-			String tmp = "";
 			if (columns > 0)
 			{
 				if (result.getString(1) != null)
@@ -243,6 +249,12 @@ public class Database
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("GetInvitesCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
@@ -303,7 +315,7 @@ public class Database
 				// Check if room is booked already in that timeslot:
 					// TODO
 				// Book the room
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Booking (adminId, description, bookingName, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				statement.setString(3, parts.get(2));
@@ -331,10 +343,17 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(2));
-				return String.valueOf(statement.executeUpdate());
+				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+				s1.setString(1, parts.get(1));
+				java.sql.ResultSet result = s1.executeQuery();
+				if (result.next())
+				{
+					int invite_id = result.getInt(1);
+					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+					statement.setInt(1, invite_id);
+					statement.setInt(2, Integer.valueOf(parts.get(2)));
+					return String.valueOf(statement.executeUpdate());
+				}
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
@@ -349,6 +368,11 @@ public class Database
 				statement.setString(1, parts.get(user.user_id));
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
+			}
+			else if (parts.get(0).equals(coms.get("RoomFind")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Room");
+				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
