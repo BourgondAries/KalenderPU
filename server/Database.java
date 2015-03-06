@@ -39,7 +39,8 @@ public class Database
 
 	public static enum Status
 	{
-		INCORRECT_PASSWORD
+		INCORRECT_PASSWORD,
+		NONEXISTENT_USER
 	}
 
 	public boolean getStatus(Status state_check)
@@ -116,6 +117,7 @@ public class Database
 			}
 			else
 			{
+				setStatus(Status.NONEXISTENT_USER);
 				return "Login username '" + username + "' does not exist.";
 			}
 		}
