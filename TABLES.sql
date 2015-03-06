@@ -52,11 +52,9 @@ CREATE TABLE SystemGroup
 	rank		int			NOT NULL,
 	groupName	varchar(255), 
 	parentGroupId int,
-	groupAdminId	int 	NOT NULL,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
 	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId)
-	FOREIGN KEY (groupAdminId) REFERENCES SystemGroup(groupId)
 );
 
 CREATE TABLE Groupmember

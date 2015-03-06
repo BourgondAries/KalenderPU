@@ -255,6 +255,12 @@ public class Database
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("SeeMyBookingsCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Booking WHERE adminId=?");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
