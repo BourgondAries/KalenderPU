@@ -10,6 +10,15 @@ public class TestDatabase
 
 
 	@org.junit.Test
+<<<<<<< HEAD
+	public void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException
+	{	
+		utils.Configuration.loadDefaultConfiguration();
+		User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		//assertEquals(0,1);
+		assertEquals(db.execute(userR.username,"gerp", "query"),"Invalid password for user '" + userR.username + "'.");
+=======
 	public void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException, java.io.IOException
 	{	
 		utils.Configuration.loadDefaultConfiguration();
@@ -17,6 +26,7 @@ public class TestDatabase
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		db.execute(user_root.username, "password_gerp", utils.Configuration.settings.get("PassCheck"));
 		assertTrue(db.getStatus(Database.Status.INCORRECT_PASSWORD));
+>>>>>>> 81b82de93d1347b2c2ee06c6994984d352d27618
 
 	}
 
@@ -24,6 +34,36 @@ public class TestDatabase
 	public void testUsernameNotExisting() throws java.io.IOException
 	{	
 		utils.Configuration.loadDefaultConfiguration();
+<<<<<<< HEAD
+		//User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		assertEquals(db.execute("nonexistingname", "password", "query"),"Login username 'nonexistingname' does not exist.");
+	}
+
+	@org.junit.Test
+	public void testRegisterCommand()  throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException, java.sql.SQLException
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		String rndStr = utils.Utils.makeRandomString(8);
+		//System.out.println(rndStr);
+		db.executeWithValidUser(userR, 
+							utils.Configuration.settings.getAndEscape("RegisterCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(rndStr)
+							+ " "
+							+ utils.Utils.escapeSpaces("1")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestFname")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestLname")
+							+ " "
+							+ utils.Utils.escapeSpaces("12345"));
+
+		String result = db.runQuery("SELECT COUNT(*) FROM systemUser WHERE username = '" + rndStr + "'");
+		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
+=======
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		db.execute("nonexistingname", "password", utils.Configuration.settings.get("PassCheck"));
 		assertTrue(db.getStatus(Database.Status.NONEXISTENT_USER));
@@ -91,8 +131,36 @@ public class TestDatabase
 		String result = Database.resultToString(prep_statement.executeQuery());
 		String[] parts = result.split(" ");
 		assertTrue(PasswordHash.validatePassword("newPW", parts[1]));
+>>>>>>> 81b82de93d1347b2c2ee06c6994984d352d27618
+	}
+	
+	//@org.junit.Rule
+  	//public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
+
+<<<<<<< HEAD
+	@org.junit.Test 
+	public void testAddingDuplicateUserShouldFail() throws Exception
+	{
+
+		utils.Configuration.loadDefaultConfiguration();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+
+		assertEquals("It's likely that the user you're trying to add (root) already exists.",db.executeWithValidUser(userR, 
+							utils.Configuration.settings.getAndEscape("RegisterCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("root")
+							+ " "
+							+ utils.Utils.escapeSpaces("1")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestFname")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestLname")
+							+ " "
+							+ utils.Utils.escapeSpaces("12345")));
 	}
 
+=======
 	@org.junit.Test
 	public void testUserCannotChangeOthersPass() throws Exception
 	{
@@ -229,11 +297,16 @@ public class TestDatabase
 
 /* Eksempel:
 
+>>>>>>> 81b82de93d1347b2c2ee06c6994984d352d27618
 	@org.junit.Test(expected=IndexOutOfBoundsException.class)
 	public void testIndexOutOfBoundsException() 
 	{
     java.util.ArrayList emptyList = new java.util.ArrayList();
     Object o = emptyList.get(0);
 	}
+<<<<<<< HEAD
+}
+=======
 */
 
+>>>>>>> 81b82de93d1347b2c2ee06c6994984d352d27618
