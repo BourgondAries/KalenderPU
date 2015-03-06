@@ -13,8 +13,7 @@ public class User
 
 	public User(int systemUserId, int rank, String username, String fname, String lname, String hashedPW)
 	{
-		this.systemUserI = systemUserId
-;
+		this.systemUserI = systemUserId;
 		this.rank = rank;
 		this.username = username;
 		this.fname = fname;
