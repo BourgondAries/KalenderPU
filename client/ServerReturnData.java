@@ -15,7 +15,8 @@ public class ServerReturnData
 
 	public void parseInput(String input)
 	{
-		columns = Integer.parseInt(input.substring(0, input.indexOf(" ") + 1).trim());
+		int location = input.indexOf(" ");
+		columns = Integer.parseInt(input.substring(0, location == -1 ? input.length() : location).trim());
 		input = input.substring(input.indexOf(" ") + 1);
 		java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(input);
 		final_set = new java.util.ArrayList<>();

@@ -7,60 +7,53 @@ import java.sql.PreparedStatement;
 public class User
 {
 
-	public int systemUserId, rank;	
-	public int systemUserI, rank;
-	public int user_id;
-
-	public String username, fname, lname, hashedPW;
-	Database db;
+	public int user_id, rank;	
+	public String username, fname, lname, hashed_password;
+	Connection connection;
 	ResultSet rs;
 	PreparedStatement prepStatement;
 
-	public User(int systemUserId, int rank, String username, String fname, String lname, String hashedPW)
+	public User(int user_id, int rank, String username, String fname, String lname, String hashed_password)
 	{
-		this.systemUserId = systemUserId;
+		this.user_id = user_id;
 		this.rank = rank;
 		this.username = username;
 		this.fname = fname;
 		this.lname = lname;
-		this.hashedPW = hashedPW;S
+		this.hashed_password = hashed_password;
 
 	}
 
-	void setDatabase(Database db)
+	public void setConnection(Connection connection)
 	{
-		this.db = db;
+		this.connection = connection;
 	}
 
 
-	void saveUser(String password)
+	public void saveUser(String password)
 	{
 		//ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
 	
 		try
         {
         	boolean create_new = false;
-        	if (this.systemUserId != null)
+        	if (this.user_id != 0)
         	{
-	          	java.sql.PreparedStatement prepstatement = db.connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
-				prepstatement.setInt(1, this.systemUserId);
+	          	java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
+				prepstatement.setInt(1, this.user_id);
 				java.sql.ResultSet result = prepstatement.executeQuery();
 
 				if (result.next() == true)
 				{
 					java.sql.PreparedStatement statement 
 						= connection.prepareStatement
-							(
-								"UPDATE SystemUser 
-								SET rank=?, username=?, fname=?, lname=?, hashedPW=?
-								WHERE systemUserId=?"
-							);
+							("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
 							statement.setInt(1, this.rank);
-							statement.set.String(2, this.username);
+							statement.setString(2, this.username);
 							statement.setString(3, this.fname);
 							statement.setString(4, this.lname);
 							statement.setString(5, PasswordHash.createHash(password) );
-							statement.setInt(6, this.systemUserId);
+							statement.setInt(6, this.user_id);
 
 					statement.execute();
 				}	
@@ -75,10 +68,10 @@ public class User
 	        	java.sql.PreparedStatement statement 
 					= connection.prepareStatement
 						(
-							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)"
+							"INSERT INTO SystemUser (rank, username, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)"
 						);
 						statement.setInt(1, this.rank);
-						statement.set.String(2, this.username);
+						statement.setString(2, this.username);
 						statement.setString(3, this.fname);
 						statement.setString(4, this.lname);
 						statement.setString(5, PasswordHash.createHash(password) );
@@ -114,7 +107,7 @@ S
 		ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
 		java.sql.PreparedStatement statement = connection.prepareStatement
 		(
-			"INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", 
+			"INSERT INTO SystemUser (username, rank, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)", 
 			java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
 		);
 		statement.execute();
@@ -125,14 +118,14 @@ S
 
 		statement.execute();
 	
-	public static void removeSystemUser(SystemUser systemUser, int systemUserId, String username)
+	public static void removeSystemUser(SystemUser systemUser, int user_id, String username)
 	{
 			String query = query.substring(query.indexOf(" ") + 1);
 			ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
 			
 				prepStatement = db.prepareStatement
 				(
-					"DELETE * FROM SystemUser (systemUserId, rank, username, lname, fname, hashedPW) WHERE VALUES (?, ?, ?)", 
+					"DELETE * FROM SystemUser (user_id, rank, username, lname, fname, hashed_password) WHERE VALUES (?, ?, ?)", 
 					java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
 				);
 	
@@ -140,7 +133,7 @@ S
 
 
 		
-	public void loadSystemUser(int systemUserId)
+	public void loadSystemUser(int user_id)
 	{
 
 		db = new Database(utils.Configuration.settings.get("DBConnection"));
