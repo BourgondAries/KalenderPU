@@ -156,7 +156,7 @@ public class Client
 			}
 			String login_info = setLoginInfo(scanner);
 			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
-			
+
 			System.out.print("Command (type 'help' for info): ");
 			while (scanner.hasNextLine())
 			{
@@ -344,23 +344,7 @@ public class Client
 				{
 					line =
 						utils.Utils.escapeSpaces(utils.Configuration.settings.get("GetEventsCommand"));
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
-					result = result.substring(result.indexOf(" ") + 1);
-					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
-					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
-					for (String str : result_set)
-					{
-						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
-					}
-
-					int i = 0;
-					for (String tmp : final_set)
-					{
-						if (i++ % 2 == 0)
-							System.out.println();
-						System.out.println(tmp);
-					}
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterRoomCommand")))
 				{
@@ -409,23 +393,7 @@ public class Client
 							+ " "							
 							+ utils.Utils.escapeSpaces(like)
 						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
-					result = result.substring(result.indexOf(" ") + 1);
-					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
-					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
-					for (String str : result_set)
-					{
-						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
-					}
-
-					int i = 0;
-					for (String tmp : final_set)
-					{
-						if (i++ % 2 == 0)
-							System.out.println();
-						System.out.println(tmp);
-					}
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetCalendarCommand")))
 				{
@@ -445,6 +413,103 @@ public class Client
 							+ utils.Utils.escapeSpaces(month)
 							+ " "
 							+ utils.Utils.escapeSpaces(day)
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingCommand")))
+				{
+					System.out.println("The room which you would like to book: ");
+					String room = scanner.nextLine();
+					System.out.println("From (jbdc date format): ");
+					String from = scanner.nextLine();
+					System.out.println("To (jbdc date format): ");
+					String to = scanner.nextLine();
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.getAndEscape("RoomBookingCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(room)
+							+ " "
+							+ utils.Utils.escapeSpaces(from)
+							+ " "
+							+ utils.Utils.escapeSpaces(to)
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RemoveRoomBookingCommand")))
+				{
+					System.out.println("The booking which you would like to remove: ");
+					String booking_id = scanner.nextLine();
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.getAndEscape("RemoveRoomBookingCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(booking_id)
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingInviteCommand")))
+				{
+					System.out.println("Whom to invite (username, enter blank to continue): ");
+					String users = "";
+					String input = "";
+					do
+					{
+						input = scanner.nextLine();
+						users += utils.Utils.escapeSpaces(input) + " ";
+					} 
+					while (input.equals("") == false);
+					
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.get("RoomBookingInviteCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("")
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingAcceptInviteCommand")))
+				{
+					System.out.println("Whom to invite (username, enter blank to continue): ");
+					String users = "";
+					String input = "";
+					do
+					{
+						input = scanner.nextLine();
+						users += utils.Utils.escapeSpaces(input) + " ";
+					} 
+					while (input.equals("") == false);
+					
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.get("RoomBookingInviteCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("")
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+				}
+				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingDenyInviteCommand")))
+				{
+					System.out.println("Whom to invite (username, enter blank to continue): ");
+					String users = "";
+					String input = "";
+					do
+					{
+						input = scanner.nextLine();
+						users += utils.Utils.escapeSpaces(input) + " ";
+					} 
+					while (input.equals("") == false);
+					
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.get("RoomBookingInviteCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("")
 						);
 					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 				}

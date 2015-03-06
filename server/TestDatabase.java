@@ -12,7 +12,8 @@ public class TestDatabase
 		User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		//assertEquals(0,1);
-		assertEquals(db.execute(userR.username,"gerp", "query"),"Invalid password for user '" + userR.username + "'.");
+		db.execute(userR.username,"password_gerp", utils.Configuration.settings.get("PassCheck"));
+		assertTrue(db.getStatus(Database.Status.INCORRECT_PASSWORD));
 
 	}
 
@@ -22,11 +23,111 @@ public class TestDatabase
 		utils.Configuration.loadDefaultConfiguration();
 		//User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-		assertEquals(db.execute("nonexistingname", "password", "query"),"Login username 'nonexistingname' does not exist.");
+		db.execute("nonexistingname", "password", utils.Configuration.settings.get("PassCheck"));
+		assertTrue(db.getStatus(Database.Status.NONEXISTENT_USER));
 	}
 
 	@org.junit.Test
-	public void testRegisterCommand()  throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException, java.sql.SQLException
+	public void testRegisterCommand()  throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		User randUser = addRandUser();
+
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT COUNT(*) FROM systemUser WHERE username=?");
+		prep_statement.setString(1, randUser.username);
+		String result = Database.resultToString(prep_statement.executeQuery());
+
+		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
+	}
+	
+	//@org.junit.Rule
+  	//public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
+
+	@org.junit.Test 
+	public void testAddingDuplicateUserShouldFail() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException,java.io.IOException, java.sql.SQLException
+	{
+
+		utils.Configuration.loadDefaultConfiguration();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+		String rndStr = utils.Utils.makeRandomString(8);
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+
+		db.executeWithValidUser(userR, 
+							utils.Configuration.settings.getAndEscape("RegisterCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("root")
+							+ " "
+							+ utils.Utils.escapeSpaces("1")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestFname")
+							+ " "
+							+ utils.Utils.escapeSpaces("TestLname")
+							+ " "
+							+ utils.Utils.escapeSpaces("12345"));
+
+		assertTrue(db.getStatus(Database.Status.USER_ALREADY_EXISTS));
+	}
+	@org.junit.Test 
+	public void testChangeYourOwnPassword() throws Exception
+	{
+		
+		utils.Configuration.loadDefaultConfiguration();
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		User randUser = addRandUser();
+
+		db.executeWithValidUser(randUser, 
+							utils.Configuration.settings.getAndEscape("ChangePassCommand")
+							+ " " 
+							+ utils.Utils.escapeSpaces("newPW"));
+
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT hashedPW FROM systemUser WHERE username =?");
+		prep_statement.setString(1, randUser.username);
+		String result = Database.resultToString(prep_statement.executeQuery());
+		String[] parts = result.split(" ");
+		assertTrue(PasswordHash.validatePassword("newPW", parts[1]));
+	}
+
+	@org.junit.Test
+	public void testUserCannotChangeOthersPass() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		User randUser = addRandUser();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+		System.out.println(randUser.username);
+		db.executeWithValidUser(randUser , utils.Configuration.settings.getAndEscape("ChangePassOfCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("root")
+							+ " "
+							+ utils.Utils.escapeSpaces("newRootPassword")
+							);
+		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS));
+
+	}
+
+	@org.junit.Test
+	public void testRootCanChangeOthersPass() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		User randUser = addRandUser();
+		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
+
+		db.executeWithValidUser(userR, utils.Configuration.settings.getAndEscape("ChangePassOfCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces(randUser.username)
+							+ " "
+							+ utils.Utils.escapeSpaces("newPW")
+							);
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT hashedPW FROM systemUser WHERE username =?");
+		prep_statement.setString(1, randUser.username);
+		String result = Database.resultToString(prep_statement.executeQuery());
+		String[] parts = result.split(" ");
+		assertTrue(PasswordHash.validatePassword("newPW", parts[1]));
+	}
+
+	private User addRandUser() throws Exception
 	{
 		utils.Configuration.loadDefaultConfiguration();
 		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
@@ -46,34 +147,17 @@ public class TestDatabase
 							+ " "
 							+ utils.Utils.escapeSpaces("12345"));
 
-		String result = db.runQuery("SELECT COUNT(*) FROM systemUser WHERE username = '" + rndStr + "'");
-		assertEquals(Integer.parseInt("" + result.charAt(0)),1);
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT systemUserId FROM systemUser WHERE username =?");
+		prep_statement.setString(1, rndStr);
+		String rndStrUserId = Database.resultToString(prep_statement.executeQuery());
+
+		String[] parts = rndStrUserId.split(" ");
+		User rndUser = new User(Integer.parseInt("" + parts[1]),5,rndStr,"","",PasswordHash.createHash("12345"));
+		return  rndUser;
 	}
-	
-	//@org.junit.Rule
-  	//public org.junit.rules.ExpectedException exception = org.junit.rules.ExpectedException.none();
+}
 
-	@org.junit.Test 
-	public void testAddingDuplicateUserShouldFail() throws Exception
-	{
-
-		utils.Configuration.loadDefaultConfiguration();
-		User userR = new User(0,1,"root", "" ,"",PasswordHash.createHash("root"));
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-
-		assertEquals("It's likely that the user you're trying to add (root) already exists.",db.executeWithValidUser(userR, 
-							utils.Configuration.settings.getAndEscape("RegisterCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces("root")
-							+ " "
-							+ utils.Utils.escapeSpaces("1")
-							+ " "
-							+ utils.Utils.escapeSpaces("TestFname")
-							+ " "
-							+ utils.Utils.escapeSpaces("TestLname")
-							+ " "
-							+ utils.Utils.escapeSpaces("12345")));
-	}
+/* Eksempel:
 
 	@org.junit.Test(expected=IndexOutOfBoundsException.class)
 	public void testIndexOutOfBoundsException() 
@@ -81,4 +165,5 @@ public class TestDatabase
     java.util.ArrayList emptyList = new java.util.ArrayList();
     Object o = emptyList.get(0);
 	}
-}
+*/
+
