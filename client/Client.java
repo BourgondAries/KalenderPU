@@ -473,11 +473,45 @@ public class Client
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingAcceptInviteCommand")))
 				{
-
+					System.out.println("Whom to invite (username, enter blank to continue): ");
+					String users = "";
+					String input = "";
+					do
+					{
+						input = scanner.nextLine();
+						users += utils.Utils.escapeSpaces(input) + " ";
+					} 
+					while (input.equals("") == false);
+					
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.get("RoomBookingInviteCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("")
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 				}
 				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingDenyInviteCommand")))
 				{
-
+					System.out.println("Whom to invite (username, enter blank to continue): ");
+					String users = "";
+					String input = "";
+					do
+					{
+						input = scanner.nextLine();
+						users += utils.Utils.escapeSpaces(input) + " ";
+					} 
+					while (input.equals("") == false);
+					
+					line =
+						utils.Utils.escapeSpaces
+						(
+							utils.Configuration.settings.get("RoomBookingInviteCommand")
+							+ " "
+							+ utils.Utils.escapeSpaces("")
+						);
+					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 				}
 				else
 				{

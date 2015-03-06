@@ -42,7 +42,7 @@ public class Database
 		INCORRECT_PASSWORD,
 		NONEXISTENT_USER,
 		CREATED_NEW_USER,
-		FAILED_TO_CREATE_NEW_USER
+		USER_ALREADY_EXISTS
 	}
 
 	public boolean getStatus(Status state_check)
@@ -188,7 +188,7 @@ public class Database
 					}
 					catch (java.sql.SQLException exc)
 					{
-						setStatus(Status.FAILED_TO_CREATE_NEW_USER);
+						setStatus(Status.USER_ALREADY_EXISTS);
 						return "It's likely that the user you're trying to add (" + parts.get(1) + ") already exists.";
 					}
 				}
