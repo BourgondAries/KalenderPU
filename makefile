@@ -36,6 +36,10 @@ vclient:
 	$(MAKE) cclient
 	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli
 
+gclient:
+	$(MAKE) cclient
+	java -classpath $(CLIENT_RUNPATH) client.Client -v --gui
+
 dbreset:
 	rm -rf database
 	java -classpath $(DBRESET_RUNPATH) -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt

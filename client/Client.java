@@ -16,7 +16,7 @@ public class Client
 		if (arghandler.hasOption("cli"))
 			commandLineInterface();
 		else if (arghandler.hasOption("gui"))
-			; // start gui
+			useGuiInterface();
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("help"))
@@ -545,6 +545,13 @@ public class Client
 		{
 			verbose(exc.toString());
 		}
+	}
+
+	public static void useGuiInterface()
+	{
+		Client client = new Client(utils.Configuration.settings);
+		Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
+		javafx.application.Application.launch(Gui.class, new String[1]);
 	}
 
 	public static void printHelp()
