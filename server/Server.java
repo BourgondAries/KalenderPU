@@ -94,6 +94,11 @@ public class Server
 		return port;
 	}
 
+	public static class BlockSizeTooLargeException extends Exception
+	{
+
+	}
+
 	public static void commandLineInterface()
 	{
 		Server server = null;
@@ -113,28 +118,33 @@ public class Server
 
 			while (true)
 			{
-				String message = "";
 				try
 				{
+					String message = "";
+				
 					message = server.waitForMessage(port);
+					if (message == null)
+						continue;
+					java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
+					for (int i = 0; i < message_parts.size(); ++i)
+						System.out.println(message_parts.get(i));
+					if (message_parts.size() == 3)
+					{
+						server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
+					}
+					else
+					{
+						server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
+					}
 				}
 				catch (WrongPortException exc_obj)
 				{
 					System.out.println("The port you specified '" + String.valueOf(port) + "' is already in use.");
 					queryPort(scanner);
 				}
-				if (message == null)
-					continue;
-				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
-				for (int i = 0; i < message_parts.size(); ++i)
-					System.out.println(message_parts.get(i));
-				if (message_parts.size() == 3)
+				catch (BlockSizeTooLargeException exc_obj)
 				{
-					server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
-				}
-				else
-				{
-					server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
+					server.respondToMessage("You have sent a block that is too large to be accepted by the server. Largest size is: " + utils.Configuration.settings.getInt("maxblocksize"));
 				}
 			}
 		}
@@ -185,7 +195,7 @@ public class Server
 		loadTheKeysIntoMemory();
 	}
 
-	public String waitForMessage(Integer port)
+	public String waitForMessage(Integer port) throws Exception
 	{
 		try
 		{
@@ -202,7 +212,6 @@ public class Server
 		}
 		catch (java.net.BindException exc_obj) { throw new WrongPortException("The specified port already in use."); }
 		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
-		catch (Exception exc_obj) { verbose(exc_obj.toString()); }
 		return null;
 	}
 
@@ -329,7 +338,7 @@ public class Server
 		output_to_client.write(signature);
 	}
 
-	private void readIncomingbytes() throws java.io.IOException
+	private void readIncomingbytes() throws Exception
 	{
 		verbose("Reading incoming bytes.");
 
@@ -346,6 +355,8 @@ public class Server
 			System.arraycopy(bytes, 0, total, 0, bytes.length);
 			System.arraycopy(temporary, 0, total, bytes.length, temporary.length);
 			bytes = total;
+			if (bytes.length > settings.getInt("maxblocksize"))
+				throw new BlockSizeTooLargeException();
 		}
 		while (length != -1 && length == settings.getInt("blocklength"));
 
