@@ -96,7 +96,7 @@ public class Client
 		this.settings = settings;
 		try
 		{
-			bytes = new byte[settings.getInt("keylength")];
+			bytes = new byte[settings.getInt("blocklength")];
 			loadTrustedServers();
 			generatePair();
 			generateSymmetric();
@@ -207,7 +207,7 @@ public class Client
 	private void getServerPublicKeyFromServer()
 	{
 		verbose("Waiting for host public key.");
-		bytes = new byte[settings.getInt("keylength")];
+		bytes = new byte[settings.getInt("blocklength")];
 		try
 		{
 			int number = input_from_server.read(bytes);
@@ -294,7 +294,7 @@ public class Client
 		{
 			int length = 0;
 			bytes = new byte[0];
-			byte[] temporary = new byte[settings.getInt("keylength")];
+			byte[] temporary = new byte[settings.getInt("blocklength")];
 			do
 			{
 				length = input_from_server.read(temporary);
@@ -305,7 +305,7 @@ public class Client
 				bytes = total;
 				System.out.println(length);
 			}
-			while (length != -1 && length == settings.getInt("keylength"));
+			while (length != -1 && length == settings.getInt("blocklength"));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 		}
 		catch (Exception exc_obj)

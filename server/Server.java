@@ -211,7 +211,7 @@ public class Server
 		verbose("Fetching symmetric key.");
 		try
 		{
-			byte[] bytes = new byte[settings.getInt("keylength")];
+			byte[] bytes = new byte[settings.getInt("blocklength")];
 			int code = input_from_client.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, code);
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
@@ -286,7 +286,7 @@ public class Server
 	private void getPublicKeyFromClient()
 	{
 		verbose("Fetching the public key from the client.");
-		byte[] bytes = new byte[settings.getInt("keylength")];
+		byte[] bytes = new byte[settings.getInt("blocklength")];
 		try
 		{
 			int number = input_from_client.read(bytes);
@@ -331,7 +331,7 @@ public class Server
 	private void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
-		byte[] bytes = new byte[settings.getInt("keylength")];
+		byte[] bytes = new byte[settings.getInt("blocklength")];
 		int code = input_from_client.read(bytes);
 		bytes = java.util.Arrays.copyOf(bytes, code);
 		try
