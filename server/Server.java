@@ -228,7 +228,7 @@ public class Server
 		verbose("Attempting to send back: '" + string + "'");
 		try
 		{
-			byte[] bytes = utils.Utils.encryptSymmetric(string.getBytes(), symmetric_key, settings.get("SymmetricCipher"));
+			byte[] bytes = utils.Utils.encryptSymmetric(string.getBytes("UTF-8"), symmetric_key, settings.get("SymmetricCipher"));
 			output_to_client.write(bytes);
 			output_to_client.flush();
 			finishConnection();

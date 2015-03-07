@@ -178,11 +178,11 @@ public class Client
 			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
 			for (int i = 0; i < cert.length; ++i)
 			{
-				if (isContained(cert, i, settings.get("PublicKeySeparator").getBytes()))
+				if (isContained(cert, i, settings.get("PublicKeySeparator").getBytes("UTF-8")))
 				{
 					byte[] copy = java.util.Arrays.copyOfRange(cert, 0, i);
 					server_public_keys.add(copy);
-					cert = java.util.Arrays.copyOfRange(cert, i + settings.get("PublicKeySeparator").getBytes().length, cert.length);
+					cert = java.util.Arrays.copyOfRange(cert, i + settings.get("PublicKeySeparator").getBytes("UTF-8").length, cert.length);
 					i = 0;
 				}
 			}
@@ -279,7 +279,7 @@ public class Client
 		verbose("Sending packets to the server...");
 		try
 		{
-			output_to_server.write(utils.Utils.encryptSymmetric(data.getBytes(), symmetric_key, settings.get("SymmetricCipher")));
+			output_to_server.write(utils.Utils.encryptSymmetric(data.getBytes("UTF-8"), symmetric_key, settings.get("SymmetricCipher")));
 		}
 		catch (Exception exc_obj)
 		{
@@ -292,9 +292,20 @@ public class Client
 		verbose("Retrieving server response.");
 		try
 		{
-			bytes = new byte[settings.getInt("keylength")];
-			int length = input_from_server.read(bytes);
-			bytes = java.util.Arrays.copyOf(bytes, length);
+			int length = 0;
+			bytes = new byte[0];
+			byte[] temporary = new byte[settings.getInt("keylength")];
+			do
+			{
+				length = input_from_server.read(temporary);
+				temporary = java.util.Arrays.copyOf(temporary, length);
+				byte[] total = new byte[bytes.length + temporary.length];
+				System.arraycopy(bytes, 0, total, 0, bytes.length);
+				System.arraycopy(temporary, 0, total, bytes.length, temporary.length);
+				bytes = total;
+				System.out.println(length);
+			}
+			while (length != -1 && length == settings.getInt("keylength"));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 		}
 		catch (Exception exc_obj)
@@ -310,7 +321,7 @@ public class Client
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			trusted.write(server_public_keys.get(i));
-			trusted.write(settings.get("PublicKeySeparator").getBytes());
+			trusted.write(settings.get("PublicKeySeparator").getBytes("UTF-8"));
 		}
 	}
 }
