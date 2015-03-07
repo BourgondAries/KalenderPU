@@ -211,7 +211,7 @@ public class Server
 		verbose("Fetching symmetric key.");
 		try
 		{
-			byte[] bytes = new byte[settings.getInt("blocklength")];
+			byte[] bytes = new byte[settings.getInt("keylength")];
 			int code = input_from_client.read(bytes);
 			bytes = java.util.Arrays.copyOf(bytes, code);
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
@@ -231,6 +231,7 @@ public class Server
 			byte[] bytes = utils.Utils.encryptSymmetric(string.getBytes("UTF-8"), symmetric_key, settings.get("SymmetricCipher"));
 			output_to_client.write(bytes);
 			output_to_client.flush();
+			client_socket.shutdownOutput();
 			finishConnection();
 			
 		}
@@ -286,7 +287,7 @@ public class Server
 	private void getPublicKeyFromClient()
 	{
 		verbose("Fetching the public key from the client.");
-		byte[] bytes = new byte[settings.getInt("blocklength")];
+		byte[] bytes = new byte[settings.getInt("keylength")];
 		try
 		{
 			int number = input_from_client.read(bytes);
@@ -331,9 +332,23 @@ public class Server
 	private void readIncomingbytes() throws java.io.IOException
 	{
 		verbose("Reading incoming bytes.");
-		byte[] bytes = new byte[settings.getInt("blocklength")];
-		int code = input_from_client.read(bytes);
-		bytes = java.util.Arrays.copyOf(bytes, code);
+
+		int length = 0;
+		byte[] bytes = new byte[0];
+		byte[] temporary = new byte[settings.getInt("blocklength")];
+		do
+		{
+			length = input_from_client.read(temporary);
+			if (length == -1)
+				break;
+			temporary = java.util.Arrays.copyOf(temporary, length);
+			byte[] total = new byte[bytes.length + temporary.length];
+			System.arraycopy(bytes, 0, total, 0, bytes.length);
+			System.arraycopy(temporary, 0, total, bytes.length, temporary.length);
+			bytes = total;
+		}
+		while (length != -1 && length == settings.getInt("blocklength"));
+
 		try
 		{
 			// System.out.println(new String(bytes));
