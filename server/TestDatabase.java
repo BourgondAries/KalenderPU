@@ -184,6 +184,28 @@ public class TestDatabase
 		assertTrue(result.length() > 2 );
 	}
 
+	@org.junit.Test
+	public void testRegisterRoom() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		random_str = utils.Utils.makeRandomString(8);
+
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RegisterRoomCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_str)
+			+ " "
+			+ utils.Utils.escapeSpaces("0")
+			+ " "
+			+ utils.Utils.escapeSpaces("location")
+		);
+	}
+
+
+
 	private void setup() throws Exception
 	{
 		utils.Configuration.loadDefaultConfiguration();
