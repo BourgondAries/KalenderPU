@@ -119,9 +119,7 @@ public class Database
 	{
 		try
 		{
-
-			verbose("THERE YEA GO: ");
-			// verbose("Delegating input to the input handler.");
+			verbose("Delegating input to the input handler.");
 			java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
 			prepstatement.setString(1, username);
 			java.sql.ResultSet result = prepstatement.executeQuery();

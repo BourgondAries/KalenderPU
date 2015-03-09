@@ -95,6 +95,10 @@ public class Server
 						{
 							verbose("The database is not initialized: attempting to re-initialize.");
 						}
+						catch (client.ServerReturnData.InvalidInputException exc)
+						{
+							verbose("The return string was empty.");
+						}
 					}
 				}
 			}
