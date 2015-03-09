@@ -8,15 +8,19 @@ public class Database
 	private java.sql.Connection connection = null;
 	private java.util.BitSet status = new java.util.BitSet(Status.values().length);
 
-	public Database(String db_url)
+	public static class CouldNotConnectAndSetupDatabaseConnection extends Throwable { CouldNotConnectAndSetupDatabaseConnection(Throwable exc) { super(exc); } }
+	public static class CouldNotFindEncryptionAlgorithm extends Throwable { CouldNotFindEncryptionAlgorithm(Throwable exc) { super(exc); } }
+	public static class KeySpecInvalidException extends Throwable { KeySpecInvalidException(Throwable exc) { super(exc); } }
+
+	public Database(String db_url) throws CouldNotConnectAndSetupDatabaseConnection, CouldNotFindEncryptionAlgorithm, KeySpecInvalidException
 	{
 		this.db_url = db_url;
 		try
-        {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            connection = java.sql.DriverManager.getConnection(db_url);
+		{
+	        // Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+	        connection = java.sql.DriverManager.getConnection(db_url);
 
-            java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
+	        java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
 			prepstatement.setString(1, "root");
 			java.sql.ResultSet result = prepstatement.executeQuery();
 			if (result.next() == false)
@@ -27,14 +31,25 @@ public class Database
 							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES (0, 'root', '', '', ?)"
 							, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
 						);
-				statement.setString(1, PasswordHash.createHash("root"));
+				try 
+				{
+					statement.setString(1, PasswordHash.createHash("root"));
+				}
+				catch (java.security.NoSuchAlgorithmException exc)
+				{
+					throw new CouldNotFindEncryptionAlgorithm(exc);
+				}
+				catch (java.security.spec.InvalidKeySpecException exc)
+				{
+					throw new KeySpecInvalidException(exc);
+				}
 				statement.execute();
 			}
-        }
-        catch (Exception except)
-        {
-            except.printStackTrace();
-        }
+		}
+		catch (java.sql.SQLException exc)
+		{
+			throw new CouldNotConnectAndSetupDatabaseConnection(exc);
+		}
 	}
 
 	public static enum Status

@@ -55,7 +55,11 @@ public class Server
 			}
 			catch (java.sql.SQLException exc)
 			{
-				verbose("Unable to close database.");
+				verbose("Unable to close database. Exiting without closing properly.");
+			}
+			catch (NullPointerException exc)
+			{
+				verbose("Database was not initialized: skipping graceful close.");
 			}
 		}
 	}
@@ -102,7 +106,23 @@ public class Server
 	public static void commandLineInterface()
 	{
 		Server server = null;
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		Database db = null;
+		try
+		{
+			db = new Database(utils.Configuration.settings.get("DBConnection"));
+		}
+		catch (Database.CouldNotConnectAndSetupDatabaseConnection exc)
+		{
+			verbose("Unable to connect to the database. Check if the database is not already in use. If it is not; try making dbreset or setup.");
+		}
+		catch (Database.CouldNotFindEncryptionAlgorithm exc)
+		{
+			verbose("Unable to find the correct encryption algorithm as specified in the settings.conf file.");
+		}
+		catch (Database.KeySpecInvalidException exc)
+		{
+			verbose("The keyspec for the database is invalid.");
+		}
 		try
 		{
 			server = new Server(utils.Configuration.settings);
@@ -137,12 +157,12 @@ public class Server
 						server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
 					}
 				}
-				catch (WrongPortException exc_obj)
+				catch (WrongPortException exc)
 				{
 					System.out.println("The port you specified '" + String.valueOf(port) + "' is already in use.");
 					queryPort(scanner);
 				}
-				catch (BlockSizeTooLargeException exc_obj)
+				catch (BlockSizeTooLargeException exc)
 				{
 					server.respondToMessage("You have sent a block that is too large to be accepted by the server. Largest size is: " + utils.Configuration.settings.getInt("maxblocksize"));
 				}
@@ -210,8 +230,8 @@ public class Server
 			last_message = null;
 			return tmp;
 		}
-		catch (java.net.BindException exc_obj) { throw new WrongPortException("The specified port already in use."); }
-		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
+		catch (java.net.BindException exc) { throw new WrongPortException("The specified port already in use."); }
+		catch (java.net.SocketException exc) { verbose(exc.toString()); }
 		return null;
 	}
 
@@ -226,9 +246,9 @@ public class Server
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
 			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
 		}
-		catch (Exception exc_obj)
+		catch (Exception exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 
@@ -244,7 +264,7 @@ public class Server
 			finishConnection();
 			
 		}
-		catch (java.io.IOException exc_object) 
+		catch (java.io.IOException excect) 
 		{ 
 			verbose("Unable to unbind");
 		}
@@ -308,18 +328,18 @@ public class Server
 				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance(settings.get("keypairgen"));
 				client_public_key = key_factory.generatePublic(pubkey_spec);
 			}
-			catch (java.security.NoSuchAlgorithmException exc_obj)
+			catch (java.security.NoSuchAlgorithmException exc)
 			{
-				verbose(exc_obj.toString());
+				verbose(exc.toString());
 			}
-			catch (java.security.spec.InvalidKeySpecException exc_obj)
+			catch (java.security.spec.InvalidKeySpecException exc)
 			{
-				verbose(exc_obj.toString());
+				verbose(exc.toString());
 			}
 		}
-		catch (java.io.IOException exc_obj)
+		catch (java.io.IOException exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 
@@ -366,9 +386,9 @@ public class Server
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
 		}
-		catch (Exception exc_obj)
+		catch (Exception exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 
