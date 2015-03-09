@@ -49,12 +49,13 @@ CREATE TABLE Booking
 CREATE TABLE SystemGroup
 (
 	groupId 	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-	rank		int			NOT NULL,
+	groupAdmin	int			NOT NULL,
 	groupName	varchar(255), 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
-	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId)
+	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId),
+	FOREIGN KEY (groupAdmin) REFERENCES SystemUser(systemUserId)
 );
 
 CREATE TABLE Groupmember

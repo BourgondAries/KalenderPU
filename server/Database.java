@@ -249,6 +249,102 @@ public class Database
 				}
 				return "You are not allowed to delete users.";
 			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("CreateGroupCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemGroup (groupAdmin, groupName) VALUES (?, ?)");
+				statement.setInt(1, user.user_id);
+				statement.setString(2, parts.get(1));
+				return String.valueOf(statement.executeUpdate());
+			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("DeleteGroupCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM SystemGroup WHERE groupName=? AND groupAdmin=?");
+				statement.setString(1, parts.get(1));
+				statement.setInt(2, user.user_id);
+				return String.valueOf(statement.executeUpdate());
+			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("AddToGroupCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT groupId FROM SystemGroup WHERE groupName=?");
+				statement.setString(1, parts.get(2));
+				java.sql.ResultSet result = statement.executeQuery();
+
+				if (result.next())
+				{
+					int group_id = result.getInt(1);
+
+					statement = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+					statement.setString(1, parts.get(1));
+					result = statement.executeQuery();
+
+					if (result.next())
+					{
+						int user_id = result.getInt(1);
+
+						statement = connection.prepareStatement("INSERT INTO GroupMember (systemUserId, groupId) VALUES (?, ?)");
+						statement.setInt(1, user_id);
+						statement.setInt(2, group_id);
+						return String.valueOf(statement.executeUpdate());
+					}
+				}
+			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("RemoveFromGroupCommand")))
+			{
+				// First find the group id of the group name:
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT groupId FROM SystemGroup WHERE groupName=?");
+				statement.setString(1, parts.get(2));
+				java.sql.ResultSet result = statement.executeQuery();
+
+				if (result.next())
+				{
+					int group_id = result.getInt(1);
+
+					statement = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+					statement.setString(1, parts.get(1));
+					result = statement.executeQuery();
+
+					if (result.next())
+					{
+						int user_id = result.getInt(1);
+
+						statement = connection.prepareStatement("DELETE FROM GroupMember WHERE systemUserId=? AND groupId=?");
+						statement.setInt(1, user_id);
+						statement.setInt(2, group_id);
+						return String.valueOf(statement.executeUpdate());
+					}
+				}
+			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("GetAllSubordinateUsersCommand")))
+			{
+				// First find the group id of the group name:
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT groupId FROM SystemGroup WHERE groupName=?");
+				statement.setString(1, parts.get(1));
+				java.sql.ResultSet result = statement.executeQuery();
+
+				if (result.next())
+				{
+					int group_id = result.getInt(1);
+
+					statement = connection.prepareStatement("SELECT * FROM SystemUser, GroupMember WHERE groupId=?");
+					statement.setInt(1, group_id);
+					return resultToString(statement.executeQuery());
+				}
+			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("SetGroupParent")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT groupId FROM SystemGroup WHERE groupName=?");
+				statement.setString(1, parts.get(1));
+				java.sql.ResultSet result = statement.executeQuery();
+
+				if (result.next())
+				{
+					int group_id = result.getInt(1);
+
+					statement = connection.prepareStatement("UPDATE SystemGroup SET parentGroupId=? WHERE groupId=?");
+					statement.setInt(1, group_id);
+					return String.valueOf(statement.executeUpdate());
+				}
+			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
 				if (user.username.equals("root"))

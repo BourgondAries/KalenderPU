@@ -206,6 +206,12 @@ public class Cli
 							+ "\n'" + utils.Configuration.settings.get("GetInvitesCommand") + "' - Get all invites aimed at you."
 							+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you own."
 							+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
+							+ "\n'" + utils.Configuration.settings.get("GetAllSubordinateUsersCommand") + "' - Get all connected users of this group."
+							+ "\n'" + utils.Configuration.settings.get("RemoveFromGroupCommand") + "' - Remove a user from a group."
+							+ "\n'" + utils.Configuration.settings.get("AddToGroupCommand") + "' - Add a user to a group."
+							+ "\n'" + utils.Configuration.settings.get("DeleteGroupCommand") + "' - Delete a group."
+							+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
+							+ "\n'" + utils.Configuration.settings.get("SetGroupParent") + "' - Set the parent group of another group."
 						);
 					}
 					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))
@@ -374,6 +380,7 @@ public class Cli
 					}
 					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("DeleteUserCommand")))
 					{
+						System.out.print("Type the username to delete: ");
 						String username = scanner.nextLine();
 						line =
 							utils.Utils.escapeSpaces
@@ -381,6 +388,96 @@ public class Cli
 								utils.Configuration.settings.getAndEscape("DeleteUserCommand")
 								+ " "
 								+ utils.Utils.escapeSpaces(username)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("CreateGroupCommand")))
+					{
+						System.out.print("Enter the name of the group: ");
+						String group_name = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("CreateGroupCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("DeleteGroupCommand")))
+					{
+						System.out.print("Enter the name of the group: ");
+						String group_name = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("DeleteGroupCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("AddToGroupCommand")))
+					{
+						System.out.print("Enter the group name to add to: ");
+						String group_name = scanner.nextLine();
+						System.out.print("Enter the username to add to the group: ");
+						String user_to_add = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("AddToGroupCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(user_to_add)
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RemoveFromGroupCommand")))
+					{
+						System.out.print("Enter the group name to add to: ");
+						String group_name = scanner.nextLine();
+						System.out.print("Enter the username to remove from the group: ");
+						String user_to_remove = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("RemoveFromGroupCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(user_to_remove)
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetAllSubordinateUsersCommand")))
+					{
+						System.out.print("Enter the group name to add to get from: ");
+						String group_name = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("GetAllSubordinateUsersCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+							);
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SetGroupParent")))
+					{
+						System.out.print("Enter the group name to add to: ");
+						String group_name = scanner.nextLine();
+						System.out.print("Enter the name of the supergroup: ");
+						String supergroup = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("SetGroupParent")
+								+ " "
+								+ utils.Utils.escapeSpaces(group_name)
+								+ " "
+								+ utils.Utils.escapeSpaces(supergroup)
 							);
 						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 					}
