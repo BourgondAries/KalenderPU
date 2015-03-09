@@ -21,7 +21,14 @@ public class Cli
 	}
 
 	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner)
-		throws Client.UnableToVerifyAuthenticityException
+		throws 
+			Client.UnableToVerifyAuthenticityException,
+			Client.AsymmetricKeyInvalidException,
+			Client.SymmetricKeyTooLargeForAsymmetricEncryptionException,
+			Client.UnableToEncryptAsymmetrically,
+			Client.AsymmetricKeyInvalidException,
+			java.net.UnknownHostException,
+			Client.UnableToSendSymmetricKeyToTheServerException
 	{
 		verbose("Sending data: '" + login_info + " " + command + "'.");
 		if (client.sendData(login_info + " " + command, host, port) == false)
@@ -118,17 +125,46 @@ public class Cli
 			try
 			{
 				System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
+				break;
 			}
 			catch (ServerReturnData.InvalidInputException exc)
 			{
-				System.out.println("There are no pending events in your calendar.");
+				System.out.println("The server has responded with empty data. This can be a network anomaly, just retry.");
+			}
+			catch (Client.SymmetricKeyTooLargeForAsymmetricEncryptionException exc)
+			{
+				System.out.println("We can't get an encrypted channel to work at this momemt. Contact the system administrator.");
+				// Log.log(Log.Severity.SECURITY, "It appears the symmetric key is too large for asymmetric encryption. Increase the key size in settings.conf.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (Client.UnableToEncryptAsymmetrically exc)
+			{
+				System.out.println("We can't encrypt your data right now.");
+				// Log.log(Log.Severity.SECURITY, "It appears the requested method for encryption is not present.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (Client.AsymmetricKeyInvalidException exc)
+			{
+				System.out.println("There was a miscommunication with the server.");
+				// Log.log(Log.Severity.SECURITY, "The asymmetric key is invalid.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (java.net.UnknownHostException exc)
+			{
+				System.out.println("The host is unknown...");
+				// Log.log(Log.Severity.INPUT, "The host is unknown, see the stack trace.");
+				// Log.log(Log.Severity.INPUT, exc.getStackTrace());
+			}
+			catch (Client.UnableToSendSymmetricKeyToTheServerException exc)
+			{
+				System.out.println("Unable to communicate with the server");
+				// Log.log(Log.Severity.SECURITY, "The symmetric key could not be sent to the server.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
 			}
 			catch (Client.UnableToVerifyAuthenticityException exc)
 			{
 				System.out.println("Sorry, we were unable to check the authenticity of the server. We'll retry connecting.");
-				continue;
 			}
-			break;
 		}
 		System.out.print("Command (type 'help' for info): ");
 		while (scanner.hasNextLine())
@@ -521,7 +557,37 @@ public class Cli
 			}
 			catch (ServerReturnData.InvalidInputException exc)
 			{
-				System.out.println("It appears we received an empty string from the server. This can be a network anomaly, just retry.");
+				System.out.println("The server has responded with empty data. This can be a network anomaly, just retry.");
+			}
+			catch (Client.SymmetricKeyTooLargeForAsymmetricEncryptionException exc)
+			{
+				System.out.println("We can't get an encrypted channel to work at this momemt. Contact the system administrator.");
+				// Log.log(Log.Severity.SECURITY, "It appears the symmetric key is too large for asymmetric encryption. Increase the key size in settings.conf.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (Client.UnableToEncryptAsymmetrically exc)
+			{
+				System.out.println("We can't encrypt your data right now.");
+				// Log.log(Log.Severity.SECURITY, "It appears the requested method for encryption is not present.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (Client.AsymmetricKeyInvalidException exc)
+			{
+				System.out.println("There was a miscommunication with the server.");
+				// Log.log(Log.Severity.SECURITY, "The asymmetric key is invalid.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
+			}
+			catch (java.net.UnknownHostException exc)
+			{
+				System.out.println("The host is unknown...");
+				// Log.log(Log.Severity.INPUT, "The host is unknown, see the stack trace.");
+				// Log.log(Log.Severity.INPUT, exc.getStackTrace());
+			}
+			catch (Client.UnableToSendSymmetricKeyToTheServerException exc)
+			{
+				System.out.println("Unable to communicate with the server");
+				// Log.log(Log.Severity.SECURITY, "The symmetric key could not be sent to the server.");
+				// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
 			}
 		}
 	

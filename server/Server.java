@@ -26,11 +26,13 @@ public class Server
 			}
 			catch (java.security.NoSuchAlgorithmException exc)
 			{
-
+				verbose("The algorithm for generating public and private keys is unavailable.");
+				exc.printStackTrace();
 			}
 			catch (java.security.NoSuchProviderException exc)
 			{
-
+				verbose("The provider for generating public and private keys is unavailable.");
+				exc.printStackTrace();
 			}
 		}
 		else if (arghandler.hasOption("help"))

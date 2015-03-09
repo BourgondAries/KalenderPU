@@ -94,9 +94,9 @@ public class Client
 	// START OF OBJECT DEPENDENT DEFINITIONS ///////////////////
 	////////////////////////////////////////////////////////////
 
-	public static class UnableToSendTheSymmetricKeyToTheServer extends Exception { UnableToSendTheSymmetricKeyToTheServer() {} UnableToSendTheSymmetricKeyToTheServer(Throwable exc) { super(exc); } }
+	public static class UnableToSendSymmetricKeyToTheServerException extends Exception { UnableToSendSymmetricKeyToTheServerException() {} UnableToSendSymmetricKeyToTheServerException(Throwable exc) { super(exc); } }
 	public static class UnableToEncryptAsymmetrically extends Exception { UnableToEncryptAsymmetrically() {} UnableToEncryptAsymmetrically(Throwable exc) { super(exc); } }
-	public static class SymmetricKeyTooLargeForAsymmetricEncryption extends Exception { SymmetricKeyTooLargeForAsymmetricEncryption() {} SymmetricKeyTooLargeForAsymmetricEncryption(Throwable exc) { super(exc); } }
+	public static class SymmetricKeyTooLargeForAsymmetricEncryptionException extends Exception { SymmetricKeyTooLargeForAsymmetricEncryptionException() {} SymmetricKeyTooLargeForAsymmetricEncryptionException(Throwable exc) { super(exc); } }
 	public static class AsymmetricKeyInvalidException extends Exception { AsymmetricKeyInvalidException() {} AsymmetricKeyInvalidException(Throwable exc) { super(exc); } }
 	public static class UnableToGenerateAsymmetricKeyPair extends Exception { UnableToGenerateAsymmetricKeyPair() {} UnableToGenerateAsymmetricKeyPair(Throwable exc) { super(exc); } }
 	public static class UnableToGenerateSymmetricKey extends Exception { UnableToGenerateSymmetricKey() {} UnableToGenerateSymmetricKey(Throwable exc) { super(exc); } }
@@ -129,6 +129,13 @@ public class Client
 	}
 
 	public boolean sendData(String data, String host, int port)
+		throws
+			AsymmetricKeyInvalidException,
+			SymmetricKeyTooLargeForAsymmetricEncryptionException,
+			UnableToEncryptAsymmetrically,
+			java.net.UnknownHostException,
+			UnableToSendSymmetricKeyToTheServerException,
+			UnableToVerifyAuthenticityException
 	{
 		try
 		{
@@ -141,14 +148,19 @@ public class Client
 			sendSymmetricKey();
 			sendWhenTrusted(data);
 		}
-		catch (Exception exc_obj)
+		catch (java.io.IOException exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 		return true;
 	}
 
-	public void sendSymmetricKey() throws UnableToSendTheSymmetricKeyToTheServer, UnableToEncryptAsymmetrically, SymmetricKeyTooLargeForAsymmetricEncryption, AsymmetricKeyInvalidException
+	public void sendSymmetricKey() 
+		throws
+			AsymmetricKeyInvalidException,
+			SymmetricKeyTooLargeForAsymmetricEncryptionException,
+			UnableToEncryptAsymmetrically,
+			UnableToSendSymmetricKeyToTheServerException
 	{
 		verbose("Sending symmetric key.");
 		try
@@ -157,7 +169,7 @@ public class Client
 		}
 		catch (java.io.IOException exc)
 		{
-			throw new UnableToSendTheSymmetricKeyToTheServer(exc);
+			throw new UnableToSendSymmetricKeyToTheServerException(exc);
 		}
 		catch (java.security.NoSuchAlgorithmException exc)
 		{
@@ -165,7 +177,7 @@ public class Client
 		}
 		catch (javax.crypto.IllegalBlockSizeException exc)
 		{
-			throw new SymmetricKeyTooLargeForAsymmetricEncryption(exc);
+			throw new SymmetricKeyTooLargeForAsymmetricEncryptionException(exc);
 		}
 		catch (javax.crypto.NoSuchPaddingException exc)
 		{
@@ -254,7 +266,10 @@ public class Client
 		}
 	}
 
-	private void connectAndSetUpChannels(String host, int port) throws java.net.UnknownHostException, java.io.IOException
+	private void connectAndSetUpChannels(String host, int port)
+		throws
+			java.io.IOException,
+			java.net.UnknownHostException
 	{
 		verbose("Connecting to foreign host.");
 		client_socket = new java.net.Socket(host, port);
