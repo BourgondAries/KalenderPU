@@ -39,7 +39,7 @@ public class Server
 
     public static class ServerFinalizer extends Thread
 	{
-		Database db;
+		private Database db;
 
 		ServerFinalizer(Database db)
 		{
