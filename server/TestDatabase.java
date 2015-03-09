@@ -10,7 +10,7 @@ public class TestDatabase
 
 
 	@org.junit.Test
-	public void testWrongPasswordWhenExecute() throws java.security.NoSuchAlgorithmException, java.security.spec.InvalidKeySpecException, java.io.IOException
+	public void testWrongPasswordWhenExecute() throws Exception
 	{	
 		utils.Configuration.loadDefaultConfiguration();
 		User user_root = new User(1, 1, "root", "", "", PasswordHash.createHash("root"));
@@ -20,7 +20,7 @@ public class TestDatabase
 	}
 
 	@org.junit.Test
-	public void testUsernameNotExisting() throws java.io.IOException
+	public void testUsernameNotExisting() throws Exception
 	{	
 		utils.Configuration.loadDefaultConfiguration();
 		//User userR = new User(0,1,"root","","",PasswordHash.createHash("root"));
@@ -189,7 +189,7 @@ public class TestDatabase
 	{
 		utils.Configuration.loadDefaultConfiguration();
 		setup();
-		random_str = utils.Utils.makeRandomString(8);
+		String random_str = utils.Utils.makeRandomString(8);
 
 		db.executeWithValidUser
 		(
@@ -202,6 +202,12 @@ public class TestDatabase
 			+ " "
 			+ utils.Utils.escapeSpaces("location")
 		);
+
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM room WHERE roomName=?");
+		prep_statement.setString(1, random_str);
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		assertTrue(selection_result.length() > 2);
 	}
 
 
@@ -244,7 +250,7 @@ public class TestDatabase
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM systemUser WHERE username=?");
 		prep_statement.setString(1, random_str);
 		String selection_result = Database.resultToString(prep_statement.executeQuery());
-
+		System.out.println(selection_result);
 		// String[] parts = rand_str_userid.split(" "); 
 		////////////////////////////////////////////////////////////
 		// DANGEROUS ^. DO NOT SPLIT RAW. //////////////////////////
