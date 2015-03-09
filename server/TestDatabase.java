@@ -250,7 +250,6 @@ public class TestDatabase
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM systemUser WHERE username=?");
 		prep_statement.setString(1, random_str);
 		String selection_result = Database.resultToString(prep_statement.executeQuery());
-		System.out.println(selection_result);
 		// String[] parts = rand_str_userid.split(" "); 
 		////////////////////////////////////////////////////////////
 		// DANGEROUS ^. DO NOT SPLIT RAW. //////////////////////////

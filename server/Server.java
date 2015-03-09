@@ -87,9 +87,9 @@ public class Server
 					{
 						try
 						{
-							string = db.runQuery(string);
-							System.out.println("Raw result: " + string);
-							System.out.println(client.ServerReturnData.getPrettyStringWithoutObject(string));
+							String stringx = db.runQuery(string);
+							System.out.println("Raw result: " + stringx);
+							System.out.println(client.ServerReturnData.getPrettyStringWithoutObject(stringx));
 						}
 						catch (Database.DatabaseUninitializedException exc)
 						{

@@ -185,14 +185,11 @@ public class Database
 			}
 			return answer;
 		}
-		catch (Exception exc)
+		catch (java.sql.SQLException exc)
 		{
 			exc.printStackTrace(); 
 		}
-		finally
-		{
-			return "";
-		}
+		return "";
 	}
 
 	public String executeWithValidUser(User user, String query)
