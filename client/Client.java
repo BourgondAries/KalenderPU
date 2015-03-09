@@ -60,7 +60,23 @@ public class Client
 
 	public static void useGuiInterface()
 	{
-		Client client = new Client(utils.Configuration.settings);
+		Client client = null;
+		try
+		{
+			client = new Client(utils.Configuration.settings);
+		}
+		catch (Client.UnableToGenerateAsymmetricKeyPair exc)
+		{
+			verbose("Unable to generate asymmetric key pair.");
+			exc.printStackTrace();
+			System.exit(1);
+		}
+		catch (Client.UnableToGenerateSymmetricKey exc)
+		{
+			verbose("Unable to generate symmetric key.");
+			exc.printStackTrace();
+			System.exit(1);
+		}
 		Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
 		Gui gui = new Gui();
 		gui.begin(client);
@@ -78,6 +94,14 @@ public class Client
 	// START OF OBJECT DEPENDENT DEFINITIONS ///////////////////
 	////////////////////////////////////////////////////////////
 
+	public static class UnableToSendTheSymmetricKeyToTheServer extends Exception { UnableToSendTheSymmetricKeyToTheServer() {} UnableToSendTheSymmetricKeyToTheServer(Throwable exc) { super(exc); } }
+	public static class UnableToEncryptAsymmetrically extends Exception { UnableToEncryptAsymmetrically() {} UnableToEncryptAsymmetrically(Throwable exc) { super(exc); } }
+	public static class SymmetricKeyTooLargeForAsymmetricEncryption extends Exception { SymmetricKeyTooLargeForAsymmetricEncryption() {} SymmetricKeyTooLargeForAsymmetricEncryption(Throwable exc) { super(exc); } }
+	public static class AsymmetricKeyInvalidException extends Exception { AsymmetricKeyInvalidException() {} AsymmetricKeyInvalidException(Throwable exc) { super(exc); } }
+	public static class UnableToGenerateAsymmetricKeyPair extends Exception { UnableToGenerateAsymmetricKeyPair() {} UnableToGenerateAsymmetricKeyPair(Throwable exc) { super(exc); } }
+	public static class UnableToGenerateSymmetricKey extends Exception { UnableToGenerateSymmetricKey() {} UnableToGenerateSymmetricKey(Throwable exc) { super(exc); } }
+	public static class UnableToVerifyAuthenticityException extends Exception { UnableToVerifyAuthenticityException() {} UnableToVerifyAuthenticityException(Throwable exc) { super(exc); } }
+
 	private java.net.Socket 			client_socket;
 	private java.io.InputStream 		input_from_server;
 	private java.io.OutputStream 		output_to_server;
@@ -92,19 +116,16 @@ public class Client
 	private java.security.Key symmetric_key;
 
 	public Client(utils.Configuration settings)
+		throws
+			UnableToGenerateAsymmetricKeyPair,
+			UnableToGenerateSymmetricKey
 	{
 		this.settings = settings;
-		try
-		{
-			bytes = new byte[settings.getInt("keylength")];
-			loadTrustedServers();
-			generatePair();
-			generateSymmetric();
-		}
-		catch (Exception exc_obj)
-		{
-			verbose(exc_obj.toString());
-		}
+		bytes = new byte[settings.getInt("keylength")];
+		loadTrustedServers();
+		generatePair();
+		generateSymmetric();
+
 	}
 
 	public boolean sendData(String data, String host, int port)
@@ -127,13 +148,44 @@ public class Client
 		return true;
 	}
 
-	public void sendSymmetricKey() throws java.io.IOException, Exception
+	public void sendSymmetricKey() throws UnableToSendTheSymmetricKeyToTheServer, UnableToEncryptAsymmetrically, SymmetricKeyTooLargeForAsymmetricEncryption, AsymmetricKeyInvalidException
 	{
 		verbose("Sending symmetric key.");
-		output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
+		try
+		{
+			output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
+		}
+		catch (java.io.IOException exc)
+		{
+			throw new UnableToSendTheSymmetricKeyToTheServer(exc);
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToEncryptAsymmetrically(exc);
+		}
+		catch (javax.crypto.IllegalBlockSizeException exc)
+		{
+			throw new SymmetricKeyTooLargeForAsymmetricEncryption(exc);
+		}
+		catch (javax.crypto.NoSuchPaddingException exc)
+		{
+			verbose("Specific padding scheme is not present.");
+			exc.printStackTrace();
+		}
+		catch (javax.crypto.BadPaddingException exc)
+		{
+			verbose("Specific padding scheme is not present.");
+			exc.printStackTrace();
+		}
+		catch (java.security.InvalidKeyException exc)
+		{
+			throw new AsymmetricKeyInvalidException(exc);
+		}
 	}
 
-	public void sendWhenTrusted(String data) throws Exception
+	public void sendWhenTrusted(String data)
+		throws
+			UnableToVerifyAuthenticityException
 	{
 		if (verifyAuthenticity())
 		{
@@ -145,7 +197,15 @@ public class Client
 		{
 			verbose("Server failed to authenticate");
 		}
-		client_socket.close();
+		try
+		{
+			client_socket.close();
+		}
+		catch (java.io.IOException exc)
+		{
+			System.err.println("The socket was already closed: ");
+			exc.printStackTrace();
+		}
 	}
 
 	public String fetchResponse()
@@ -237,35 +297,66 @@ public class Client
 		return false;
 	}
 
-	private boolean verifyAuthenticity() throws Exception
+	private boolean verifyAuthenticity()
+		throws
+			UnableToVerifyAuthenticityException
 	{
 		verbose("Verifying authenticity.");
 		bytes = java.util.Arrays.copyOf(bytes, length);
-		java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
-		sig.initVerify(server_public_key);
-		sig.update(client_public_key.getEncoded());
-		return sig.verify(bytes);
-		
+		try
+		{
+			java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
+			sig.initVerify(server_public_key);
+			sig.update(client_public_key.getEncoded());
+			return sig.verify(bytes);
+		}
+		catch (java.security.InvalidKeyException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}		
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}
+		catch (java.security.SignatureException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}
 	}
 
 	private void generatePair()
+		throws
+			UnableToGenerateAsymmetricKeyPair
 	{
 		verbose("Generating keypair.");
-		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-		client_private_key = pair.getPrivate();
-		client_public_key = pair.getPublic();
+		try
+		{
+			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+			client_private_key = pair.getPrivate();
+			client_public_key = pair.getPublic();
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToGenerateAsymmetricKeyPair(exc);
+		}
+		catch (java.security.NoSuchProviderException exc)
+		{
+			throw new UnableToGenerateAsymmetricKeyPair(exc);
+		}
 	}
 
 	private void generateSymmetric()
+		throws
+			UnableToGenerateSymmetricKey
 	{
 		verbose("Generating symmetric key.");
 		try
 		{
 			symmetric_key = utils.Utils.generateSymmetricKey(settings.get("SymmetricSpec"));
 		}
-		catch (Exception exc)
+		catch (java.security.NoSuchAlgorithmException exc)
 		{
-			verbose(exc.toString());
+			throw new UnableToGenerateSymmetricKey(exc);
 		}
 	}
 

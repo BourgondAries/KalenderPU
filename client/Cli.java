@@ -20,7 +20,8 @@ public class Cli
 
 	}
 
-	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner) throws Exception
+	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner)
+		throws Client.UnableToVerifyAuthenticityException
 	{
 		verbose("Sending data: '" + login_info + " " + command + "'.");
 		if (client.sendData(login_info + " " + command, host, port) == false)
@@ -31,7 +32,7 @@ public class Cli
 				String result = scanner.nextLine();
 				if (result.equals("yes"))
 				{
-					client.addPublicServerKeyToTrusted();
+					client.addPublicServerKeyToTrusted();	
 					client.sendWhenTrusted(login_info + " " + command);
 					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
 					System.out.println("Server response:");
@@ -51,12 +52,6 @@ public class Cli
 			verbose("Direct response: " + response);
 			if (response != null)
 			{
-				/*
-				java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
-				System.out.println("Server response:");
-				for (String string : answer)
-					System.out.println(string);
-				*/
 				return response;
 			}
 			else
@@ -79,11 +74,30 @@ public class Cli
 		try
 		{
 			client = new Client(utils.Configuration.settings);
-			Runtime.getRuntime().addShutdownHook(new Client.ClientFinalizer(client));
-			java.util.Scanner scanner = new java.util.Scanner(System.in);
+		}
+		catch (Client.UnableToGenerateAsymmetricKeyPair exc)
+		{
+			verbose("Unable to generate asymmetric key pair.");
+			exc.printStackTrace();
+			System.exit(1);
+		}
+		catch (Client.UnableToGenerateSymmetricKey exc)
+		{
+			verbose("Unable to generate symmetric key.");
+			exc.printStackTrace();
+			System.exit(1);
+		}
+		Runtime.getRuntime().addShutdownHook(new Client.ClientFinalizer(client));
+		java.util.Scanner scanner = new java.util.Scanner(System.in);
+		String host = null;
+		Integer port = null;
+		String login_info = null;
+
+		while (true)
+		{
 			System.out.print("Enter the hostname (leave blank for default): ");
-			String host = scanner.nextLine();
-			Integer port = null;
+			host = scanner.nextLine();
+			port = null;
 			if (host.equals("") == false)
 			{
 				System.out.print("Enter the port (leave blank for default): ");
@@ -100,11 +114,26 @@ public class Cli
 				host = utils.Configuration.settings.get("hostname");
 				port = utils.Configuration.settings.getInt("port");
 			}
-			String login_info = setLoginInfo(scanner);
-			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
-
-			System.out.print("Command (type 'help' for info): ");
-			while (scanner.hasNextLine())
+			login_info = setLoginInfo(scanner);
+			try
+			{
+				System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
+			}
+			catch (ServerReturnData.InvalidInputException exc)
+			{
+				System.out.println("There are no pending events in your calendar.");
+			}
+			catch (Client.UnableToVerifyAuthenticityException exc)
+			{
+				System.out.println("Sorry, we were unable to check the authenticity of the server. We'll retry connecting.");
+				continue;
+			}
+			break;
+		}
+		System.out.print("Command (type 'help' for info): ");
+		while (scanner.hasNextLine())
+		{
+			try
 			{
 				String line = scanner.nextLine();
 				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
@@ -486,10 +515,15 @@ public class Cli
 				}
 				System.out.print("Command (type 'help' for info): ");
 			}
+			catch (Client.UnableToVerifyAuthenticityException exc)
+			{
+				System.out.println("Sorry, we could not verify the server's authenticity. Check the log file for more details.");
+			}
+			catch (ServerReturnData.InvalidInputException exc)
+			{
+				System.out.println("It appears we received an empty string from the server. This can be a network anomaly, just retry.");
+			}
 		}
-		catch (Exception exc)
-		{
-			verbose(exc.toString());
-		}
+	
 	}
 }

@@ -19,7 +19,20 @@ public class Server
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("keygen"))
-			(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+		{
+			try
+			{
+				(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+			}
+			catch (java.security.NoSuchAlgorithmException exc)
+			{
+
+			}
+			catch (java.security.NoSuchProviderException exc)
+			{
+
+			}
+		}
 		else if (arghandler.hasOption("help"))
 			printHelp();
 		else
@@ -296,7 +309,12 @@ public class Server
 	}
 
 	/// Generates a private and public key and stores it inside 2 files in the root folder.
-	public void generatePublicAndPrivateKey() throws java.io.IOException, java.io.FileNotFoundException
+	public void generatePublicAndPrivateKey()
+		throws
+			java.io.IOException,
+			java.io.FileNotFoundException,
+			java.security.NoSuchAlgorithmException,
+			java.security.NoSuchProviderException
 	{
 		verbose("Creating public and private key pair.");
 		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
