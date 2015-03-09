@@ -11,6 +11,7 @@ public class Database
 	public static class CouldNotConnectAndSetupDatabaseConnection extends Throwable { CouldNotConnectAndSetupDatabaseConnection(Throwable exc) { super(exc); } }
 	public static class CouldNotFindEncryptionAlgorithm extends Throwable { CouldNotFindEncryptionAlgorithm(Throwable exc) { super(exc); } }
 	public static class KeySpecInvalidException extends Throwable { KeySpecInvalidException(Throwable exc) { super(exc); } }
+	public static class DatabaseUninitializedException extends Throwable { DatabaseUninitializedException(Throwable exc) { super(exc); } }
 
 	public Database(String db_url) throws CouldNotConnectAndSetupDatabaseConnection, CouldNotFindEncryptionAlgorithm, KeySpecInvalidException
 	{
@@ -82,7 +83,7 @@ public class Database
 	}
 
 	// Only call this method from within the server. Runs a query without bounds. For sysadmin purposes ONLY!
-	public String runQuery(String query)
+	public String runQuery(String query) throws DatabaseUninitializedException
 	{
 		try
 		{
@@ -99,9 +100,13 @@ public class Database
 			else
 				return resultToString(statement.executeQuery());
 		}
-		catch (Exception exc)
+		catch (java.sql.SQLException exc)
 		{
 			return exc.toString();
+		}
+		catch (NullPointerException exc)
+		{
+			throw new DatabaseUninitializedException(exc);
 		}
 	}
 
@@ -146,38 +151,49 @@ public class Database
 		}
 	}
 
-	public static String resultToString(java.sql.ResultSet result) throws Exception
+	public static String resultToString(java.sql.ResultSet result)
 	{
-		java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
-		int columns = resultmetadata.getColumnCount();
+		try
+		{
+			java.sql.ResultSetMetaData resultmetadata = result.getMetaData();
+			int columns = resultmetadata.getColumnCount();
 
-		String answer = String.valueOf(columns);
-		String tmp = "";
-		for (int i = 1; i < columns + 1; ++i)
-		{
-			tmp = resultmetadata.getColumnName(i);
-			answer += " " + utils.Utils.escapeSpaces(tmp);
-		}
-		tmp = "";
-		while (result.next())
-		{
-			if (columns > 0)
+			String answer = String.valueOf(columns);
+			String tmp = "";
+			for (int i = 1; i < columns + 1; ++i)
 			{
-				if (result.getString(1) != null)
-					tmp = utils.Utils.escapeSpaces(result.getString(1));
-				else
-					tmp = "null";
+				tmp = resultmetadata.getColumnName(i);
+				answer += " " + utils.Utils.escapeSpaces(tmp);
 			}
-			for (int i = 1; i < columns; ++i)
+			tmp = "";
+			while (result.next())
 			{
-				if (result.getString(i + 1) != null)
-					tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
-				else
-					tmp += " null";
+				if (columns > 0)
+				{
+					if (result.getString(1) != null)
+						tmp = utils.Utils.escapeSpaces(result.getString(1));
+					else
+						tmp = "null";
+				}
+				for (int i = 1; i < columns; ++i)
+				{
+					if (result.getString(i + 1) != null)
+						tmp += " " + utils.Utils.escapeSpaces(result.getString(i + 1));
+					else
+						tmp += " null";
+				}
+				answer += " " + utils.Utils.escapeSpaces(tmp);
 			}
-			answer += " " + utils.Utils.escapeSpaces(tmp);
+			return answer;
 		}
-		return answer;
+		catch (Exception exc)
+		{
+			exc.printStackTrace(); 
+		}
+		finally
+		{
+			return "";
+		}
 	}
 
 	public String executeWithValidUser(User user, String query)

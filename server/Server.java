@@ -73,17 +73,34 @@ public class Server
 		public void run()
 		{
 			System.out.println("Press '" + utils.Configuration.settings.get("ExitCommand") + "' to exit.\nOr type any SQL query here to run it.");
-			while (true)
+			try
 			{
-				String string = scanner.nextLine();
-				if (string.equals(utils.Configuration.settings.get("ExitCommand")))
+				while (true)
 				{
-					System.exit(0);	
+					System.out.print("SQL command: ");
+					String string = scanner.nextLine();
+					if (string.equals(utils.Configuration.settings.get("ExitCommand")))
+					{
+						System.exit(0);	
+					}
+					else
+					{
+						try
+						{
+							string = db.runQuery(string);
+							System.out.println("Raw result: " + string);
+							System.out.println(client.ServerReturnData.getPrettyStringWithoutObject(string));
+						}
+						catch (Database.DatabaseUninitializedException exc)
+						{
+							verbose("The database is not initialized: attempting to re-initialize.");
+						}
+					}
 				}
-				else
-				{
-					System.out.println(db.runQuery(string));
-				}
+			}
+			catch (java.util.NoSuchElementException exc)
+			{
+				verbose("Command line scanner forced to exit.");
 			}
 		}
 	}
@@ -157,7 +174,7 @@ public class Server
 						server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
 					}
 				}
-				catch (WrongPortException exc)
+				catch (PortUnavailableException exc)
 				{
 					System.out.println("The port you specified '" + String.valueOf(port) + "' is already in use.");
 					queryPort(scanner);
@@ -199,11 +216,11 @@ public class Server
 
 	private String last_message;
 
-	public static class WrongPortException extends Error
+	public static class PortUnavailableException extends Error
 	{
 		public String message;
 
-		public WrongPortException(String message)
+		public PortUnavailableException(String message)
 		{
 			this.message = message;
 		}
@@ -230,7 +247,7 @@ public class Server
 			last_message = null;
 			return tmp;
 		}
-		catch (java.net.BindException exc) { throw new WrongPortException("The specified port already in use."); }
+		catch (java.net.BindException exc) { throw new PortUnavailableException("The specified port already in use."); }
 		catch (java.net.SocketException exc) { verbose(exc.toString()); }
 		return null;
 	}

@@ -44,6 +44,9 @@ dbreset:
 	rm -rf database
 	java -classpath $(DBRESET_RUNPATH) -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
 
+exampledb:
+	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli < exampledatabase.txt
+
 clean:
 	find . -name "*.class" | xargs rm
 
