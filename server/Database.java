@@ -239,6 +239,16 @@ public class Database
 				statement.setMaxRows(5);
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(utils.Configuration.settings.get("DeleteUserCommand")))
+			{
+				if (user.username.equals("root"))
+				{
+					java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM SystemUser WHERE username=?");
+					statement.setString(1, parts.get(1));
+					return String.valueOf(statement.executeUpdate());
+				}
+				return "You are not allowed to delete users.";
+			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
 				if (user.username.equals("root"))

@@ -187,6 +187,7 @@ public class Cli
 							"help - print this help text."
 							+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 							+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
+							+ "\n'" + utils.Configuration.settings.get("DeleteUserCommand") + "' - erase a user."
 							+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
 							+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
 							+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
@@ -369,6 +370,18 @@ public class Cli
 					{
 						line =
 							utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("GetEventsCommand"));
+						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+					}
+					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("DeleteUserCommand")))
+					{
+						String username = scanner.nextLine();
+						line =
+							utils.Utils.escapeSpaces
+							(
+								utils.Configuration.settings.getAndEscape("DeleteUserCommand")
+								+ " "
+								+ utils.Utils.escapeSpaces(username)
+							);
 						System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 					}
 					else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetInvitesCommand")))
