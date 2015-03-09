@@ -9,7 +9,7 @@ public class Cli
 		java.io.Console console = System.console();
 		if (console == null)
 		{
-			System.out.println("No console found: typing is echod.n" + message);
+			System.out.println("No console found: typing is echoed.\n" + message);
 			return scanner.nextLine();
 		}
 		else
