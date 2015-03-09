@@ -8,10 +8,10 @@ public class Database
 	private java.sql.Connection connection = null;
 	private java.util.BitSet status = new java.util.BitSet(Status.values().length);
 
-	public static class CouldNotConnectAndSetupDatabaseConnection extends Throwable { CouldNotConnectAndSetupDatabaseConnection(Throwable exc) { super(exc); } }
-	public static class CouldNotFindEncryptionAlgorithm extends Throwable { CouldNotFindEncryptionAlgorithm(Throwable exc) { super(exc); } }
-	public static class KeySpecInvalidException extends Throwable { KeySpecInvalidException(Throwable exc) { super(exc); } }
-	public static class DatabaseUninitializedException extends Throwable { DatabaseUninitializedException(Throwable exc) { super(exc); } }
+	public static class CouldNotConnectAndSetupDatabaseConnection extends Exception { CouldNotConnectAndSetupDatabaseConnection(Throwable exc) { super(exc); } }
+	public static class CouldNotFindEncryptionAlgorithm extends Exception { CouldNotFindEncryptionAlgorithm(Throwable exc) { super(exc); } }
+	public static class KeySpecInvalidException extends Exception { KeySpecInvalidException(Throwable exc) { super(exc); } }
+	public static class DatabaseUninitializedException extends Exception { DatabaseUninitializedException(Throwable exc) { super(exc); } }
 
 	public Database(String db_url) throws CouldNotConnectAndSetupDatabaseConnection, CouldNotFindEncryptionAlgorithm, KeySpecInvalidException
 	{
@@ -354,42 +354,7 @@ public class Database
 				// Have to check if the room is available.
 
 				// Then actual register the room under the user.
-				
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
-			}
-			else if (parts.get(0).equals(coms.get("RemoveRoomBookingCommand")))
-			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
-			}
-			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
-			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
-			}
-			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
-			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				return resultToString(statement.executeQuery());
-			}
-			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
-			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
-				statement.setString(1, parts.get(1));
-				statement.setString(2, parts.get(1));
-				// Check if room is booked already in that timeslot:
-					// TODO
-				// Book the room
-				statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				statement.setString(3, parts.get(2));
