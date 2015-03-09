@@ -19,7 +19,22 @@ public class Server
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("keygen"))
-			(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+		{
+			try
+			{
+				(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+			}
+			catch (java.security.NoSuchAlgorithmException exc)
+			{
+				verbose("The algorithm for generating public and private keys is unavailable.");
+				exc.printStackTrace();
+			}
+			catch (java.security.NoSuchProviderException exc)
+			{
+				verbose("The provider for generating public and private keys is unavailable.");
+				exc.printStackTrace();
+			}
+		}
 		else if (arghandler.hasOption("help"))
 			printHelp();
 		else
@@ -39,7 +54,7 @@ public class Server
 
     public static class ServerFinalizer extends Thread
 	{
-		Database db;
+		private Database db;
 
 		ServerFinalizer(Database db)
 		{
@@ -55,7 +70,11 @@ public class Server
 			}
 			catch (java.sql.SQLException exc)
 			{
-				verbose("Unable to close database.");
+				verbose("Unable to close database. Exiting without closing properly.");
+			}
+			catch (NullPointerException exc)
+			{
+				verbose("Database was not initialized: skipping graceful close.");
 			}
 		}
 	}
@@ -69,17 +88,38 @@ public class Server
 		public void run()
 		{
 			System.out.println("Press '" + utils.Configuration.settings.get("ExitCommand") + "' to exit.\nOr type any SQL query here to run it.");
-			while (true)
+			try
 			{
-				String string = scanner.nextLine();
-				if (string.equals(utils.Configuration.settings.get("ExitCommand")))
+				while (true)
 				{
-					System.exit(0);	
+					System.out.print("SQL command: ");
+					String string = scanner.nextLine();
+					if (string.equals(utils.Configuration.settings.get("ExitCommand")))
+					{
+						System.exit(0);	
+					}
+					else
+					{
+						try
+						{
+							String stringx = db.runQuery(string);
+							System.out.println("Raw result: " + stringx);
+							System.out.println(client.ServerReturnData.getPrettyStringWithoutObject(stringx));
+						}
+						catch (Database.DatabaseUninitializedException exc)
+						{
+							verbose("The database is not initialized: attempting to re-initialize.");
+						}
+						catch (client.ServerReturnData.InvalidInputException exc)
+						{
+							verbose("The return string was empty.");
+						}
+					}
 				}
-				else
-				{
-					System.out.println(db.runQuery(string));
-				}
+			}
+			catch (java.util.NoSuchElementException exc)
+			{
+				verbose("Command line scanner forced to exit.");
 			}
 		}
 	}
@@ -94,10 +134,31 @@ public class Server
 		return port;
 	}
 
+	public static class BlockSizeTooLargeException extends Exception
+	{
+
+	}
+
 	public static void commandLineInterface()
 	{
 		Server server = null;
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		Database db = null;
+		try
+		{
+			db = new Database(utils.Configuration.settings.get("DBConnection"));
+		}
+		catch (Database.CouldNotConnectAndSetupDatabaseConnection exc)
+		{
+			verbose("Unable to connect to the database. Check if the database is not already in use. If it is not; try making dbreset or setup.");
+		}
+		catch (Database.CouldNotFindEncryptionAlgorithm exc)
+		{
+			verbose("Unable to find the correct encryption algorithm as specified in the settings.conf file.");
+		}
+		catch (Database.KeySpecInvalidException exc)
+		{
+			verbose("The keyspec for the database is invalid.");
+		}
 		try
 		{
 			server = new Server(utils.Configuration.settings);
@@ -113,28 +174,33 @@ public class Server
 
 			while (true)
 			{
-				String message = "";
 				try
 				{
+					String message = "";
+					
 					message = server.waitForMessage(port);
+					if (message == null)
+						continue;
+					java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
+					for (int i = 0; i < message_parts.size(); ++i)
+						System.out.println(message_parts.get(i));
+					if (message_parts.size() == 3)
+					{
+						server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
+					}
+					else
+					{
+						server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
+					}
 				}
-				catch (WrongPortException exc_obj)
+				catch (PortUnavailableException exc)
 				{
 					System.out.println("The port you specified '" + String.valueOf(port) + "' is already in use.");
 					queryPort(scanner);
 				}
-				if (message == null)
-					continue;
-				java.util.ArrayList<String> message_parts = utils.Utils.splitAndUnescapeString(message);
-				for (int i = 0; i < message_parts.size(); ++i)
-					System.out.println(message_parts.get(i));
-				if (message_parts.size() == 3)
+				catch (BlockSizeTooLargeException exc)
 				{
-					server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
-				}
-				else
-				{
-					server.respondToMessage("Invalid: Amount of tokens do not match the desired amount of 3 tokens.");
+					server.respondToMessage("You have sent a block that is too large to be accepted by the server. Largest size is: " + utils.Configuration.settings.getInt("maxblocksize"));
 				}
 			}
 		}
@@ -169,11 +235,11 @@ public class Server
 
 	private String last_message;
 
-	public static class WrongPortException extends Error
+	public static class PortUnavailableException extends Error
 	{
 		public String message;
 
-		public WrongPortException(String message)
+		public PortUnavailableException(String message)
 		{
 			this.message = message;
 		}
@@ -185,7 +251,7 @@ public class Server
 		loadTheKeysIntoMemory();
 	}
 
-	public String waitForMessage(Integer port)
+	public String waitForMessage(Integer port) throws Exception
 	{
 		try
 		{
@@ -200,9 +266,8 @@ public class Server
 			last_message = null;
 			return tmp;
 		}
-		catch (java.net.BindException exc_obj) { throw new WrongPortException("The specified port already in use."); }
-		catch (java.net.SocketException exc_obj) { verbose(exc_obj.toString()); }
-		catch (Exception exc_obj) { verbose(exc_obj.toString()); }
+		catch (java.net.BindException exc) { throw new PortUnavailableException("The specified port already in use."); }
+		catch (java.net.SocketException exc) { verbose(exc.toString()); }
 		return null;
 	}
 
@@ -217,9 +282,9 @@ public class Server
 			bytes = utils.Utils.decrypt(bytes, server_private_key);
 			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
 		}
-		catch (Exception exc_obj)
+		catch (Exception exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 
@@ -228,13 +293,14 @@ public class Server
 		verbose("Attempting to send back: '" + string + "'");
 		try
 		{
-			byte[] bytes = utils.Utils.encryptSymmetric(string.getBytes(), symmetric_key, settings.get("SymmetricCipher"));
+			byte[] bytes = utils.Utils.encryptSymmetric(string.getBytes("UTF-8"), symmetric_key, settings.get("SymmetricCipher"));
 			output_to_client.write(bytes);
 			output_to_client.flush();
+			client_socket.shutdownOutput();
 			finishConnection();
 			
 		}
-		catch (java.io.IOException exc_object) 
+		catch (java.io.IOException excect) 
 		{ 
 			verbose("Unable to unbind");
 		}
@@ -245,7 +311,12 @@ public class Server
 	}
 
 	/// Generates a private and public key and stores it inside 2 files in the root folder.
-	public void generatePublicAndPrivateKey() throws java.io.IOException, java.io.FileNotFoundException
+	public void generatePublicAndPrivateKey()
+		throws
+			java.io.IOException,
+			java.io.FileNotFoundException,
+			java.security.NoSuchAlgorithmException,
+			java.security.NoSuchProviderException
 	{
 		verbose("Creating public and private key pair.");
 		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
@@ -298,18 +369,18 @@ public class Server
 				java.security.KeyFactory key_factory = java.security.KeyFactory.getInstance(settings.get("keypairgen"));
 				client_public_key = key_factory.generatePublic(pubkey_spec);
 			}
-			catch (java.security.NoSuchAlgorithmException exc_obj)
+			catch (java.security.NoSuchAlgorithmException exc)
 			{
-				verbose(exc_obj.toString());
+				verbose(exc.toString());
 			}
-			catch (java.security.spec.InvalidKeySpecException exc_obj)
+			catch (java.security.spec.InvalidKeySpecException exc)
 			{
-				verbose(exc_obj.toString());
+				verbose(exc.toString());
 			}
 		}
-		catch (java.io.IOException exc_obj)
+		catch (java.io.IOException exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 
@@ -328,21 +399,37 @@ public class Server
 		output_to_client.write(signature);
 	}
 
-	private void readIncomingbytes() throws java.io.IOException
+	private void readIncomingbytes() throws Exception
 	{
 		verbose("Reading incoming bytes.");
-		byte[] bytes = new byte[settings.getInt("keylength")];
-		int code = input_from_client.read(bytes);
-		bytes = java.util.Arrays.copyOf(bytes, code);
+
+		int length = 0;
+		byte[] bytes = new byte[0];
+		byte[] temporary = new byte[settings.getInt("blocklength")];
+		do
+		{
+			length = input_from_client.read(temporary);
+			if (length == -1)
+				break;
+			temporary = java.util.Arrays.copyOf(temporary, length);
+			byte[] total = new byte[bytes.length + temporary.length];
+			System.arraycopy(bytes, 0, total, 0, bytes.length);
+			System.arraycopy(temporary, 0, total, bytes.length, temporary.length);
+			bytes = total;
+			if (bytes.length > settings.getInt("maxblocksize"))
+				throw new BlockSizeTooLargeException();
+		}
+		while (length != -1 && length == settings.getInt("blocklength"));
+
 		try
 		{
 			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
 		}
-		catch (Exception exc_obj)
+		catch (Exception exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 	}
 

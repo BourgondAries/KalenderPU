@@ -5,6 +5,7 @@ CLIENT_RUNPATH="bin;./commons-cli-1.2.jar;./derby.jar;./derbyclient.jar"
 DBRESET_RUNPATH=".;derby.jar;derbytools.jar"
 BIN_MAP=bin
 TEST_LIBS=".;./commons-cli-1.2.jar;./derby.jar;./junit-4.12.jar;./hamcrest-all-1.3.jar"
+TEST_RUNPATH="./bin;./commons-cli-1.2.jar;./derby.jar;./junit-4.12.jar;./hamcrest-all-1.3.jar"
 
 setup:
 	mkdir -p bin
@@ -36,9 +37,16 @@ vclient:
 	$(MAKE) cclient
 	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli
 
+gclient:
+	$(MAKE) cclient
+	java -classpath $(CLIENT_RUNPATH) client.Client -v --gui
+
 dbreset:
 	rm -rf database
 	java -classpath $(DBRESET_RUNPATH) -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
+
+exampledb:
+	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli < exampledatabase.txt
 
 clean:
 	find . -name "*.class" | xargs rm
@@ -58,6 +66,11 @@ sclient:
 sserver:
 	javac server/MinimalServer.java
 	java -Djavax.net.ssl.keyStore=mySrvKeystore -Djavax.net.ssl.keyStorePassword=123456 server.MinimalServer
+
+testDatabase:
+	javac -cp $(TEST_LIBS) -d $(BIN_MAP) server/TestDatabase.java
+	java -cp $(TEST_RUNPATH) org.junit.runner.JUnitCore server.TestDatabase
+
 
 SERVER_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar"
 SERVER_RUNPATH_MAC=".:./bin:./commons-cli-1.2.jar:./derby.jar"
@@ -91,7 +104,3 @@ dbreset-mac:
 
 clean-mac:
 	find . -name "*.class" | xargs rm
-
-testDatabase:
-	javac -cp $(TEST_LIBS) server/TestDatabase.java
-	java -cp $(TEST_LIBS) org.junit.runner.JUnitCore server.TestDatabase

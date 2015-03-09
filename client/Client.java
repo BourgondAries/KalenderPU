@@ -14,9 +14,9 @@ public class Client
 		ArgumentHandler arghandler = initializeConfiguration(args);
 
 		if (arghandler.hasOption("cli"))
-			commandLineInterface();
+			Cli.commandLineInterface();
 		else if (arghandler.hasOption("gui"))
-			; // start gui
+			useGuiInterface();
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("help"))
@@ -58,407 +58,28 @@ public class Client
 		}
 	}
 
-	public static String getPasswordFromConsole(java.util.Scanner scanner, String message)
-	{
-		java.io.Console console = System.console();
-		if (console == null)
-		{
-			System.out.println("No console found: typing is echod.\n" + message);
-			return scanner.nextLine();
-		}
-		else
-		{
-			System.out.print(message);
-			return new String(console.readPassword());
-		}
-
-	}
-
-	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner) throws Exception
-	{
-		verbose("Sending data: '" + login_info + " " + command + "'.");
-		if (client.sendData(login_info + " " + command, host, port) == false)
-		{
-			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
-			while (true)
-			{
-				String result = scanner.nextLine();
-				if (result.equals("yes"))
-				{
-					client.addPublicServerKeyToTrusted();
-					client.sendWhenTrusted(login_info + " " + command);
-					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
-					System.out.println("Server response:");
-					for (String string : answer)
-						System.out.println(string);
-					break;
-				}
-				else if (result.equals("no"))
-					break;
-				else
-					System.out.print("Please enter \"yes\" or \"no\": ");
-			}
-		}
-		else
-		{
-			String response = client.fetchResponse();
-			verbose("Direct response: " + response);
-			if (response != null)
-			{
-				/*
-				java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(response);
-				System.out.println("Server response:");
-				for (String string : answer)
-					System.out.println(string);
-				*/
-				return response;
-			}
-			else
-				System.out.println("No response from server");
-		}
-		return null;
-	}
-
-	public static String setLoginInfo(java.util.Scanner scanner)
-	{
-		System.out.print("Enter your username: ");
-		String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
-		login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
-		return login_info;
-	}
-
-	public static void commandLineInterface()
+	public static void useGuiInterface()
 	{
 		Client client = null;
 		try
 		{
 			client = new Client(utils.Configuration.settings);
-			Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
-			java.util.Scanner scanner = new java.util.Scanner(System.in);
-			System.out.print("Enter the hostname (leave blank for default): ");
-			String host = scanner.nextLine();
-			Integer port = null;
-			if (host.equals("") == false)
-			{
-				System.out.print("Enter the port (leave blank for default): ");
-				String portstring = scanner.nextLine();
-				if (portstring.equals(""))
-				{
-					port = utils.Configuration.settings.getInt("port");
-				}
-				else 
-					port = Integer.parseInt(portstring);
-			}
-			else
-			{
-				host = utils.Configuration.settings.get("hostname");
-				port = utils.Configuration.settings.getInt("port");
-			}
-			String login_info = setLoginInfo(scanner);
-			System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, utils.Utils.escapeSpaces(utils.Utils.escapeSpaces(utils.Configuration.settings.get("StatusCommand"))), scanner)));
-			
-			System.out.print("Command (type 'help' for info): ");
-			while (scanner.hasNextLine())
-			{
-				String line = scanner.nextLine();
-				if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
-					break;
-				if (line.equalsIgnoreCase("help"))
-				{
-					System.out.println
-					(
-						"help - print this help text."
-						+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
-						+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
-						+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
-						+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
-						+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
-						+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch all unfetched events."
-						+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
-						+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
-						+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
-						+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
-						+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc."
-						+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
-						+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
-						+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
-						+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
-						+ "\n'" + utils.Configuration.settings.get("RoomBookingDenyInviteCommand") + "' - Deny someone's room booking invitation."
-					);
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeUser")))
-				{
-					login_info = setLoginInfo(scanner);
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterCommand")))
-				{
-					System.out.print("Enter a new username: ");
-					String username = scanner.nextLine();
-					System.out.print("Enter a rank (positive integer): ");
-					String rank = scanner.nextLine();
-					System.out.print("Enter the first name: ");
-					String fname = scanner.nextLine();
-					System.out.print("Enter the last name: ");
-					String lname = scanner.nextLine();
-					String password;
-					do 
-					{
-						password = getPasswordFromConsole(scanner, "Enter the password for the new user: ");
-						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
-						if (password.equals(passcheck) == false)
-							System.out.println("Passwords do not match, retry.");
-						else
-							break;
-					}
-					while (true);
-					line = 
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("RegisterCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces(username)
-							+ " "
-							+ utils.Utils.escapeSpaces(rank)
-							+ " "
-							+ utils.Utils.escapeSpaces(fname)
-							+ " "
-							+ utils.Utils.escapeSpaces(lname)
-							+ " "
-							+ utils.Utils.escapeSpaces(password)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					if (result != null)
-					{
-						System.out.println(result);
-					}
-					else
-					{
-						System.out.println("Server failed to respond.");
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangePassOfCommand")))
-				{
-					System.out.print("Enter the username to change the password of: ");
-					String username = scanner.nextLine();
-					String password;
-					do 
-					{
-						password = getPasswordFromConsole(scanner, "Enter the new password for the user: ");
-						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
-						if (password.equals(passcheck) == false)
-							System.out.println("Passwords do not match, retry.");
-						else
-							break;
-					}
-					while (true);
-					line = 
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("ChangePassOfCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces(username)
-							+ " "
-							+ utils.Utils.escapeSpaces(password)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					if (result != null)
-					{
-						if (result.equals("1"))
-						{
-							System.out.println("Server response: 'OK: Changed password.'");
-						}
-						else
-						{
-							System.out.println("Server response: 'ERR: Something went wrong.'");
-						}
-					}
-					else
-					{
-						System.out.println("Server failed to respond.");
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangePassCommand")))
-				{
-					String password;
-					do 
-					{
-						password = getPasswordFromConsole(scanner, "Enter the new password for the user: ");
-						String passcheck = getPasswordFromConsole(scanner, "Enter the password again: ");
-						if (password.equals(passcheck) == false)
-							System.out.println("Passwords do not match, retry.");
-						else
-							break;
-					}
-					while (true);
-					line = 
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("ChangePassCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces(password)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					if (result != null)
-					{
-						if (result.equals("1"))
-						{
-							System.out.println("Server response: 'OK: Changed password.'");
-						}
-						else
-						{
-							System.out.println("Server response: 'ERR: Something went wrong.'");
-						}
-					}
-					else
-					{
-						System.out.println("Server failed to respond.");
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("NewEventCommand")))
-				{
-					System.out.print("Enter a description of the event: ");
-					String description = scanner.nextLine();
-					System.out.print("Enter when the event starts of the format 'yyyy-mm-dd hh:mm:ss': ");
-					String datetime_start = scanner.nextLine();
-					System.out.print("Enter when the event ends of the format 'yyyy-mm-dd hh:mm:ss': ");
-					String datetime_end = scanner.nextLine();
-					System.out.print("How many minutes before the event do you want to be warned (Blank for no warning): ");
-					String warn_minutes = scanner.nextLine();
-
-					line = 
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("NewEventCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces(description)
-							+ " "
-							+ utils.Utils.escapeSpaces(datetime_start)
-							+ " "
-							+ utils.Utils.escapeSpaces(datetime_end)
-							+ " "
-							+ utils.Utils.escapeSpaces(warn_minutes)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetEventsCommand")))
-				{
-					line =
-						utils.Utils.escapeSpaces(utils.Configuration.settings.get("GetEventsCommand"));
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
-					result = result.substring(result.indexOf(" ") + 1);
-					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
-					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
-					for (String str : result_set)
-					{
-						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
-					}
-
-					int i = 0;
-					for (String tmp : final_set)
-					{
-						if (i++ % 2 == 0)
-							System.out.println();
-						System.out.println(tmp);
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterRoomCommand")))
-				{
-					System.out.print("Enter the new room name: ");
-					String room_name = scanner.nextLine();
-					System.out.print("Enter the new room's capacity (people): ");
-					String room_cap = scanner.nextLine();
-					System.out.print("Enter the new room's location: ");
-					String room_location = scanner.nextLine();
-					line = 
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("RegisterRoomCommand")
-							+ " "
-							+ utils.Utils.escapeSpaces(room_name)
-							+ " "
-							+ utils.Utils.escapeSpaces(room_cap)
-							+ " "
-							+ utils.Utils.escapeSpaces(room_location)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					if (result != null)
-					{
-						if (result.equals("1"))
-						{
-							System.out.println("Server response: 'OK: Room registered.'");
-						}
-						else
-						{
-							System.out.println("Server response: 'ERR: Something went wrong.'");
-						}
-					}
-					else
-					{
-						System.out.println("Server failed to respond.");
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("FindPersonCommand")))
-				{
-					System.out.print("Enter the name you'd like to search for: ");
-					String like = scanner.nextLine();
-					line =
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("FindPersonCommand")
-							+ " "							
-							+ utils.Utils.escapeSpaces(like)
-						);
-					String result = commandLineSendData(client, host, port, login_info, line, scanner);
-					int columns = Integer.parseInt(result.substring(0, result.indexOf(" ") + 1).trim());
-					result = result.substring(result.indexOf(" ") + 1);
-					java.util.ArrayList<String> result_set = utils.Utils.splitAndUnescapeString(result);
-					java.util.ArrayList<String> final_set = new java.util.ArrayList<>();
-					for (String str : result_set)
-					{
-						final_set.addAll(utils.Utils.splitAndUnescapeString(str));
-					}
-
-					int i = 0;
-					for (String tmp : final_set)
-					{
-						if (i++ % 2 == 0)
-							System.out.println();
-						System.out.println(tmp);
-					}
-				}
-				else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetCalendarCommand")))
-				{
-					System.out.print("Enter the year: ");
-					String year = scanner.nextLine();
-					System.out.print("Enter the month: ");
-					String month = scanner.nextLine();
-					System.out.print("Enter the day (leave blank for entire month): ");
-					String day = scanner.nextLine();
-					line =
-						utils.Utils.escapeSpaces
-						(
-							utils.Configuration.settings.getAndEscape("GetCalendarCommand")
-							+ " "							
-							+ utils.Utils.escapeSpaces(year)
-							+ " "
-							+ utils.Utils.escapeSpaces(month)
-							+ " "
-							+ utils.Utils.escapeSpaces(day)
-						);
-					System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
-				}
-				else
-				{
-					System.out.println("Defaulting to checking password.\n" + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
-				}
-				System.out.print("Command (type 'help' for info): ");
-			}
 		}
-		catch (Exception exc)
+		catch (Client.UnableToGenerateAsymmetricKeyPair exc)
 		{
-			verbose(exc.toString());
+			verbose("Unable to generate asymmetric key pair.");
+			exc.printStackTrace();
+			System.exit(1);
 		}
+		catch (Client.UnableToGenerateSymmetricKey exc)
+		{
+			verbose("Unable to generate symmetric key.");
+			exc.printStackTrace();
+			System.exit(1);
+		}
+		Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
+		Gui gui = new Gui();
+		gui.begin(client);
 	}
 
 	public static void printHelp()
@@ -472,6 +93,14 @@ public class Client
 	////////////////////////////////////////////////////////////
 	// START OF OBJECT DEPENDENT DEFINITIONS ///////////////////
 	////////////////////////////////////////////////////////////
+
+	public static class UnableToSendSymmetricKeyToTheServerException extends Exception { UnableToSendSymmetricKeyToTheServerException() {} UnableToSendSymmetricKeyToTheServerException(Throwable exc) { super(exc); } }
+	public static class UnableToEncryptAsymmetrically extends Exception { UnableToEncryptAsymmetrically() {} UnableToEncryptAsymmetrically(Throwable exc) { super(exc); } }
+	public static class SymmetricKeyTooLargeForAsymmetricEncryptionException extends Exception { SymmetricKeyTooLargeForAsymmetricEncryptionException() {} SymmetricKeyTooLargeForAsymmetricEncryptionException(Throwable exc) { super(exc); } }
+	public static class AsymmetricKeyInvalidException extends Exception { AsymmetricKeyInvalidException() {} AsymmetricKeyInvalidException(Throwable exc) { super(exc); } }
+	public static class UnableToGenerateAsymmetricKeyPair extends Exception { UnableToGenerateAsymmetricKeyPair() {} UnableToGenerateAsymmetricKeyPair(Throwable exc) { super(exc); } }
+	public static class UnableToGenerateSymmetricKey extends Exception { UnableToGenerateSymmetricKey() {} UnableToGenerateSymmetricKey(Throwable exc) { super(exc); } }
+	public static class UnableToVerifyAuthenticityException extends Exception { UnableToVerifyAuthenticityException() {} UnableToVerifyAuthenticityException(Throwable exc) { super(exc); } }
 
 	private java.net.Socket 			client_socket;
 	private java.io.InputStream 		input_from_server;
@@ -487,22 +116,26 @@ public class Client
 	private java.security.Key symmetric_key;
 
 	public Client(utils.Configuration settings)
+		throws
+			UnableToGenerateAsymmetricKeyPair,
+			UnableToGenerateSymmetricKey
 	{
 		this.settings = settings;
-		try
-		{
-			bytes = new byte[settings.getInt("keylength")];
-			loadTrustedServers();
-			generatePair();
-			generateSymmetric();
-		}
-		catch (Exception exc_obj)
-		{
-			verbose(exc_obj.toString());
-		}
+		bytes = new byte[settings.getInt("keylength")];
+		loadTrustedServers();
+		generatePair();
+		generateSymmetric();
+
 	}
 
 	public boolean sendData(String data, String host, int port)
+		throws
+			AsymmetricKeyInvalidException,
+			SymmetricKeyTooLargeForAsymmetricEncryptionException,
+			UnableToEncryptAsymmetrically,
+			java.net.UnknownHostException,
+			UnableToSendSymmetricKeyToTheServerException,
+			UnableToVerifyAuthenticityException
 	{
 		try
 		{
@@ -515,20 +148,56 @@ public class Client
 			sendSymmetricKey();
 			sendWhenTrusted(data);
 		}
-		catch (Exception exc_obj)
+		catch (java.io.IOException exc)
 		{
-			verbose(exc_obj.toString());
+			verbose(exc.toString());
 		}
 		return true;
 	}
 
-	public void sendSymmetricKey() throws java.io.IOException, Exception
+	public void sendSymmetricKey() 
+		throws
+			AsymmetricKeyInvalidException,
+			SymmetricKeyTooLargeForAsymmetricEncryptionException,
+			UnableToEncryptAsymmetrically,
+			UnableToSendSymmetricKeyToTheServerException
 	{
 		verbose("Sending symmetric key.");
-		output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
+		try
+		{
+			output_to_server.write(utils.Utils.encrypt(symmetric_key.getEncoded(), server_public_key));
+		}
+		catch (java.io.IOException exc)
+		{
+			throw new UnableToSendSymmetricKeyToTheServerException(exc);
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToEncryptAsymmetrically(exc);
+		}
+		catch (javax.crypto.IllegalBlockSizeException exc)
+		{
+			throw new SymmetricKeyTooLargeForAsymmetricEncryptionException(exc);
+		}
+		catch (javax.crypto.NoSuchPaddingException exc)
+		{
+			verbose("Specific padding scheme is not present.");
+			exc.printStackTrace();
+		}
+		catch (javax.crypto.BadPaddingException exc)
+		{
+			verbose("Specific padding scheme is not present.");
+			exc.printStackTrace();
+		}
+		catch (java.security.InvalidKeyException exc)
+		{
+			throw new AsymmetricKeyInvalidException(exc);
+		}
 	}
 
-	public void sendWhenTrusted(String data) throws Exception
+	public void sendWhenTrusted(String data)
+		throws
+			UnableToVerifyAuthenticityException
 	{
 		if (verifyAuthenticity())
 		{
@@ -540,7 +209,15 @@ public class Client
 		{
 			verbose("Server failed to authenticate");
 		}
-		client_socket.close();
+		try
+		{
+			client_socket.close();
+		}
+		catch (java.io.IOException exc)
+		{
+			System.err.println("The socket was already closed: ");
+			exc.printStackTrace();
+		}
 	}
 
 	public String fetchResponse()
@@ -573,11 +250,11 @@ public class Client
 			byte[] cert = utils.Utils.fileToBytes(utils.Configuration.settings.get("TrustedServers"));
 			for (int i = 0; i < cert.length; ++i)
 			{
-				if (isContained(cert, i, settings.get("PublicKeySeparator").getBytes()))
+				if (isContained(cert, i, settings.get("PublicKeySeparator").getBytes("UTF-8")))
 				{
 					byte[] copy = java.util.Arrays.copyOfRange(cert, 0, i);
 					server_public_keys.add(copy);
-					cert = java.util.Arrays.copyOfRange(cert, i + settings.get("PublicKeySeparator").getBytes().length, cert.length);
+					cert = java.util.Arrays.copyOfRange(cert, i + settings.get("PublicKeySeparator").getBytes("UTF-8").length, cert.length);
 					i = 0;
 				}
 			}
@@ -589,7 +266,10 @@ public class Client
 		}
 	}
 
-	private void connectAndSetUpChannels(String host, int port) throws java.net.UnknownHostException, java.io.IOException
+	private void connectAndSetUpChannels(String host, int port)
+		throws
+			java.io.IOException,
+			java.net.UnknownHostException
 	{
 		verbose("Connecting to foreign host.");
 		client_socket = new java.net.Socket(host, port);
@@ -632,35 +312,66 @@ public class Client
 		return false;
 	}
 
-	private boolean verifyAuthenticity() throws Exception
+	private boolean verifyAuthenticity()
+		throws
+			UnableToVerifyAuthenticityException
 	{
 		verbose("Verifying authenticity.");
 		bytes = java.util.Arrays.copyOf(bytes, length);
-		java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
-		sig.initVerify(server_public_key);
-		sig.update(client_public_key.getEncoded());
-		return sig.verify(bytes);
-		
+		try
+		{
+			java.security.Signature sig = java.security.Signature.getInstance(utils.Configuration.settings.get("SignMethod"));
+			sig.initVerify(server_public_key);
+			sig.update(client_public_key.getEncoded());
+			return sig.verify(bytes);
+		}
+		catch (java.security.InvalidKeyException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}		
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}
+		catch (java.security.SignatureException exc)
+		{
+			throw new UnableToVerifyAuthenticityException(exc);
+		}
 	}
 
 	private void generatePair()
+		throws
+			UnableToGenerateAsymmetricKeyPair
 	{
 		verbose("Generating keypair.");
-		java.security.KeyPair pair = utils.Utils.getNewKeyPair();
-		client_private_key = pair.getPrivate();
-		client_public_key = pair.getPublic();
+		try
+		{
+			java.security.KeyPair pair = utils.Utils.getNewKeyPair();
+			client_private_key = pair.getPrivate();
+			client_public_key = pair.getPublic();
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			throw new UnableToGenerateAsymmetricKeyPair(exc);
+		}
+		catch (java.security.NoSuchProviderException exc)
+		{
+			throw new UnableToGenerateAsymmetricKeyPair(exc);
+		}
 	}
 
 	private void generateSymmetric()
+		throws
+			UnableToGenerateSymmetricKey
 	{
 		verbose("Generating symmetric key.");
 		try
 		{
 			symmetric_key = utils.Utils.generateSymmetricKey(settings.get("SymmetricSpec"));
 		}
-		catch (Exception exc)
+		catch (java.security.NoSuchAlgorithmException exc)
 		{
-			verbose(exc.toString());
+			throw new UnableToGenerateSymmetricKey(exc);
 		}
 	}
 
@@ -674,7 +385,8 @@ public class Client
 		verbose("Sending packets to the server...");
 		try
 		{
-			output_to_server.write(utils.Utils.encryptSymmetric(data.getBytes(), symmetric_key, settings.get("SymmetricCipher")));
+			output_to_server.write(utils.Utils.encryptSymmetric(data.getBytes("UTF-8"), symmetric_key, settings.get("SymmetricCipher")));
+			client_socket.shutdownOutput();
 		}
 		catch (Exception exc_obj)
 		{
@@ -687,9 +399,21 @@ public class Client
 		verbose("Retrieving server response.");
 		try
 		{
-			bytes = new byte[settings.getInt("keylength")];
-			int length = input_from_server.read(bytes);
-			bytes = java.util.Arrays.copyOf(bytes, length);
+			int length = 0;
+			bytes = new byte[0];
+			byte[] temporary = new byte[settings.getInt("blocklength")];
+			do
+			{
+				length = input_from_server.read(temporary);
+				if (length == -1)
+					break;
+				temporary = java.util.Arrays.copyOf(temporary, length);
+				byte[] total = new byte[bytes.length + temporary.length];
+				System.arraycopy(bytes, 0, total, 0, bytes.length);
+				System.arraycopy(temporary, 0, total, bytes.length, temporary.length);
+				bytes = total;
+			}
+			while (length != -1 && length == settings.getInt("blocklength"));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 		}
 		catch (Exception exc_obj)
@@ -700,12 +424,12 @@ public class Client
 
 	private void storeAllTrustedKeys() throws java.io.IOException
 	{
-		verbose("Storing the trusted keys in \"" + settings.get("TrustedServers") + "\".");
+		verbose("Storing the trusted keys in '" + settings.get("TrustedServers") + "'.");
 		java.io.FileOutputStream trusted = new java.io.FileOutputStream(settings.get("TrustedServers"));
 		for (int i = 0; i < server_public_keys.size(); ++i)
 		{
 			trusted.write(server_public_keys.get(i));
-			trusted.write(settings.get("PublicKeySeparator").getBytes());
+			trusted.write(settings.get("PublicKeySeparator").getBytes("UTF-8"));
 		}
 	}
 }

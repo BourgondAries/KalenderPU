@@ -12,7 +12,8 @@ class ArgumentHandler
 		opts.addOption(new Option("v", false, "Verbose mode."));
 		opts.addOption(new Option("help", false, "Print help text for the user."));
 		opts.addOption(new Option("clear", false, "Clears the trusted list of servers."));
-		opts.addOption(new Option("cli", false, "Uses the command line interface"));
+		opts.addOption(new Option("cli", false, "Uses the command line interface."));
+		opts.addOption(new Option("gui", false, "Uses a graphical user interface."));
 		CommandLineParser parser = new PosixParser();
 
 		try
