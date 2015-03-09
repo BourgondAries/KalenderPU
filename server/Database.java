@@ -119,8 +119,9 @@ public class Database
 	{
 		try
 		{
-			verbose("Delegating input to the input handler.");
 
+			verbose("THERE YEA GO: ");
+			// verbose("Delegating input to the input handler.");
 			java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE username=?");
 			prepstatement.setString(1, username);
 			java.sql.ResultSet result = prepstatement.executeQuery();
@@ -205,9 +206,10 @@ public class Database
 				verbose("Parts: '" + parts.get(i) + "'.");
 			utils.Configuration coms = utils.Configuration.settings;
 
+
 			if (parts.get(0).equals(coms.get("RegisterCommand")))
 			{
-				if (user.rank < 10)
+				if (user.username.equals("root"))
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemUser (username, rank, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)", java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
 					statement.setString(1, parts.get(1));
@@ -397,6 +399,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=true WHERE systemUserId=? AND bookingId=?");
+				System.out.println("Accepting invite...");
 				statement.setString(1, parts.get(user.user_id));
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
@@ -411,7 +414,6 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomFind")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Room");
-
 				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
