@@ -482,7 +482,7 @@ public class Cli
 				}
 				else
 				{
-					System.out.println("Defaulting to checking password.n" + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+					System.out.println("Defaulting to checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
 				}
 				System.out.print("Command (type 'help' for info): ");
 			}

@@ -1,0 +1,26 @@
+
+root
+root
+register
+newguy
+20
+New Guy
+Etternavn of the new guy
+pass1
+pass1
+
+change password
+abba
+abba
+
+relogin
+root
+abba
+
+change password
+root
+root
+
+new event
+This is the event description
+2015

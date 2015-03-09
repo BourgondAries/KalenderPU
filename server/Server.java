@@ -158,7 +158,7 @@ public class Server
 				try
 				{
 					String message = "";
-				
+					
 					message = server.waitForMessage(port);
 					if (message == null)
 						continue;
