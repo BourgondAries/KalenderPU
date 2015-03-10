@@ -97,7 +97,7 @@ public class Server
 						{
 							synchronized (db)
 							{
-								if (db.resetRootPassword(client.Cli.getPasswordFromConsole(scanner, "Type in the new password: ")) == 1)
+								if (db.resetRootPassword(client.ClientCommandLineInterface.getPasswordFromConsole(scanner, "Type in the new password: ")) == 1)
 								{
 									System.out.println("Correctly reset the root password.");
 								}

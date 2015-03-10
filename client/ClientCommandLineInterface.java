@@ -2,7 +2,7 @@ package client;
 
 import static utils.Configuration.verbose;
 
-public class Cli
+public class ClientCommandLineInterface
 {
 	public static String getPasswordFromConsole(java.util.Scanner scanner, String message)
 	{
@@ -73,6 +73,14 @@ public class Cli
 		String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
 		login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
 		return login_info;
+	}
+
+	public static void printHelp()
+	{
+		System.out.println
+		(
+			"Help text for this program."
+		);
 	}
 
 	public static void commandLineInterface()
