@@ -328,7 +328,7 @@ public class Database
 				{
 					int group_id = result.getInt(1);
 
-					statement = connection.prepareStatement("SELECT * FROM SystemUser, GroupMember WHERE groupId=?");
+					statement = connection.prepareStatement("SELECT * FROM GroupMember INNER JOIN SystemUser ON SystemUser.systemUserId=GroupMember.systemUserId WHERE groupId=?");
 					statement.setInt(1, group_id);
 					return resultToString(statement.executeQuery());
 				}
@@ -343,10 +343,18 @@ public class Database
 				{
 					int group_id = result.getInt(1);
 
-					statement = connection.prepareStatement("UPDATE SystemGroup SET parentGroupId=? WHERE groupId=?");
+					statement = connection.prepareStatement("UPDATE SystemGroup SET parentGroupId=? WHERE groupName=?");
 					statement.setInt(1, group_id);
+					statement.setString(2, parts.get(2));
 					return String.valueOf(statement.executeUpdate());
 				}
+			}
+			else if (parts.get(0).equals(coms.get("InviteGroupToBookingCommand")))
+			{
+				// Invite all members and subgroups -> get a set of the full tree of subgroups. 
+				// Invite all individuals: 
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
+				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
@@ -404,6 +412,12 @@ public class Database
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
 				statement.setString(1, parts.get(1));
 				statement.setString(2, parts.get(1));
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("FindGroupCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM SystemGroup WHERE groupName LIKE ?");
+				statement.setString(1, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
@@ -488,17 +502,8 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
-				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
-				s1.setString(1, parts.get(1));
-				java.sql.ResultSet result = s1.executeQuery();
-				if (result.next())
-				{
-					int invite_id = result.getInt(1);
-					java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-					statement.setInt(1, invite_id);
-					statement.setInt(2, Integer.valueOf(parts.get(2)));
-					return String.valueOf(statement.executeUpdate());
-				}
+				// Function of (String systemUserName, Int booking_id)
+				inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
@@ -520,6 +525,40 @@ public class Database
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Room");
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("RoomFindCommand")))
+			{
+				java.sql.PreparedStatement statement = null;
+				if (parts.get(1).equals(""))
+				{
+					if (parts.get(2).equals(""))
+					{
+						statement = connection.prepareStatement("SELECT * FROM Room");
+						return resultToString(statement.executeQuery());
+					}
+					else
+					{
+						statement = connection.prepareStatement("SELECT * FROM Room WHERE size<=?");
+						statement.setInt(1, Integer.valueOf(parts.get(2)));
+						return resultToString(statement.executeQuery());
+					}
+				}
+				else
+				{
+					if (parts.get(2).equals(""))
+					{
+						statement = connection.prepareStatement("SELECT * FROM Room WHERE size>=?");
+						statement.setInt(1, Integer.valueOf(parts.get(1)));
+						return resultToString(statement.executeQuery());
+					}
+					else
+					{
+						statement = connection.prepareStatement("SELECT * FROM Room WHERE size<=? AND size>=?");
+						statement.setInt(1, Integer.valueOf(parts.get(2)));
+						statement.setInt(2, Integer.valueOf(parts.get(1)));
+						return resultToString(statement.executeQuery());
+					}
+				}
+			}
 			else if (parts.get(0).equals(coms.get("FindPersonCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
@@ -540,5 +579,23 @@ public class Database
 			return exc.toString();
 		}
 		return "Impossible.";
+	}
+
+	public String inviteUserToBooking(String username_to_invite, int booking_id)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+		s1.setString(1, username_to_invite);
+		java.sql.ResultSet result = s1.executeQuery();
+		if (result.next())
+		{
+			int invite_id = result.getInt(1);
+			java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+			statement.setInt(1, invite_id);
+			statement.setInt(2, booking_id);
+			return String.valueOf(statement.executeUpdate());
+		}
+		return "No such user found '" + username_to_invite + "'."; 
 	}
 }
