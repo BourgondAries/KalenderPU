@@ -154,7 +154,10 @@ public class ServerCommandLineInterface
 						System.out.println(message_parts.get(i));
 					if (message_parts.size() == 3)
 					{
-						server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
+						synchronized(db)
+						{
+							server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
+						}
 					}
 					else
 					{
