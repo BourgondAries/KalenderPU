@@ -77,7 +77,7 @@ public class Server
 			{
 				while (true)
 				{
-					System.out.print("SQL command: ");
+					System.out.print("SQL command ('" + utils.Configuration.settings.get("ExitCommand") + "' for exit): ");
 					String string = scanner.nextLine();
 					if (string.equals(utils.Configuration.settings.get("ExitCommand")))
 					{
