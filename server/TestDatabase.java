@@ -38,9 +38,8 @@ public class TestDatabase
 
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT COUNT(*) FROM systemUser WHERE username=?");
 		prep_statement.setString(1, random_user.username);
-		String result = Database.resultToString(prep_statement.executeQuery());
-
-		assertEquals(Integer.parseInt("" + result.charAt(0)), 1);
+		String selection_result= Database.resultToString(prep_statement.executeQuery());
+		assertEquals(Integer.parseInt("" + selection_result.charAt(0)), 1);
 	}
 	
 	//@org.junit.Rule
@@ -157,8 +156,19 @@ public class TestDatabase
 
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM PersonalEvent WHERE description=?");
 		prep_statement.setString(1, rand_str);
-		String result = Database.resultToString(prep_statement.executeQuery());
-		assertTrue(result.length() > 2 );
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		try
+		{
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+			int columns = Integer.parseInt(parts.get(0));
+			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			assertTrue(parts.size() > 0);
+		}
+		catch (Exception exc)
+		{
+			fail("Failed to add event");
+		}
 	}
 
 	@org.junit.Test
@@ -180,8 +190,19 @@ public class TestDatabase
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE fname LIKE ? OR lname LIKE ?");
 		prep_statement.setString(1, "Test%");
 		prep_statement.setString(2, "Test%");
-		String result = Database.resultToString(prep_statement.executeQuery());
-		assertTrue(result.length() > 2 );
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		try
+		{
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+			int columns = Integer.parseInt(parts.get(0));
+			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			assertTrue(parts.size() > 0);
+		}
+		catch (Exception exc)
+		{
+			fail("Failed to find a systemUser");
+		}
 	}
 
 	@org.junit.Test
@@ -207,10 +228,94 @@ public class TestDatabase
 		prep_statement.setString(1, random_str);
 		String selection_result = Database.resultToString(prep_statement.executeQuery());
 
-		assertTrue(selection_result.length() > 2);
+		try
+		{
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+			int columns = Integer.parseInt(parts.get(0));
+			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			assertTrue(parts.size() > 0);
+		}
+		catch (Exception exc)
+		{
+			fail("Failed to register room");
+		}
 	}
 
+	@org.junit.Test
+	public void testRoomBookingCommand() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		String random_str = utils.Utils.makeRandomString(8);
 
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_str)
+			+ " "
+			+ utils.Utils.escapeSpaces("description")
+			+ " "
+			+ utils.Utils.escapeSpaces("1")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 12:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 13:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 15:00:00")
+		);
+
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM Booking WHERE bookingName=?");
+		prep_statement.setString(1, random_str);
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		try
+		{
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+			int columns = Integer.parseInt(parts.get(0));
+			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			assertTrue(parts.size() > 0);
+		}
+		catch (Exception exc)
+		{
+			fail("Failed to book room");
+		}
+		
+	}
+
+	@org.junit.Test
+	public void testFindRoom()
+	{
+		//TODO
+	}
+
+	@org.junit.Test
+	public void testDeleteUser()
+	{
+
+	}
+
+	@org.junit.Test
+	public void testOnlyRootCanDeleteUser() throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		random_user = addRandomUserToDatabase();
+		User random_user2 = addRandomUserToDatabase();
+		db.executeWithValidUser
+		(
+			random_user,
+			utils.Configuration.settings.getAndEscape("DeleteUserCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_user.username)
+		);
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("DELETE FROM SystemUser WHERE username=?");
+		prep_statement.setString(1, random_user2.username);
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS));
+	}
 
 	private void setup() throws Exception
 	{

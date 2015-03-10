@@ -59,7 +59,9 @@ public class Database
 		NONEXISTENT_USER,
 		CREATED_NEW_USER,
 		USER_ALREADY_EXISTS,
-		NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS
+		NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS,
+		NON_ROOT_TRIED_TO_DELETE_USER
+
 	}
 
 	public boolean getStatus(Status state_check)
@@ -247,6 +249,7 @@ public class Database
 					statement.setString(1, parts.get(1));
 					return String.valueOf(statement.executeUpdate());
 				}
+				setStatus(Status.NON_ROOT_TRIED_TO_DELETE_USER);
 				return "You are not allowed to delete users.";
 			}
 			else if (parts.get(0).equals(utils.Configuration.settings.get("CreateGroupCommand")))
