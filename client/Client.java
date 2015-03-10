@@ -14,15 +14,15 @@ public class Client
 		ArgumentHandler arghandler = initializeConfiguration(args);
 
 		if (arghandler.hasOption("cli"))
-			Cli.commandLineInterface();
+			ClientCommandLineInterface.commandLineInterface();
 		else if (arghandler.hasOption("gui"))
 			useGuiInterface();
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("help"))
-			printHelp();
+			ClientCommandLineInterface.printHelp();
 		else
-			printHelp();
+			ClientCommandLineInterface.printHelp();
 	}
 
 	public static ArgumentHandler initializeConfiguration(String[] args)
@@ -80,14 +80,6 @@ public class Client
 		Runtime.getRuntime().addShutdownHook(new ClientFinalizer(client));
 		Gui gui = new Gui();
 		gui.begin(client);
-	}
-
-	public static void printHelp()
-	{
-		System.out.println
-		(
-			"Help text for this program."
-		);
 	}
 
 	////////////////////////////////////////////////////////////
