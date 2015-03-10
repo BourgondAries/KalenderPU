@@ -193,7 +193,8 @@ public class ClientCommandLineInterface
 						{
 							System.out.println
 							(
-								"'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
+								" " 
+								+ "'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 								+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
 								+ "\n'" + utils.Configuration.settings.get("DeleteUserCommand") + "' - erase a user."

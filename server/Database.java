@@ -145,10 +145,20 @@ public class Database
 				return "Login username '" + username + "' does not exist.";
 			}
 		}
-		catch (Exception exc)
+		catch (java.sql.SQLException exc)
 		{
 			verbose(exc.toString());
 			return "Unable to execute the query. Please contact the system administrator.";
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			verbose(exc.toString());
+			return "Unable to hash correctly.";
+		}
+		catch (java.security.spec.InvalidKeySpecException exc)
+		{
+			verbose(exc.toString());
+			return "Unable to hash correctly.";
 		}
 	}
 
@@ -456,14 +466,7 @@ public class Database
 					else 
 					{
 						System.out.println("Not a null result");
-						try
-						{
-							return resultToString(result);
-						}
-						catch (Exception exc)
-						{
-							exc.printStackTrace();
-						}
+						return resultToString(result);
 					}
 				}
 				else // Incorrect data size...
