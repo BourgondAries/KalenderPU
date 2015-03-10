@@ -203,7 +203,7 @@ public class Cli
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingDenyInviteCommand") + "' - Deny someone's room booking invitation."
-								+ "\n'" + utils.Configuration.settings.get("RoomFind") + "' - Deny someone's room booking invitation."
+								+ "\n'" + utils.Configuration.settings.get("RoomFind") + "' - Find a room."
 								+ "\n'" + utils.Configuration.settings.get("GetInvitesCommand") + "' - Get all invites aimed at you."
 								+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you own."
 								+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
