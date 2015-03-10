@@ -8,7 +8,7 @@ public class Server
     ////////////////////////////////////////////////////////////
 	// SERVER PROGRAM ENTRY ////////////////////////////////////
 	////////////////////////////////////////////////////////////
-	public static void main(String[] args) throws java.sql.SQLException, java.io.IOException
+	public static void main(String[] args)
 	{
 		ArgumentHandler arghandler = initializeConfiguration(args);
 
@@ -19,22 +19,7 @@ public class Server
 		else if (arghandler.hasOption("test"))
 			; // Run tests
 		else if (arghandler.hasOption("keygen"))
-		{
-			try
-			{
-				(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
-			}
-			catch (java.security.NoSuchAlgorithmException exc)
-			{
-				verbose("The algorithm for generating public and private keys is unavailable.");
-				exc.printStackTrace();
-			}
-			catch (java.security.NoSuchProviderException exc)
-			{
-				verbose("The provider for generating public and private keys is unavailable.");
-				exc.printStackTrace();
-			}
-		}
+			generateKeys();
 		else if (arghandler.hasOption("help"))
 			printHelp();
 		else
@@ -126,12 +111,20 @@ public class Server
 
 	public static Integer queryPort(java.util.Scanner scanner)
 	{
-		System.out.print("Enter the port to listen and send to (leave blank for default): ");
-		String portnumber = scanner.nextLine();
-		Integer port = null;
-		if (!portnumber.equals(""))
-			port = Integer.parseInt(portnumber);
-		return port;
+		try
+		{
+			System.out.print("Enter the port to listen and send to (leave blank for default): ");
+			String portnumber = scanner.nextLine();
+			Integer port = null;
+			if (!portnumber.equals(""))
+				port = Integer.parseInt(portnumber);
+			return port;
+		}
+		catch (java.util.NoSuchElementException exc)
+		{
+			verbose("The scanner could not read the elements, defaulting to standard port.");
+			return null;
+		}
 	}
 
 	public static class BlockSizeTooLargeException extends Exception
@@ -207,6 +200,29 @@ public class Server
 		catch (Exception exc)
 		{
 			verbose(exc.toString());
+		}
+	}
+
+	public static void generateKeys()
+	{
+		try
+		{
+			(new Server(utils.Configuration.settings)).generatePublicAndPrivateKey();
+		}
+		catch (java.security.NoSuchAlgorithmException exc)
+		{
+			verbose("The algorithm for generating public and private keys is unavailable.");
+			exc.printStackTrace();
+		}
+		catch (java.security.NoSuchProviderException exc)
+		{
+			verbose("The provider for generating public and private keys is unavailable.");
+			exc.printStackTrace();
+		}
+		catch (java.io.IOException exc)
+		{
+			verbose("Unable to store the new key.");
+			// Log.log(Log.Severity.KEYGEN, "The key was not able to be stored", exc.getStackTrace());
 		}
 	}
 
