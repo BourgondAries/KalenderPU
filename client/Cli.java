@@ -181,23 +181,23 @@ public class Cli
 						String line = scanner.nextLine();
 						if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 							break;
-						if (line.equalsIgnoreCase("help"))
+						if (line.equalsIgnoreCase(utils.Configuration.settings.get("HelpCommand")))
 						{
 							System.out.println
 							(
-								"help - print this help text."
+								"'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 								+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
 								+ "\n'" + utils.Configuration.settings.get("DeleteUserCommand") + "' - erase a user."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
 								+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
-								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch all unfetched events."
+								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch personal events."
 								+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 								+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
-								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
+								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
-								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc."
+								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."

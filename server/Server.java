@@ -68,6 +68,7 @@ public class Server
 	{
 		public java.util.Scanner scanner = null;
 		public Database db = null;
+		public Integer port = null;
 
 		@Override
 		public void run()
@@ -77,11 +78,49 @@ public class Server
 			{
 				while (true)
 				{
-					System.out.print("SQL command ('" + utils.Configuration.settings.get("ExitCommand") + "' for exit): ");
+					System.out.print("SQL command ('" + utils.Configuration.settings.get("HelpCommand") + "' for help): ");
 					String string = scanner.nextLine();
 					if (string.equals(utils.Configuration.settings.get("ExitCommand")))
 					{
 						System.exit(0);	
+					}
+					else if (string.equals(utils.Configuration.settings.get("HelpCommand")))
+					{
+						System.out.println
+						(
+							"'" + utils.Configuration.settings.get("RootResetPasswordOnServer") + "' - Reset the root password."
+						);
+					}
+					else if (string.equals(utils.Configuration.settings.get("RootResetPasswordOnServer")))
+					{
+						try
+						{
+							synchronized (db)
+							{
+								if (db.resetRootPassword(client.Cli.getPasswordFromConsole(scanner, "Type in the new password: ")) == 1)
+								{
+									System.out.println("Correctly reset the root password.");
+								}
+								else
+								{
+									System.out.println("Could not reset the root password.");
+								}
+							}
+						}
+						catch (java.sql.SQLException exc)
+						{
+							System.out.println("Unable apply the change in the database.");
+							// Log
+						}
+						catch (java.security.NoSuchAlgorithmException exc)
+						{
+							System.out.println("The hashing algorithm was not found.");
+							// Log
+						}
+						catch (java.security.spec.InvalidKeySpecException exc)
+						{
+							System.out.println("Unable to create generate a key specification.");
+						}
 					}
 					else
 					{
@@ -163,6 +202,7 @@ public class Server
 			ExitListener exit_listener = new ExitListener();
 			exit_listener.scanner =  scanner;
 			exit_listener.db = db;
+			exit_listener.port = port;
 			exit_listener.start();
 
 			while (true)
