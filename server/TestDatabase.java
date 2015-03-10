@@ -285,15 +285,67 @@ public class TestDatabase
 	}
 
 	@org.junit.Test
-	public void testFindRoom()
+	public void testFindRoom() throws Exception
 	{
-		//TODO
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+
+		String random_str = utils.Utils.makeRandomString(8);
+
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RegisterRoomCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_str)
+			+ " "
+			+ utils.Utils.escapeSpaces("0")
+			+ " "
+			+ utils.Utils.escapeSpaces("location")
+		);
+
+		String result =
+			db.executeWithValidUser
+			(
+				user_root,
+				utils.Configuration.settings.getAndEscape("RoomFind")
+			);
+
+		try
+		{
+			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(result);
+			int columns = Integer.parseInt(parts.get(0));
+			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			assertTrue(parts.size() > 0);
+		}
+		catch (Exception exc)
+		{
+			fail("Failed to book room");
+		}
+		
 	}
 
 	@org.junit.Test
-	public void testDeleteUser()
+	public void testDeleteUser() throws Exception
 	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		random_user = addRandomUserToDatabase();
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("DeleteUserCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_user.username)
+		);
 
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT COUNT(*) FROM SystemUser WHERE username=?");
+		prep_statement.setString(1, random_user.username);
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+		int columns = Integer.parseInt(parts.get(2));
+		
+		assertEquals(0,columns);
 	}
 
 	@org.junit.Test
@@ -310,12 +362,87 @@ public class TestDatabase
 			+ " "
 			+ utils.Utils.escapeSpaces(random_user.username)
 		);
-		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("DELETE FROM SystemUser WHERE username=?");
-		prep_statement.setString(1, random_user2.username);
+
+		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_DELETE_USER));
+	}
+
+
+	@org.junit.Test
+	public void testRoomBookingInviteCommand () throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		random_user = addRandomUserToDatabase();
+		String random_str = utils.Utils.makeRandomString(8);
+
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_str)
+			+ " "
+			+ utils.Utils.escapeSpaces("description")
+			+ " "
+			+ utils.Utils.escapeSpaces("1")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 12:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 13:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 15:00:00")
+		);
+
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT bookingId FROM Booking WHERE bookingName=?");
+		prep_statement.setString(1, random_str);
 		String selection_result = Database.resultToString(prep_statement.executeQuery());
 
-		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS));
+		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+
+		String new_bookingId = parts.get(0);
+
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingInviteCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_user.username)
+			+ " "
+			+ utils.Utils.escapeSpaces(new_bookingId)
+		);
+
+		prep_statement = db.getPreparedStatement("SELECT * FROM Invitation WHERE bookingId=?");
+		prep_statement.setString(1,new_bookingId);
+		selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		parts = utils.Utils.splitAndUnescapeString(selection_result);
+		int columns = Integer.parseInt(parts.get(0));
+		parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+
+		assertTrue(parts.size() > 0);
+
 	}
+
+/*
+	@org.junit.Test
+	public void testAcceptRoomBookingInvitation()
+	{
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingAcceptInviteCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(booking_id)
+		);
+	}
+
+	@org.junit.Test
+	public void testDenyRoomBookingInvitation() 
+	{
+		//TODO
+	}
+	*/
+	
 
 	private void setup() throws Exception
 	{
