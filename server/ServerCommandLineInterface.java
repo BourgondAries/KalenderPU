@@ -106,8 +106,6 @@ public class ServerCommandLineInterface
 		}
 	}
 
-	
-
 	public static void commandLineInterface()
 	{
 		Server server = null;
