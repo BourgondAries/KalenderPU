@@ -1,7 +1,10 @@
+package server;
+
 import java.io.FileWriter;
 import java.sql.Date;
 
-public enum Logger{
+public enum Logger
+{
 	DEBUGGING, MESSAGING;
 
 	public static void Log(String message, Logger type)
@@ -11,5 +14,4 @@ public enum Logger{
 		fw.write(type +": " + message + " @" +date+ "\n");
 
 	}
-
 }
