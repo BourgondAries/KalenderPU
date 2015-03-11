@@ -384,8 +384,8 @@ public class Database
 				for (int i = 2; i < new_parts.size(); i++)
 				{
 					statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-					statement.setString(1,new_parts.get(i));
-					statement.setString(2,parts.get(2));
+					statement.setString(1, new_parts.get(i));
+					statement.setString(2, parts.get(2));
 					feedback += " " + String.valueOf(statement.executeUpdate());
 				}
 				
