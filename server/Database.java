@@ -523,14 +523,14 @@ public class Database
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=true WHERE systemUserId=? AND bookingId=?");
 				System.out.println("Accepting invite...");
-				statement.setString(1, parts.get(user.user_id));
+				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=false WHERE systemUserId=? AND bookingId=?");
-				statement.setString(1, parts.get(user.user_id));
+				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
 			}
@@ -590,6 +590,7 @@ public class Database
 		catch (Exception exc)
 		{
 			verbose("An exception ocurred during execution: " + exc.toString());
+			exc.printStackTrace();
 			return exc.toString();
 		}
 		return "Impossible.";

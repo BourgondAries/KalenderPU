@@ -423,19 +423,71 @@ public class TestDatabase
 
 	}
 
-/*
+
 	@org.junit.Test
-	public void testAcceptRoomBookingInvitation()
+	public void testAcceptRoomBookingInvitation() throws Exception
 	{
+		utils.Configuration.loadDefaultConfiguration();
+		setup();
+		random_user = addRandomUserToDatabase();
+		String random_str = utils.Utils.makeRandomString(8);
+
+		//Adds random booking to database.
 		db.executeWithValidUser
 		(
 			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_str)
+			+ " "
+			+ utils.Utils.escapeSpaces("description")
+			+ " "
+			+ utils.Utils.escapeSpaces("1")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 12:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 13:00:00")
+			+ " "
+			+ utils.Utils.escapeSpaces("2015-03-30 15:00:00")
+		);
+		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT bookingId FROM Booking WHERE bookingName=?");
+		prep_statement.setString(1, random_str);
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+
+		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+
+		String new_bookingId = parts.get(0);
+
+		// Invite random user
+		db.executeWithValidUser
+		(
+			user_root,
+			utils.Configuration.settings.getAndEscape("RoomBookingInviteCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(random_user.username)
+			+ " "
+			+ utils.Utils.escapeSpaces(new_bookingId)
+		);
+		
+		//Try to accept invitation
+		db.executeWithValidUser
+		(
+			random_user,
 			utils.Configuration.settings.getAndEscape("RoomBookingAcceptInviteCommand")
 			+ " "
-			+ utils.Utils.escapeSpaces(booking_id)
+			+ utils.Utils.escapeSpaces(new_bookingId)
 		);
-	}
 
+		prep_statement = db.getPreparedStatement("SELECT status FROM Invitation WHERE (systemUserId =? AND bookingId=?)");
+		prep_statement.setInt(1, random_user.user_id);
+		prep_statement.setString(2, new_bookingId);
+		selection_result = db.resultToString(prep_statement.executeQuery());
+
+		parts = utils.Utils.splitAndUnescapeString(selection_result);
+
+		System.out.println(parts.get(2));
+	}
+/*
 	@org.junit.Test
 	public void testDenyRoomBookingInvitation() 
 	{
@@ -478,6 +530,8 @@ public class TestDatabase
 			+ " "
 			+ utils.Utils.escapeSpaces("12345")
 		);
+
+
 
 		java.sql.PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM systemUser WHERE username=?");
 		prep_statement.setString(1, random_str);
