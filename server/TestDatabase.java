@@ -425,7 +425,7 @@ public class TestDatabase
 
 
 	@org.junit.Test
-	public void testAcceptRoomBookingInvitation() throws Exception
+	public void testAcceptAndDenyRoomBookingInvitation() throws Exception
 	{
 		utils.Configuration.loadDefaultConfiguration();
 		setup();
@@ -485,7 +485,28 @@ public class TestDatabase
 
 		parts = utils.Utils.splitAndUnescapeString(selection_result);
 
-		System.out.println(parts.get(2));
+		// Test status = true
+		assertEquals("true",parts.get(2));
+
+		// Try to deny invitaion
+		db.executeWithValidUser
+		(
+			random_user,
+			utils.Configuration.settings.getAndEscape("RoomBookingDenyInviteCommand")
+			+ " "
+			+ utils.Utils.escapeSpaces(new_bookingId)
+		);
+
+		prep_statement = db.getPreparedStatement("SELECT status FROM Invitation WHERE (systemUserId =? AND bookingId=?)");
+		prep_statement.setInt(1, random_user.user_id);
+		prep_statement.setString(2, new_bookingId);
+		selection_result = db.resultToString(prep_statement.executeQuery());
+
+		parts = utils.Utils.splitAndUnescapeString(selection_result);
+
+		//Test status = false
+		assertEquals("false",parts.get(2));
+
 	}
 /*
 	@org.junit.Test
