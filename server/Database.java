@@ -372,8 +372,8 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("InviteGroupToBookingCommand")))
 			{
-				// Invite all members and subgroups -> get a set of the full tree of subgroups. 
-				// Invite all individuals: 
+				// Invite all members and subgroups ->   get a set of the full tree of subgroups. (Not implemented)
+				
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId FROM Groupmember WHERE groupId=?");
 				statement.setString(1, parts.get(1));
 				java.sql.ResultSet result = statement.executeQuery();
@@ -381,6 +381,7 @@ public class Database
 				java.util.ArrayList<String> new_parts = utils.Utils.splitAndUnescapeString(result_string);
 
 				String feedback = "";
+				// Invite all individuals: 
 				for (int i = 2; i < new_parts.size(); i++)
 				{
 					statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
