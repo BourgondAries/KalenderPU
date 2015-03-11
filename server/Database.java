@@ -374,8 +374,22 @@ public class Database
 			{
 				// Invite all members and subgroups -> get a set of the full tree of subgroups. 
 				// Invite all individuals: 
-				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE systemUserId=?");
-				return String.valueOf(statement.executeUpdate());
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId FROM Groupmember WHERE groupId=?");
+				statement.setString(1, parts.get(1));
+				java.sql.ResultSet result = statement.executeQuery();
+				String result_string = resultToString(result);
+				java.util.ArrayList<String> new_parts = utils.Utils.splitAndUnescapeString(result_string);
+
+				String feedback = "";
+				for (int i = 2; i < new_parts.size(); i++)
+				{
+					statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+					statement.setString(1,new_parts.get(i));
+					statement.setString(2,parts.get(2));
+					feedback += " " + String.valueOf(statement.executeUpdate());
+				}
+				
+				return feedback;
 			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{

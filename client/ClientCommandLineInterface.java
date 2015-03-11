@@ -557,14 +557,18 @@ public class ClientCommandLineInterface
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("InviteGroupToBookingCommand")))
 						{
-							System.out.print("Enter the group name you'd like to search for: ");
-							String like = scanner.nextLine();
+							System.out.print("Enter the group_id of the group you'd like to invite: ");
+							String group_id = scanner.nextLine();
+							System.out.print("Enter the booking_id of the booking you'd like to invite to: ");
+							String booking_id = scanner.nextLine();
 							line =
 								utils.Utils.escapeSpaces
 								(
-									utils.Configuration.settings.getAndEscape("FindGroupCommand")
+									utils.Configuration.settings.getAndEscape("InviteGroupToBookingCommand")
 									+ " "							
-									+ utils.Utils.escapeSpaces(like)
+									+ utils.Utils.escapeSpaces(group_id)
+									+ " "							
+									+ utils.Utils.escapeSpaces(booking_id)
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
