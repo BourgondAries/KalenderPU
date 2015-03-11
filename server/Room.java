@@ -17,6 +17,11 @@ public class Room
 	public static class CouldNotConnectAndSetupDatabaseConnection extends Exception { CouldNotConnectAndSetupDatabaseConnection(Throwable exc) { super(exc); } }
 	
 
+	public Room() throws Exception
+	{
+		this.db = new Database(utils.Configuration.settings.get("DBConnection"));
+		this.available_rooms = new ArrayList<Integer>();
+	}
 	public Room(int room_id, int size, String location, String room_name) throws Exception
 	{
 		this.room_id = room_id;
@@ -39,6 +44,7 @@ public class Room
 			java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(result_string);
 			int columns = Integer.parseInt(parts.get(0));
 			parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+			
 			return new Room(Integer.parseInt(parts.get(0)), Integer.parseInt(parts.get(1)), parts.get(2), parts.get(3));
 		}
 		catch (java.sql.SQLException exc)
@@ -66,26 +72,23 @@ public class Room
 
 	public ArrayList<Integer> findAvailableRoom(String start_time, String end_time, Database db) throws Exception
 	{
-		try
+
+		ArrayList<Integer> av_rooms = new ArrayList<Integer>();
+
+		PreparedStatement prep_statement = db.getPreparedStatement("SELECT DISTINCT roomId FROM Booking WHERE (timeBegin<? OR timeEnd>?)");
+		prep_statement.setTimestamp(1, java.sql.Timestamp.valueOf(start_time));
+		prep_statement.setTimestamp(2, java.sql.Timestamp.valueOf(end_time));
+		String selection_result = Database.resultToString(prep_statement.executeQuery());
+		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
+		int columns = Integer.parseInt(parts.get(0));
+		for (int i = columns + 1; i < parts.size(); i++)
 		{
-			java.sql.Timestamp time_stamp_start = java.sql.Timestamp.valueOf(start_time);
-			java.sql.Timestamp time_stamp_end = java.sql.Timestamp.valueOf(end_time);
-			PreparedStatement prep_statement = db.getPreparedStatement("SELECT * FROM BOOKING (timeBegin, timeEnd) LEFT JOIN ROOM ON ROOM.roomId = BOOKING.roomId WHERE (timeBegin<? AND timeEnd>?) AND ROOM.roomId IS NULL");
-			prep_statement.setString(1, end_time);
-			prep_statement.setString(2, start_time);
-			ResultSet rs = prep_statement.executeQuery();
-			while (rs.next())
-			{
-				int available_room = rs.getInt("roomId");
-				available_rooms.add(available_room);
-			}
-			//something = (available_rooms.size() == 0) ? false : true;
-			return available_rooms;
+			av_rooms.add(Integer.parseInt(parts.get(i)));
 		}
-		catch (java.sql.SQLException exc)
-		{
-			throw new CouldNotConnectAndSetupDatabaseConnection(exc);
-		}	
+
+		this.available_rooms = av_rooms;
+
+		return av_rooms;
 	}
 
 	public static boolean isAvailable(ArrayList<Integer> available_rooms, int room_id) 
