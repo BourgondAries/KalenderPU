@@ -76,8 +76,8 @@ public class Room
 		ArrayList<Integer> av_rooms = new ArrayList<Integer>();
 
 		PreparedStatement prep_statement = db.getPreparedStatement("SELECT DISTINCT roomId FROM Booking WHERE (timeBegin<? OR timeEnd>?)");
-		prep_statement.setTimestamp(1, java.sql.Timestamp.valueOf(start_time));
-		prep_statement.setTimestamp(2, java.sql.Timestamp.valueOf(end_time));
+		prep_statement.setTimestamp(1, java.sql.Timestamp.valueOf(end_time));
+		prep_statement.setTimestamp(2, java.sql.Timestamp.valueOf(start_time));
 		String selection_result = Database.resultToString(prep_statement.executeQuery());
 		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
 		int columns = Integer.parseInt(parts.get(0));
