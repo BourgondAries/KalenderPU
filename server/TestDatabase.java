@@ -17,6 +17,7 @@ public class TestDatabase
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		db.execute(user_root.username, "password_gerp", utils.Configuration.settings.get("PassCheck"));
 		assertTrue(db.getStatus(Database.Status.INCORRECT_PASSWORD));
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -27,6 +28,7 @@ public class TestDatabase
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		db.execute("nonexistingname", "password", utils.Configuration.settings.get("PassCheck"));
 		assertTrue(db.getStatus(Database.Status.NONEXISTENT_USER));
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -40,6 +42,7 @@ public class TestDatabase
 		prep_statement.setString(1, random_user.username);
 		String selection_result= Database.resultToString(prep_statement.executeQuery());
 		assertEquals(Integer.parseInt("" + selection_result.charAt(0)), 1);
+		db.closeDatabase();
 	}
 	
 	//@org.junit.Rule
@@ -69,6 +72,7 @@ public class TestDatabase
 		);
 
 		assertTrue(db.getStatus(Database.Status.USER_ALREADY_EXISTS));
+		db.closeDatabase();
 	}
 	@org.junit.Test 
 	public void testChangeYourOwnPassword() throws Exception
@@ -90,6 +94,7 @@ public class TestDatabase
 		prep_statement.setString(1, random_user.username);
 		java.util.ArrayList<String> result = utils.Utils.splitAndUnescapeString(Database.resultToString(prep_statement.executeQuery()));
 		assertTrue(PasswordHash.validatePassword(new_password, result.get(Integer.parseInt(result.get(0)) + 1)));
+		db.closeDatabase();
 	}
 	
 	//@org.junit.Rule
@@ -110,6 +115,7 @@ public class TestDatabase
 			+ utils.Utils.escapeSpaces("newRootPassword")
 		);
 		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_CHANGE_OTHERS_PASS));
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -131,6 +137,7 @@ public class TestDatabase
 		prep_statement.setString(1, random_user.username);
 		java.util.ArrayList<String> result = utils.Utils.splitAndUnescapeString(Database.resultToString(prep_statement.executeQuery()));
 		assertTrue(PasswordHash.validatePassword(new_password, result.get(Integer.parseInt(result.get(0)) + 1)));
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -169,6 +176,7 @@ public class TestDatabase
 		{
 			fail("Failed to add event");
 		}
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -203,6 +211,7 @@ public class TestDatabase
 		{
 			fail("Failed to find a systemUser");
 		}
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -239,6 +248,7 @@ public class TestDatabase
 		{
 			fail("Failed to register room");
 		}
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -281,6 +291,7 @@ public class TestDatabase
 		{
 			fail("Failed to book room");
 		}
+		db.closeDatabase();
 		
 	}
 
@@ -322,6 +333,7 @@ public class TestDatabase
 		{
 			fail("Failed to book room");
 		}
+		db.closeDatabase();
 		
 	}
 
@@ -346,6 +358,8 @@ public class TestDatabase
 		int columns = Integer.parseInt(parts.get(2));
 		
 		assertEquals(0,columns);
+
+		db.closeDatabase();
 	}
 
 	@org.junit.Test
@@ -364,6 +378,8 @@ public class TestDatabase
 		);
 
 		assertTrue(db.getStatus(Database.Status.NON_ROOT_TRIED_TO_DELETE_USER));
+
+		db.closeDatabase();
 	}
 
 
@@ -420,6 +436,8 @@ public class TestDatabase
 		parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
 
 		assertTrue(parts.size() > 0);
+
+		db.closeDatabase();
 
 	}
 
@@ -507,15 +525,9 @@ public class TestDatabase
 		//Test status = false
 		assertEquals("false",parts.get(2));
 
+		db.closeDatabase();
+
 	}
-/*
-	@org.junit.Test
-	public void testDenyRoomBookingInvitation() 
-	{
-		//TODO
-	}
-	*/
-	
 
 	private void setup() throws Exception
 	{
@@ -564,6 +576,7 @@ public class TestDatabase
 		java.util.ArrayList<String> parts = utils.Utils.splitAndUnescapeString(selection_result);
 		int columns = Integer.parseInt(parts.get(0));
 		parts = utils.Utils.splitAndUnescapeString(parts.get(columns + 1));
+		//System.out.println(parts.toString());
 		return new User(Integer.parseInt(parts.get(0)), Integer.parseInt(parts.get(1)), random_str, parts.get(2), parts.get(3), parts.get(4));
 	}
 }
