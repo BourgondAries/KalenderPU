@@ -49,7 +49,7 @@ CREATE TABLE Booking
 CREATE TABLE SystemGroup
 (
 	groupId 	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-	groupAdmin	int			NOT NULL,
+	groupAdminId	int			NOT NULL,
 	groupName	varchar(255) UNIQUE, 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
