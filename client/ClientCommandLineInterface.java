@@ -225,6 +225,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
 								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
+								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all rooms you're a member of."
 							);
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))
@@ -692,6 +693,15 @@ public class ClientCommandLineInterface
 									utils.Configuration.settings.getAndEscape("RoomBookingDenyInviteCommand")
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SeeOwnGroups")))
+						{
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("SeeOwnGroups")
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
