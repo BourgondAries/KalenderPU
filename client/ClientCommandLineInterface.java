@@ -726,9 +726,13 @@ public class ClientCommandLineInterface
 						{
 							System.out.println("\"no\"");
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("PassCheck")))
+						{
+							System.out.println("Checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+						}
 						else
 						{
-							System.out.println("Defaulting to checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+							System.out.print("Not a valid command: ");
 						}
 						System.out.print("Command (type 'help' for info): ");
 					}
