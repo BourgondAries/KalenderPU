@@ -50,7 +50,7 @@ CREATE TABLE SystemGroup
 (
 	groupId 	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	groupAdminId	int			NOT NULL,
-	groupName	varchar(255), 
+	groupName	varchar(255) UNIQUE, 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
