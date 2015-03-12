@@ -587,6 +587,12 @@ public class Database
 				statement.setString(2, parts.get(1));
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("SeeOwnGroups")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT SystemGroup.groupId, SystemGroup.groupName FROM SystemUser, GroupMember, SystemGroup WHERE SystemUser.systemUserId=? AND SystemUser.systemUserId=GroupMember.systemUserId AND GroupMember.groupId=SystemGroup.groupId");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";
