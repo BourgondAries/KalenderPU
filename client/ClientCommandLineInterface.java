@@ -479,9 +479,9 @@ public class ClientCommandLineInterface
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SetGroupParent")))
 						{
-							System.out.print("Enter the group name to add to: ");
-							String group_name = scanner.nextLine();
 							System.out.print("Enter the name of the supergroup: ");
+							String group_name = scanner.nextLine();
+							System.out.print("Enter the group name of subgroup: ");
 							String supergroup = scanner.nextLine();
 							line =
 								utils.Utils.escapeSpaces
