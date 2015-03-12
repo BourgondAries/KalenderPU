@@ -362,10 +362,10 @@ public class Database
 
 				if (result.next())
 				{
-					int group_id = result.getInt(1);
+					int group_id_super = result.getInt(1);
 
 					statement = connection.prepareStatement("UPDATE SystemGroup SET parentGroupId=? WHERE groupName=?");
-					statement.setInt(1, group_id);
+					statement.setInt(1, group_id_super);
 					statement.setString(2, parts.get(2));
 					return String.valueOf(statement.executeUpdate());
 				}

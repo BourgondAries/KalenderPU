@@ -61,6 +61,9 @@ public class TestRoom
 		room.findAvailableRoom("2014-03-03 12:00:00", "2015-03-03 12:00:00", room.db);
 
 		assertTrue(room.available_rooms.size() > 0);
+
+		db_test.closeDatabase();
+		room.db.closeDatabase();
 	}
 	private void setup() throws Exception
 	{

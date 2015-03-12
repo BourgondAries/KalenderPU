@@ -54,7 +54,7 @@ CREATE TABLE SystemGroup
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
-	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId),
+	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId) ON DELETE SET NULL,
 	FOREIGN KEY (groupAdminId) REFERENCES SystemUser(systemUserId)
 );
 
