@@ -50,15 +50,15 @@ CREATE TABLE SystemGroup
 (
 	groupId 	int 		NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	groupAdminId	int			NOT NULL,
-	groupName	varchar(255) UNIQUE, 
+	groupName	varchar(255), 
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
 	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId),
-	FOREIGN KEY (groupAdmin) REFERENCES SystemUser(systemUserId)
+	FOREIGN KEY (groupAdminId) REFERENCES SystemUser(systemUserId)
 );
 
-CREATE TABLE Groupmember
+CREATE TABLE GroupMember
 (
 	systemUserId		int		NOT NULL,
 	groupId		int		NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE Invitation
 (
 	systemUserId 		int NOT NULL,
 	bookingId 			int NOT NULL,
-	status				boolean WITH DEFAULT false,
+	status				int WITH DEFAULT 0,
 	wantsWarning		boolean WITH DEFAULT true,
 	PRIMARY KEY (systemUserId, bookingId)
 );
