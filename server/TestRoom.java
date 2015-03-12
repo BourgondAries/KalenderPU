@@ -63,7 +63,7 @@ public class TestRoom
 		assertTrue(room.available_rooms.size() > 0);
 
 		db_test.closeDatabase();
-		roomId.db.closeDatabase();
+		room.db.closeDatabase();
 	}
 	private void setup() throws Exception
 	{
