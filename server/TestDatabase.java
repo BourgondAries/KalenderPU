@@ -504,7 +504,7 @@ public class TestDatabase
 		parts = utils.Utils.splitAndUnescapeString(selection_result);
 
 		// Test status = true
-		assertEquals("true",parts.get(2));
+		assertEquals("1",parts.get(2));
 
 		// Try to deny invitaion
 		db.executeWithValidUser
@@ -523,7 +523,7 @@ public class TestDatabase
 		parts = utils.Utils.splitAndUnescapeString(selection_result);
 
 		//Test status = false
-		assertEquals("false",parts.get(2));
+		assertEquals("-1",parts.get(2));
 
 		db.closeDatabase();
 

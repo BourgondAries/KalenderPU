@@ -275,14 +275,14 @@ public class Database
 			}
 			else if (parts.get(0).equals(utils.Configuration.settings.get("CreateGroupCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemGroup (groupAdmin, groupName) VALUES (?, ?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO SystemGroup (groupAdminId, groupName) VALUES (?, ?)");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
 			}
 			else if (parts.get(0).equals(utils.Configuration.settings.get("DeleteGroupCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM SystemGroup WHERE groupName=? AND groupAdmin=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM SystemGroup WHERE groupName=? AND groupAdminId=?");
 				statement.setString(1, parts.get(1));
 				statement.setInt(2, user.user_id);
 				return String.valueOf(statement.executeUpdate());
