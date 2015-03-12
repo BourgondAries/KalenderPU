@@ -226,6 +226,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all rooms you're a member of."
+								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
 							);
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))
@@ -702,6 +703,23 @@ public class ClientCommandLineInterface
 								utils.Utils.escapeSpaces
 								(
 									utils.Configuration.settings.getAndEscape("SeeOwnGroups")
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("CheckBookingTime")))
+						{
+							System.out.print("Start time (yyyy-mm-dd HH:MM:ss): ");
+							String begin = scanner.nextLine();
+							System.out.print("End time (yyyy-mm-dd HH:MM:ss): ");
+							String end = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("CheckBookingTime")
+									+ " "
+									+ utils.Utils.escapeSpaces(begin)
+									+ " "
+									+ utils.Utils.escapeSpaces(end)
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
