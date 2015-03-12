@@ -491,19 +491,36 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
 			{
-
 				// Have to check if the room is available.
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>? AND timeEnd<?) AND Room.roomId=?");
+				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5));  // ( OR (timeBegin>? AND timeEnd<?) OR (timeBegin<? AND timeEnd>?)
+				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
 
-				// Then actual register the room under the user.
-				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
-				statement.setInt(1, user.user_id);
-				statement.setString(2, parts.get(1));
-				statement.setString(3, parts.get(2));
-				statement.setInt(4, Integer.valueOf(parts.get(3)));
-				statement.setTimestamp(5, java.sql.Timestamp.valueOf(parts.get(4)));
-				statement.setTimestamp(6, java.sql.Timestamp.valueOf(parts.get(5)));
-				statement.setTimestamp(7, java.sql.Timestamp.valueOf(parts.get(6)));
-				return String.valueOf(statement.executeUpdate());
+				statement.setTimestamp(1, begin_time);
+				statement.setTimestamp(2, begin_time);
+				statement.setTimestamp(3, end_time);
+				statement.setTimestamp(4, end_time);
+				statement.setTimestamp(5, begin_time);
+				statement.setTimestamp(6, end_time);
+				statement.setInt(7, Integer.valueOf(parts.get(3)));
+				//statement.setInt(3, Integer.valueOf(parts.get(3)));
+				if (true)
+					return resultToString(statement.executeQuery());
+				java.sql.ResultSet result = statement.executeQuery();
+				if (result.next())
+				{
+					// Then actual register the room under the user.
+					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
+					statement.setInt(1, user.user_id);
+					statement.setString(2, parts.get(1));
+					statement.setString(3, parts.get(2));
+					statement.setInt(4, Integer.valueOf(parts.get(3)));
+					statement.setTimestamp(5, java.sql.Timestamp.valueOf(parts.get(4)));
+					statement.setTimestamp(6, java.sql.Timestamp.valueOf(parts.get(5)));
+					statement.setTimestamp(7, java.sql.Timestamp.valueOf(parts.get(6)));
+					return String.valueOf(statement.executeUpdate());
+				}
+				return "Could not register the room, it was already occupied.";
 			}
 			else if (parts.get(0).equals(coms.get("RemoveRoomBookingCommand")))
 			{
@@ -589,7 +606,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("SeeOwnGroups")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT SystemGroup.groupId, SystemGroup.groupName FROM SystemUser, GroupMember, SystemGroup WHERE SystemUser.systemUserId=? AND SystemUser.systemUserId=GroupMember.systemUserId AND GroupMember.groupId=SystemGroup.groupId");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT SystemGroup.groupId, SystemGroup.groupName, SystemGroup.parentGroupId FROM SystemUser, GroupMember, SystemGroup WHERE SystemUser.systemUserId=? AND SystemUser.systemUserId=GroupMember.systemUserId AND GroupMember.groupId=SystemGroup.groupId");
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
