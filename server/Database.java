@@ -372,25 +372,17 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("InviteGroupToBookingCommand")))
 			{
-				// Invite all members and subgroups ->   get a set of the full tree of subgroups. (Not implemented)
-				
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId FROM Groupmember WHERE groupId=?");
-				statement.setString(1, parts.get(1));
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
 				java.sql.ResultSet result = statement.executeQuery();
-				String result_string = resultToString(result);
-				java.util.ArrayList<String> new_parts = utils.Utils.splitAndUnescapeString(result_string);
-
-				String feedback = "";
-				// Invite all individuals: 
-				for (int i = 2; i < new_parts.size(); i++)
+				int n = 0;
+				while (result.next())
 				{
-					statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-					statement.setString(1, new_parts.get(i));
-					statement.setString(2, parts.get(2));
-					feedback += " " + String.valueOf(statement.executeUpdate());
+					++n;
+					int uid = result.getInt(1);
+					inviteUserToBooking(uid, Integer.valueOf(parts.get(1)));
 				}
-				
-				return feedback;
+				return "Invited " + n + " users.";
 			}
 			else if (parts.get(0).equals(coms.get("ChangePassOfCommand")))
 			{
@@ -486,7 +478,7 @@ public class Database
 				}
 				else // Incorrect data size...
 				{
-
+					return "The data input is invalid: GetCalendarCommand.";
 				}
 			}
 			else if (parts.get(0).equals(coms.get("RegisterRoomCommand")))
@@ -619,13 +611,17 @@ public class Database
 		s1.setString(1, username_to_invite);
 		java.sql.ResultSet result = s1.executeQuery();
 		if (result.next())
-		{
-			int invite_id = result.getInt(1);
-			java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-			statement.setInt(1, invite_id);
-			statement.setInt(2, booking_id);
-			return String.valueOf(statement.executeUpdate());
-		}
+			inviteUserToBooking(result.getInt(1), booking_id);
 		return "No such user found '" + username_to_invite + "'."; 
+	}
+
+	public String inviteUserToBooking(int user_id, int booking_id)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+		statement.setInt(1, user_id);
+		statement.setInt(2, booking_id);
+		return String.valueOf(statement.executeUpdate());
 	}
 }
