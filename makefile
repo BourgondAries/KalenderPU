@@ -70,6 +70,9 @@ sserver:
 testDatabase:
 	javac -cp $(TEST_LIBS) -d $(BIN_MAP) server/TestDatabase.java
 	java -cp $(TEST_RUNPATH) org.junit.runner.JUnitCore server.TestDatabase
+testRoom:
+	javac -cp $(TEST_LIBS) -d $(BIN_MAP) server/TestRoom.java
+	java -cp $(TEST_RUNPATH) org.junit.runner.JUnitCore server.TestRoom
 
 
 SERVER_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar"

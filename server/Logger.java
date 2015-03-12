@@ -1,4 +1,5 @@
 package server;
+<<<<<<< HEAD
 import java.io.FileWriter;
 import java.sql.Date;
 import java.util.Calendar;
@@ -47,7 +48,4 @@ public class Logger{
 
 		
 	}
-
-
-
 }
