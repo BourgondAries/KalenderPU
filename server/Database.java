@@ -532,11 +532,11 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
 				// Function of (String systemUserName, Int booking_id)
-				inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
+				return inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=true WHERE systemUserId=? AND bookingId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=1 WHERE systemUserId=? AND bookingId=?");
 				System.out.println("Accepting invite...");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
@@ -544,7 +544,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=false WHERE systemUserId=? AND bookingId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=-1 WHERE systemUserId=? AND bookingId=?");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
