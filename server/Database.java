@@ -380,7 +380,7 @@ public class Database
 				{
 					++n;
 					int uid = result.getInt(1);
-					inviteUserToBooking(uid, Integer.valueOf(parts.get(1)));
+					inviteUserToBooking(uid, Integer.valueOf(parts.get(2)));
 				}
 				return "Invited " + n + " users.";
 			}
@@ -430,6 +430,12 @@ public class Database
 				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("SeeMyBookingsCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE systemUserId=? ORDER BY timeBegin ASC");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+			}
+			else if (parts.get(0).equals(coms.get("SeeMyOwnBookingsCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Booking WHERE adminId=?");
 				statement.setInt(1, user.user_id);
@@ -508,7 +514,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
 			{
 				// Have to check if the room is available.
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>? AND timeEnd<?) AND Room.roomId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>=? AND timeEnd<=?) AND Room.roomId=?");
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5)); 
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
 
@@ -542,7 +548,10 @@ public class Database
 					java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM Booking WHERE bookingId=? AND adminId=?");
 					statement.setInt(1, Integer.valueOf(parts.get(1)));
 					statement.setInt(2, user.user_id);
-					return String.valueOf(statement.executeUpdate());
+					int affected = statement.executeUpdate();
+					statement = connection.prepareStatement("DELETE FROM Invitation WHERE bookingId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					return String.valueOf(statement.executeUpdate() + affected);
 				}
 				else
 				{
@@ -661,7 +670,7 @@ public class Database
 		s1.setString(1, username_to_invite);
 		java.sql.ResultSet result = s1.executeQuery();
 		if (result.next())
-			inviteUserToBooking(result.getInt(1), booking_id);
+			return inviteUserToBooking(result.getInt(1), booking_id);
 		return "No such user found '" + username_to_invite + "'."; 
 	}
 

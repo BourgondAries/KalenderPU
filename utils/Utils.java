@@ -33,11 +33,11 @@ public class Utils
 
 	public static byte[] encrypt(byte[] inp_bytes, java.security.PublicKey key) 
 		throws
-			javax.crypto.NoSuchPaddingException,
-			javax.crypto.BadPaddingException,
+			java.security.InvalidKeyException,
 			java.security.NoSuchAlgorithmException,
+			javax.crypto.BadPaddingException,
 			javax.crypto.IllegalBlockSizeException,
-			java.security.InvalidKeyException
+			javax.crypto.NoSuchPaddingException
 	{
 		return encrypt(inp_bytes, key, Configuration.settings.get("xform"));
 	}
