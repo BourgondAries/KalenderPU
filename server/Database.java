@@ -651,6 +651,17 @@ public class Database
 				statement.setTimestamp(6, end_time);
 				return resultToString(statement.executeQuery());
 			}
+			else if (parts.get(0).equals(coms.get("SeeOwnNotifications")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Notification SET seen=true WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				statement.executeUpdate();
+
+				statement = connection.prepareStatement("SELECT * FROM Notification WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+
+			}
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";
