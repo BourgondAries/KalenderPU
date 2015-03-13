@@ -81,7 +81,7 @@ CREATE TABLE Notification
 	n_Id 			int NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
 	message 		varchar(255),
 	duration		varchar(255),
-	seen 			boolean,
+	seen 			boolean WITH DEFAULT false,
 	bookingId		int NOT NULL,
 	groupId 		int, 
 	systemUserId 			int, 

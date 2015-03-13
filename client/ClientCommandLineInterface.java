@@ -75,12 +75,30 @@ public class ClientCommandLineInterface
 		return login_info;
 	}
 
+
 	public static void printHelp()
 	{
 		System.out.println
 		(
 			"Help text for this program."
 		);
+	}
+
+
+	public static String repeat(char ch, int number)
+	{
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < number; ++i)
+			sb.append(ch);
+		return sb.toString();
+	}
+
+	public static String pad100(String in)
+	{
+		if (100 - in.length() > 0)
+			return repeat('=', (100 - in.length()) / 2) + " " + in + " " + repeat('=', (100 - in.length()) / 2 + 1);
+		else 
+			return in;
 	}
 
 	public static void commandLineInterface()
@@ -191,42 +209,65 @@ public class ClientCommandLineInterface
 							break;
 						if (line.equalsIgnoreCase(utils.Configuration.settings.get("HelpCommand")))
 						{
-							System.out.println
-							(
-								" " 
-								+ "'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
+							System.out.print(
+								+ "\n'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
+
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
+								+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
+								+ "\n"
+								+ "\n" + pad100("User management commands")
+								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
 								+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
 								+ "\n'" + utils.Configuration.settings.get("DeleteUserCommand") + "' - erase a user."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
+								+ "\n"
+								+ "\n" + pad100("Event")
 								+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
 								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch personal events."
 								+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
+								+ "\n"
+								+ "\n" + pad100("Find and Search")
 								+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
+
 								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
+
+								+ "\n'" + utils.Configuration.settings.get("RoomFind") + "' - Find a room."
+								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
+								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
+								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
+								+ "\n'" + utils.Configuration.settings.get("GetAllSubordinateUsersCommand") + "' - Get all connected users of this group."
+								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
+								+ "\n"
+								+ "\n" + pad100("Room")
+
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingDenyInviteCommand") + "' - Deny someone's room booking invitation."
-								+ "\n'" + utils.Configuration.settings.get("RoomFind") + "' - Find a room."
 								+ "\n'" + utils.Configuration.settings.get("GetInvitesCommand") + "' - Get all invites aimed at you."
-								+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you own."
-								+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
-								+ "\n'" + utils.Configuration.settings.get("GetAllSubordinateUsersCommand") + "' - Get all connected users of this group."
-								+ "\n'" + utils.Configuration.settings.get("RemoveFromGroupCommand") + "' - Remove a user from a group."
-								+ "\n'" + utils.Configuration.settings.get("AddToGroupCommand") + "' - Add a user to a group."
-								+ "\n'" + utils.Configuration.settings.get("DeleteGroupCommand") + "' - Delete a group."
+								+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you are part of."
+								+ "\n'" + utils.Configuration.settings.get("SeeMyOwnBookingsCommand") + "' - See all the bookings you own."
+								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
+								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
+								+ "\n"
+								+ "\n" + pad100("Group")
 								+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
+								+ "\n'" + utils.Configuration.settings.get("DeleteGroupCommand") + "' - Delete a group."
+								+ "\n'" + utils.Configuration.settings.get("AddToGroupCommand") + "' - Add a user to a group."
+								+ "\n'" + utils.Configuration.settings.get("RemoveFromGroupCommand") + "' - Remove a user from a group."
 								+ "\n'" + utils.Configuration.settings.get("SetGroupParent") + "' - Set the parent group of another group."
+
 								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
 								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all rooms you're a member of."
 								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
+								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all groups you're a member of."
+
 							);
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))
@@ -508,6 +549,12 @@ public class ClientCommandLineInterface
 								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("SeeMyBookingsCommand"));
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SeeMyOwnBookingsCommand")))
+						{
+							line =
+								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("SeeMyOwnBookingsCommand"));
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RegisterRoomCommand")))
 						{
 							System.out.print("Enter the new room name: ");
@@ -660,6 +707,15 @@ public class ClientCommandLineInterface
 							String users = scanner.nextLine();
 							System.out.println("Booking id to invite to: ");
 							String booking_id = scanner.nextLine();
+							System.out.println("Send notification to the invitee? (yes/no): ");
+							String send_note = scanner.nextLine();
+							String description = "";
+							if (send_note.toLowerCase().equals("yes"))
+							{
+								System.out.println("Write a message: ");
+								description = scanner.nextLine();
+							}
+
 							line =
 								utils.Utils.escapeSpaces
 								(
@@ -668,6 +724,10 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(users)
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(send_note)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
@@ -746,6 +806,13 @@ public class ClientCommandLineInterface
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if(line.equalsIgnoreCase(utils.Configuration.settings.get("SeeOwnNotifications")))
+						{
+							line =
+								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("SeeOwnNotifications"));
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+
 						else if (line.equalsIgnoreCase("smug pepe"))
 						{
 							System.out.println(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n,,,,,,,.-+ssssssssssssss+:,,,,,,,:ossssssss+:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n,,,,,-sdhyyyyyyyyyyyyyyyyhhs.,,:+dyyyyyyyyyyhhho:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n,,,-ydhyyyyyyyyyyyyyyyyyyyyhdyhhyyyyyyyyyyyyyyyyds.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n,.shhyyyyyyyyyyyyyyyyyyyyyyyymhyyyyyyyyyyyyyyyyyyhd+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n-dhyyyyyyyyyyyyyyyyyyyyyyyyyyhmyyyyyyyyyyyyyyyyyyyyds.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\ndhyyyyyyyyyyhddddddhhhhhhhhhhdmdhyyyyyyyyyyyyyyyyyyydy.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyddhhyyyyyyyyyyyyyyyyyhddhhhhddddhhhhhdddhhhdo,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyhdhyyyyyyyyyyyyyyyyyyyyyyhdmdhyyyyyyyyyyyyhhhdm+.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhmhyyyyyyyyyyyyyyyhdhs:.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhmhyyyyyyyyyyyyyyyyyhdy:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyhhhhhhhhhhhhhhhhhhhhhhhyhmhyyyyyyyyyyyyyyyyyyhdo.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyhhdddhhhhhhhdddddddmddddhhhdddmhyyyyyyyyyhhdhhddhhddy+:.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyddhhhhdddhhdhhhhhdddhhhhdddyyydmdyyyyyyyyhdddhhhhhhhhdmmy/.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyddhhddhhyyyyyyyyyyyyyyhddhhhdddhyydmyyyyyhddhddddhhhhhddhhdms,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyymdydmhyyyyyyyyyyyyhhhhhhyyhdddmddmhyddyyyddhddddhyyyhyyyhddyd.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyydddmddhso///+smdhmNMNMMMd/::::/sdhddymyyyydhdmmNNNNdo+yhyhNmd,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyhhhys+.oMMhoMMMhsoNNs      :mydmdyyhdosM/hMMNddm. .-/yhm-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyhyyhdmMMMoNMM/./NMs       sdyddyhm.yMMmNMMy,.N+    ,oN-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyydddyyyhdmmNNMMMMMM/       ,yhyhyds,dMMhmMMNddN: ,,/ydd-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyydmdyyyyyyyhmmNNm:...../syydmhyhhymNNNNNNNNmhossydhh+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyhddhdddhhhhyyhhhhhhhhyyhdmyyhhhyyyyyyyyyyyyyyhmh.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyhhhhdhhhhhhddmdhyyyyyhdNmddhhhyyyyhhdNms-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyhhhyyyyyyyyyyyyyyyyyyyyyyyyyyydmhyyyyyyyyyyhdddyyyyyhdhdhyhm:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyhhyyyyyyyyyyyyyyyyyyyyyyyyyyhmdhyyyyyyyyyyyyyyyhmdyyyyyyyyyyym:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyhddhhhyyyyyyyyyyyyyyyyyyyhddmdyyyyyyyyyyyyyyyyyyyyddyyyyyyyyyydmy.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyydddmdhhhhyyyyyyyyyyyyyyhdddhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyymhdo,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyymhhhhhddddhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyddhd+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyddhyhdddhhhhdddddddhhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyydmhh:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyhdddhhhdmddhhyyhhhhhhdddhhhhhhhyyyyyyyyyyyyyyyyyyyyyyyyydddddh.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyydmdhhhhhdddddhhhhyyhhhhhhhhdddddddddddddddddddddddddhhddm-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyhhddddhhyhhhhhdddddddddhdhhhhhhhhhhhhhhhhhhhhhhhhhdmdhhs,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyhhddhyyyyyyyyyyyyhhhhhhhhhhhhhhhhhhhhhhhhhhhhhyyhd+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyhddddhhyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyydy:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyhhddddddddhhhhyyyyyyyyyyyyyyyyyyyyyhhhdmm:,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhhdhdddddddddddddddddddddhhhym.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhhhhyyyydo,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhddhhhddddhs.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhhdddhyyyyyhhdh-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhdmhyyyyyyyyyyyyhhy+:.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhdhddhhdmmdyyyyyyhhdhhyyyyyhhyo.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyddhyyymmhyyddyyhddddy/hhhddyyyyhhs.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhmyyyyhmhyhmhdddhhh+.+mddhyyyyyyyhy:,,,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhddyyyyhhdmhhyhho:/smhhyyyyyyyyyyhmo.,,,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhmhyyyyymhhs++ydhyyyyyyyyyyyyyyyyhds.,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyymyyyyymy..ydyyyyyyyydmhyyyyyyyyyydo,,,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhdyyyyyhhhmyyyyyyyhmdyyyyyyyhyyyyydy-,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhdyyyyyyyhNmmhyyyddhyyyyyydmhyyyhyyh+,,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyhmmyyyyyyyyyyhdmdhmyyyyyyddhyyyydmyyyd.,,,,,,,,,,,,,,,,,,,,,\nyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyydy-/myyyyyyyyyyyyyyddyyyhmdyyyyhmdyyyyhs,,,,,,,,,,,,,,,,,,,,,");
