@@ -2,7 +2,7 @@ package client;
 
 import static utils.Configuration.verbose;
 
-public class Cli
+public class ClientCommandLineInterface
 {
 	public static String getPasswordFromConsole(java.util.Scanner scanner, String message)
 	{
@@ -73,6 +73,14 @@ public class Cli
 		String login_info = utils.Utils.escapeSpaces(scanner.nextLine());
 		login_info = login_info + " " + utils.Utils.escapeSpaces(getPasswordFromConsole(scanner, "Enter your password: "));
 		return login_info;
+	}
+
+	public static void printHelp()
+	{
+		System.out.println
+		(
+			"Help text for this program."
+		);
 	}
 
 	public static void commandLineInterface()
@@ -181,23 +189,24 @@ public class Cli
 						String line = scanner.nextLine();
 						if (line.equalsIgnoreCase(utils.Configuration.settings.get("ExitCommand")))
 							break;
-						if (line.equalsIgnoreCase("help"))
+						if (line.equalsIgnoreCase(utils.Configuration.settings.get("HelpCommand")))
 						{
 							System.out.println
 							(
-								"help - print this help text."
+								" " 
+								+ "'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 								+ "\n'" + utils.Configuration.settings.get("RegisterCommand") + "' - register a new user."
 								+ "\n'" + utils.Configuration.settings.get("DeleteUserCommand") + "' - erase a user."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassOfCommand") + "' - change a user password, must be root."
 								+ "\n'" + utils.Configuration.settings.get("ChangePassCommand") + "' - change your own password."
 								+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
-								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch all unfetched events."
+								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch personal events."
 								+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 								+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
-								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar."
+								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
-								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc."
+								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
@@ -213,6 +222,11 @@ public class Cli
 								+ "\n'" + utils.Configuration.settings.get("DeleteGroupCommand") + "' - Delete a group."
 								+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
 								+ "\n'" + utils.Configuration.settings.get("SetGroupParent") + "' - Set the parent group of another group."
+								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
+								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
+								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
+								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all rooms you're a member of."
+								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
 							);
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))
@@ -467,9 +481,9 @@ public class Cli
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SetGroupParent")))
 						{
-							System.out.print("Enter the group name to add to: ");
-							String group_name = scanner.nextLine();
 							System.out.print("Enter the name of the supergroup: ");
+							String group_name = scanner.nextLine();
+							System.out.print("Enter the group name of subgroup: ");
 							String supergroup = scanner.nextLine();
 							line =
 								utils.Utils.escapeSpaces
@@ -538,6 +552,36 @@ public class Cli
 								utils.Utils.escapeSpaces
 								(
 									utils.Configuration.settings.getAndEscape("FindPersonCommand")
+									+ " "							
+									+ utils.Utils.escapeSpaces(like)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("InviteGroupToBookingCommand")))
+						{
+							System.out.print("Enter the group_id of the group you'd like to invite: ");
+							String group_id = scanner.nextLine();
+							System.out.print("Enter the booking_id of the booking you'd like to invite to: ");
+							String booking_id = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("InviteGroupToBookingCommand")
+									+ " "							
+									+ utils.Utils.escapeSpaces(group_id)
+									+ " "							
+									+ utils.Utils.escapeSpaces(booking_id)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("FindGroupCommand")))
+						{
+							System.out.print("Enter the group name you'd like to search for: ");
+							String like = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("FindGroupCommand")
 									+ " "							
 									+ utils.Utils.escapeSpaces(like)
 								);
@@ -612,7 +656,7 @@ public class Cli
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingInviteCommand")))
 						{
-							System.out.println("Whom to invite (username, enter blank to continue): ");
+							System.out.println("Whom to invite (username): ");
 							String users = scanner.nextLine();
 							System.out.println("Booking id to invite to: ");
 							String booking_id = scanner.nextLine();
@@ -653,10 +697,53 @@ public class Cli
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SeeOwnGroups")))
+						{
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("SeeOwnGroups")
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("CheckBookingTime")))
+						{
+							System.out.print("Start time (yyyy-mm-dd HH:MM:ss): ");
+							String begin = scanner.nextLine();
+							System.out.print("End time (yyyy-mm-dd HH:MM:ss): ");
+							String end = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("CheckBookingTime")
+									+ " "
+									+ utils.Utils.escapeSpaces(begin)
+									+ " "
+									+ utils.Utils.escapeSpaces(end)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomFind")))
 						{
 							line =
 								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("RoomFind"));
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomFindCommand")))
+						{
+							System.out.print("Select the minimum size (blank for 0): ");
+							String minsize = scanner.nextLine();
+							System.out.print("Select the maximum size (blank for infinite): ");
+							String maxsize = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomFindCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(minsize)
+									+ " "
+									+ utils.Utils.escapeSpaces(maxsize)
+								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
 						else if (line.equalsIgnoreCase("smug pepe"))
@@ -667,9 +754,13 @@ public class Cli
 						{
 							System.out.println("\"no\"");
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("PassCheck")))
+						{
+							System.out.println("Checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+						}
 						else
 						{
-							System.out.println("Defaulting to checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+							System.out.print("Not a valid command: ");
 						}
 						System.out.print("Command (type 'help' for info): ");
 					}

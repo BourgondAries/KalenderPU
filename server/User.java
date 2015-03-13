@@ -11,6 +11,7 @@ public class User
 	public int user_id, rank;	
 	public String username, fname, lname, hashed_password;
 	Connection connection;
+	Database db;
 	ResultSet rs;
 	PreparedStatement prepStatement;
 
@@ -29,10 +30,12 @@ public class User
 		this.connection = connection;
 	}
 
-	public void saveNewUser(String password)
+	public void saveNewUser(String password) throws(exception)
 	{
 		try
         {
+        	utils.Configuration.loadDefaultConfiguration();
+			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
         	boolean create_new = false;
         	if (this.user_id == 0)
         	{	
@@ -41,7 +44,7 @@ public class User
         	else 
         	{
 	        	java.sql.PreparedStatement statement 
-					= connection.prepareStatement
+					= db.getPreparedStatement
 						(
 							"INSERT INTO SystemUser (rank, username, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)"
 						);
@@ -57,23 +60,30 @@ public class User
         {
             except.printStackTrace();
         }
+        catch (IOException exc)
+		{
+			exc.printStackTrace();
+		}
+        db.closeDatabase();
     }  
 
     public void updateSystemUser()
     {
 		try
         {
+        	utils.Configuration.loadDefaultConfiguration();
+			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
         	if (this.user_id != 0)
         	{
-	          	java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
+	          	java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
 				prepstatement.setInt(1, this.user_id);
 				java.sql.ResultSet result = prepstatement.executeQuery();
 
 				if (result.next() == true)
 				{
 					java.sql.PreparedStatement statement 
-						= connection.prepareStatement
-							("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
+					= db.prepareStatement
+						("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
 					
 					statement.setInt(1, this.rank);
 					statement.setString(2, this.username);
@@ -92,8 +102,13 @@ public class User
         catch (Exception except)
         {
             except.printStackTrace();
-        }	
-    }
+        }
+        catch (IOException exc)
+		{
+			exc.printStackTrace();
+		}
+    	db.closeDatabase();
+}
  
 	public void loadSystemUser(int user_id) throws java.sql.SQLException
 	{ 
@@ -102,7 +117,7 @@ public class User
         {
         	try 
 			{
-          		java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
+          		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
 			
 				prepstatement.setInt(1, this.user_id);
 				java.sql.ResultSet result = prepstatement.executeQuery();
@@ -131,11 +146,16 @@ public class User
 			}		
 			catch (java.sql.SQLException exc)
 			{
-				throw new java.sql.SQLException(exc);
+				exc.printStackTrace();
 			}	
+			catch (IOException exc)
+			{
+				exc.printStackTrace();
+			}
     	}
     	else
-    		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );
+    		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
+    	db.closeDatabase();		
 	}
 	
 
@@ -144,16 +164,22 @@ public class User
 		return this;
 	}
 
-	public User getUser(int user_id) throws java.sql.SQLException
+	public static User getUser(int user_id) throws java.sql.SQLException
 	{
 		User user = new User(user_id, 0, "", "", "", "");
 		user.loadSystemUser(user_id);
 		return user;
 	}
+	public static User getUser(String username) throws java.sql.SQLException
+	{
+		User user = new User(1,1, username, "", "", "");
+		//user.loadSystemUser(username);
+		return user;
+	}
 
 	public static void main(String[] args) 
 	{
-		System.out.println("Hans is mad");
+		System.out.println("Gisle er jelly");
 	}
 	
 	*/
