@@ -563,7 +563,12 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
 				// Function of (String systemUserName, Int booking_id)
-				return inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
+				String result_string = "";
+				if (parts.get(3).toLowerCase().equals("yes"))
+				{
+					result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+				}
+				return result_string + inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
@@ -669,6 +674,7 @@ public class Database
 		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
 		s1.setString(1, username_to_invite);
 		java.sql.ResultSet result = s1.executeQuery();
+
 		if (result.next())
 			return inviteUserToBooking(result.getInt(1), booking_id);
 		return "No such user found '" + username_to_invite + "'."; 
@@ -682,5 +688,24 @@ public class Database
 		statement.setInt(1, user_id);
 		statement.setInt(2, booking_id);
 		return String.valueOf(statement.executeUpdate());
+	}
+
+	public String sendNotificationToUser(String user_name, int booking_id, String message)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+		s1.setString(1, user_name);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+		{
+			s1 = connection.prepareStatement("INSERT INTO Notification (message, bookingId, systemUserId) VALUES (?, ?, ?)");
+			s1.setString(1, message);
+			s1.setInt(2, booking_id);
+			s1.setInt(3, result.getInt(1));
+		}
+			
+		return String.valueOf(s1.executeUpdate());
 	}
 }

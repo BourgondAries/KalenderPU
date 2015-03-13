@@ -694,6 +694,15 @@ public class ClientCommandLineInterface
 							String users = scanner.nextLine();
 							System.out.println("Booking id to invite to: ");
 							String booking_id = scanner.nextLine();
+							System.out.println("Send notification to the invitee? (yes/no): ");
+							String send_note = scanner.nextLine();
+							String description = "";
+							if (send_note.toLowerCase().equals("yes"))
+							{
+								System.out.println("Write a message: ");
+								description = scanner.nextLine();
+							}
+
 							line =
 								utils.Utils.escapeSpaces
 								(
@@ -702,6 +711,10 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(users)
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(send_note)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
