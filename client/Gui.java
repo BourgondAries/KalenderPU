@@ -13,7 +13,6 @@ public class Gui extends javafx.application.Application
 	@Override
 	public void start(javafx.stage.Stage stage) 
 	{
-		System.out.println("Derp");
 		stage.setTitle("Calendar System");
 		stage.getIcons().add(new javafx.scene.image.Image("file:icon.png"));
 		javafx.scene.control.Button button = new javafx.scene.control.Button();
