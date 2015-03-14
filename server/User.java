@@ -4,12 +4,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 
+
 public class User
 {
-
+	/*
 	public int user_id, rank;	
 	public String username, fname, lname, hashed_password;
 	Connection connection;
+	Database db;
 	ResultSet rs;
 	PreparedStatement prepStatement;
 
@@ -21,7 +23,6 @@ public class User
 		this.fname = fname;
 		this.lname = lname;
 		this.hashed_password = hashed_password;
-
 	}
 
 	public void setConnection(Connection connection)
@@ -29,53 +30,29 @@ public class User
 		this.connection = connection;
 	}
 
-
-	public void saveUser(String password)
+	public void saveNewUser(String password) throws(exception)
 	{
-		//ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-	
 		try
         {
+        	utils.Configuration.loadDefaultConfiguration();
+			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
         	boolean create_new = false;
-        	if (this.user_id != 0)
-        	{
-	          	java.sql.PreparedStatement prepstatement = connection.prepareStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
-				prepstatement.setInt(1, this.user_id);
-				java.sql.ResultSet result = prepstatement.executeQuery();
-
-				if (result.next() == true)
-				{
-					java.sql.PreparedStatement statement 
-						= connection.prepareStatement
-							("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
-							statement.setInt(1, this.rank);
-							statement.setString(2, this.username);
-							statement.setString(3, this.fname);
-							statement.setString(4, this.lname);
-							statement.setString(5, PasswordHash.createHash(password) );
-							statement.setInt(6, this.user_id);
-
-					statement.execute();
-				}	
-				else
-					create_new = true;
+        	if (this.user_id == 0)
+        	{	
+        		System.out.println("user_id = 0");
         	}
-        	else
-        		create_new = true;
-
-			if (create_new)
-			{
+        	else 
+        	{
 	        	java.sql.PreparedStatement statement 
-					= connection.prepareStatement
+					= db.getPreparedStatement
 						(
 							"INSERT INTO SystemUser (rank, username, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)"
 						);
-						statement.setInt(1, this.rank);
-						statement.setString(2, this.username);
-						statement.setString(3, this.fname);
-						statement.setString(4, this.lname);
-						statement.setString(5, PasswordHash.createHash(password) );
-
+				statement.setInt(1, this.rank);
+				statement.setString(2, this.username);
+				statement.setString(3, this.fname);
+				statement.setString(4, this.lname);
+				statement.setString(5, PasswordHash.createHash(password) );
 				statement.execute();
 			}
         }
@@ -83,63 +60,127 @@ public class User
         {
             except.printStackTrace();
         }
-
+        catch (IOException exc)
+		{
+			exc.printStackTrace();
+		}
+        db.closeDatabase();
     }  
-/*
-	prepStatement.setInt(1, parts.get(0));
-		prepStatement.setInt(2, parts.get(1));
-		prepStatement.setString(3, parts.get(2));
-		prepStatement.setString(4, parts.get(3));
 
-	
-	public static Group getGroup(int groupID)
-	{
-		prepStatement = db.prepareStatement("SELECT * FROM SystemGroup WHERE groupID =?");
-		prepStatement.setString(1, groupID);
-		rs = prepStatement.executeQuery(prepStatement);
-		return rs;
-	}
-S
-	void saveUser()
-	{
-		assertEquals(db.execute("nonexistingname", "pass", "query"), "Login username 'nonexistingname' does not exist.");
+    public void updateSystemUser()
+    {
+		try
+        {
+        	utils.Configuration.loadDefaultConfiguration();
+			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
+        	if (this.user_id != 0)
+        	{
+	          	java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
+				prepstatement.setInt(1, this.user_id);
+				java.sql.ResultSet result = prepstatement.executeQuery();
+
+				if (result.next() == true)
+				{
+					java.sql.PreparedStatement statement 
+					= db.prepareStatement
+						("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
+					
+					statement.setInt(1, this.rank);
+					statement.setString(2, this.username);
+					statement.setString(3, this.fname);
+					statement.setString(4, this.lname);
+					statement.setString(5, this.hashed_password);
+					statement.setInt(6, this.user_id);
+					statement.execute();
+				}	
+				else
+					System.out.println("user_id: " + user_id + "has empty database which can not be updated, try saveUser()" );
+        	}
+        	else
+        		System.out.println("user_id: " + user_id + "Seems to be 0 which is not valid for updating database" );
+        }
+        catch (Exception except)
+        {
+            except.printStackTrace();
+        }
+        catch (IOException exc)
+		{
+			exc.printStackTrace();
+		}
+    	db.closeDatabase();
+}
+ 
+	public void loadSystemUser(int user_id) throws java.sql.SQLException
+	{ 
 		
-		ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
-		java.sql.PreparedStatement statement = connection.prepareStatement
-		(
-			"INSERT INTO SystemUser (username, rank, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)", 
-			java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
-		);
-		statement.execute();
-
-	}
-	*/	
-/*
-
-		statement.execute();
-	
-	public static void removeSystemUser(SystemUser systemUser, int user_id, String username)
-	{
-			String query = query.substring(query.indexOf(" ") + 1);
-			ArrayList<String> parts = utils.Utils.splitAndUnescapeString(query);
+		if (this.user_id != 0)
+        {
+        	try 
+			{
+          		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
 			
-				prepStatement = db.prepareStatement
-				(
-					"DELETE * FROM SystemUser (user_id, rank, username, lname, fname, hashed_password) WHERE VALUES (?, ?, ?)", 
-					java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY
-				);
+				prepstatement.setInt(1, this.user_id);
+				java.sql.ResultSet result = prepstatement.executeQuery();
+			
+				if (result.next() == true)
+				{
+					String query = Database.resultToString(result);
+				
+					java.util.ArrayList<String> res = utils.Utils.splitAndUnescapeString(query);
+						//tester for å finne ut hva som komer ut fra database slik at vi kan lagre informasjon med rette indekser. 
+					for (int i = 0; i < res.size(); ++i) 
+						System.out.println(i + res.get(i));
+					// #antall felt 6, systemUserId, rank, username, fname, lname, hashedPW		
+					// user_id, rank, username, 
+					int index = 7;
+
+					this.user_id = Integer.parseInt(res.get(index));
+					this.rank = Integer.parseInt(res.get(index+1));
+					this.username = res.get(index+2);
+					this.fname = res.get(index+3);
+					this.lname = res.get(index+4);
+					this.hashed_password = res.get(index+5);
+				}
+				else 
+					System.out.println("It seems like the database is empty for this user " + user_id + " .");
+			}		
+			catch (java.sql.SQLException exc)
+			{
+				exc.printStackTrace();
+			}	
+			catch (IOException exc)
+			{
+				exc.printStackTrace();
+			}
+    	}
+    	else
+    		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
+    	db.closeDatabase();		
+	}
 	
-	}
 
-
-		
-	public void loadSystemUser(int user_id)
+	public User getUser()
 	{
-
-		db = new Database(utils.Configuration.settings.get("DBConnection"));
-
-		return ;
-
+		return this;
 	}
-*/
+
+	public static User getUser(int user_id) throws java.sql.SQLException
+	{
+		User user = new User(user_id, 0, "", "", "", "");
+		user.loadSystemUser(user_id);
+		return user;
+	}
+	public static User getUser(String username) throws java.sql.SQLException
+	{
+		User user = new User(1,1, username, "", "", "");
+		//user.loadSystemUser(username);
+		return user;
+	}
+
+	public static void main(String[] args) 
+	{
+		System.out.println("Gisle er jelly");
+	}
+	
+	*/
 }

@@ -381,6 +381,7 @@ public class Database
 					++n;
 					int uid = result.getInt(1);
 					inviteUserToBooking(uid, Integer.valueOf(parts.get(2)));
+
 				}
 				return "Invited " + n + " users.";
 			}
@@ -513,8 +514,8 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
 			{
-				// Have to check if the room is available.
 				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>=? AND timeEnd<=?) AND Room.roomId=?");
+
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5)); 
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
 
@@ -563,7 +564,16 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
 				// Function of (String systemUserName, Int booking_id)
+
 				return inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
+
+				String result_string = "";
+				if (parts.get(3).toLowerCase().equals("yes"))
+				{
+					result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+				}
+				return result_string + inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
+
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
@@ -646,6 +656,19 @@ public class Database
 				statement.setTimestamp(6, end_time);
 				return resultToString(statement.executeQuery());
 			}
+
+			else if (parts.get(0).equals(coms.get("SeeOwnNotifications")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Notification SET seen=true WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				statement.executeUpdate();
+
+				statement = connection.prepareStatement("SELECT * FROM Notification WHERE systemUserId=?");
+				statement.setInt(1, user.user_id);
+				return resultToString(statement.executeQuery());
+
+			}
+
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";
@@ -669,8 +692,14 @@ public class Database
 		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
 		s1.setString(1, username_to_invite);
 		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+			inviteUserToBooking(result.getInt(1), booking_id);
+
+
 		if (result.next())
 			return inviteUserToBooking(result.getInt(1), booking_id);
+
 		return "No such user found '" + username_to_invite + "'."; 
 	}
 
@@ -683,4 +712,25 @@ public class Database
 		statement.setInt(2, booking_id);
 		return String.valueOf(statement.executeUpdate());
 	}
+
+
+	public String sendNotificationToUser(String user_name, int booking_id, String message)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+		s1.setString(1, user_name);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+		{
+			s1 = connection.prepareStatement("INSERT INTO Notification (message, bookingId, systemUserId) VALUES (?, ?, ?)");
+			s1.setString(1, message);
+			s1.setInt(2, booking_id);
+			s1.setInt(3, result.getInt(1));
+		}
+			
+		return String.valueOf(s1.executeUpdate());
+	}
+
 }

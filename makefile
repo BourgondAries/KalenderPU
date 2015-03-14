@@ -74,12 +74,26 @@ testRoom:
 	javac -cp $(TEST_LIBS) -d $(BIN_MAP) server/TestRoom.java
 	java -cp $(TEST_RUNPATH) org.junit.runner.JUnitCore server.TestRoom
 
-
 SERVER_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar"
 SERVER_RUNPATH_MAC=".:./bin:./commons-cli-1.2.jar:./derby.jar"
 CLIENT_LIBS_MAC=".:commons-cli-1.2.jar:./derby.jar:./derbyclient.jar"
 CLIENT_RUNPATH_MAC="bin:./commons-cli-1.2.jar:./derby.jar:./derbyclient.jar"
 DBRESET_RUNPATH_MAC=".:derby.jar:derbytools.jar"
+
+testUser:
+	javac -cp $(TEST_LIBS) -d $(BIN_MAP) server/TestUser.java
+	java -cp $(TEST_RUNPATH) org.junit.runner-JunitCore server.TestDatabase
+
+testUser-mac:
+	javac -cp $(TEST_LIBS_MAC) -d $(BIN_MAP) server/TestUser.java
+	java -cp $(TEST_RUNPATH_MAC)org.junit.runner-JunitCore server.TestUser
+
+TEST_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar:./junit-4.12.jar:./hamcrest-all-1.3.jar"
+TEST_RUNPATH_MAC="./bin:./commons-cli-1.2.jar:./derby.jar:./junit-4.12.jar:./hamcrest-all-1.3.jar"
+	
+user-mac:
+	javac -classpath $(SERVER_LIBS_MAC) -d bin server/User.java
+	java -classpath $(SERVER_RUNPATH_MAC) server.User -v --cli
 
 setup-mac:
 	mkdir -p bin
@@ -87,7 +101,7 @@ setup-mac:
 
 pserver-mac:
 	javac -classpath $(SERVER_LIBS_MAC) -d bin server/Server.java
-	java -classpath $(SERVER_RUNPATH_MAC) .server.Server --cli
+	java -classpath $(SERVER_RUNPATH_MAC) server.Server --cli
 
 vserver-mac:
 	javac -classpath $(SERVER_LIBS_MAC) -d bin server/Server.java
