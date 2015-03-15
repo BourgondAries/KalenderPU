@@ -275,7 +275,6 @@ public class ClientCommandLineInterface
 								+ "\n" + pad100("Notification")
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnNotifications") + "' - Se your own notifications.'"
 								+ "\n\n"
-
 							);
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ReconnectCommand")))

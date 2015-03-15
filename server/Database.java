@@ -636,13 +636,12 @@ public class Database
 				String result_string = String.valueOf(statement.executeUpdate());
 
 
-				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId = (SELECT adminId FROM booking WHERE bookingId=?)");
+				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId=(SELECT adminId FROM booking WHERE bookingId=?)");
 				s1.setString(1, parts.get(1));
 				java.sql.ResultSet result = s1.executeQuery();
 
 				if (result.next())
 				{
-					System.out.println(result.getString(1));
 					result_string += sendNotificationToUser(result.getString(1), Integer.parseInt(parts.get(1)), "'" + user.username + "' denied your booking invitation");
 				}
 
