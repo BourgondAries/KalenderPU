@@ -730,7 +730,7 @@ public class Database
 		catch (java.sql.SQLException exc)
 		{
 			//verbose(exc.toString());
-			System.out.println("User already invited");
+			return "User already invited" ;
 		}
 
 		return result_string;
