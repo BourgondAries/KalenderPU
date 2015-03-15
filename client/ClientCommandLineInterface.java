@@ -226,10 +226,10 @@ public class ClientCommandLineInterface
 								+ "\n" + pad100("Event")
 								+ "\n'" + utils.Configuration.settings.get("NewEventCommand") + "' - create a new personal event."
 								+ "\n'" + utils.Configuration.settings.get("GetEventsCommand") + "' - fetch personal events."
-								+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 								+ "\n"
 								+ "\n" + pad100("Find and Search")
 								+ "\n'" + utils.Configuration.settings.get("FindPersonCommand") + "' - find a person in the database."
+								+ "\n'" + utils.Configuration.settings.get("FindUserId") + "' - find a person in the database by id."
 
 								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
@@ -245,6 +245,7 @@ public class ClientCommandLineInterface
 								+ "\n"
 								+ "\n" + pad100("Room")
 
+								+ "\n'" + utils.Configuration.settings.get("RegisterRoomCommand") + "' - register a new room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingWithNameCommand") + "' - Book a room via name."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
@@ -257,6 +258,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
 								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking." 
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteWithNameCommand") + "' - Invite a person to a booking by the booking name." 
+								+ "\n'" + utils.Configuration.settings.get("ChangeBookingTime") + "' - Change the time of the booking."
 								+ "\n"
 								+ "\n" + pad100("Group")
 								+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
@@ -624,6 +626,19 @@ public class ClientCommandLineInterface
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("FindUserId")))
+						{
+							System.out.print("Enter the id you'd like to search for: ");
+							String like = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("FindUserId")
+									+ " "							
+									+ utils.Utils.escapeSpaces(like)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("InviteGroupToBookingCommand")))
 						{
 							System.out.print("Enter the group_id of the group you'd like to invite: ");
@@ -811,6 +826,27 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(send_note)
 									+ " "
 									+ utils.Utils.escapeSpaces(description)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeBookingTime")))
+						{
+							System.out.println("Booking id: ");
+							String booking_id = scanner.nextLine();
+							System.out.println("From (yyyy-mm-dd HH:MM:ss date format): ");
+							String from = scanner.nextLine();
+							System.out.println("To (yyyy-mm-dd HH:MM:ss date format): ");
+							String to = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("ChangeBookingTime")
+									+ " "
+									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(from)
+									+ " "
+									+ utils.Utils.escapeSpaces(to)
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}

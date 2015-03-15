@@ -611,7 +611,26 @@ public class Database
 					// result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
 				}
 				return result_string + inviteUserToBooking(parts.get(1), parts.get(2));
+			}
+			else if (parts.get(0).equals(coms.get("ChangeBookingTime")))
+			{
+				// Function of (String systemUserName, Int booking_id)
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET timeBegin=?, timeEnd=? WHERE bookingId=?");
+				statement.setTimestamp(1, java.sql.Timestamp.valueOf(parts.get(2)));
+				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(3)));
+				statement.setInt(3, Integer.valueOf(parts.get(1)));
+				String.valueOf(statement.executeUpdate());
 
+				statement = connection.prepareStatement("SELECT adminId FROM Booking WHERE bookingId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
+				java.sql.ResultSet result = statement.executeQuery();
+				int users = 0;
+				while (result.next())
+				{
+					++users;
+					sendNotificationToUser(result.getInt(1), Integer.valueOf(parts.get(1)), "Changed the booking time of booking id: " + Integer.valueOf(parts.get(1)) + " to " + parts.get(2) + " until " + parts.get(3));
+				}
+				return "Sent notifications to: " + users + ".";
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
@@ -620,6 +639,12 @@ public class Database
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
+			}
+			else if (parts.get(0).equals(coms.get("FindUserId")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId, username, rank, fname, lname FROM SystemUser WHERE systemUserId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
+				return resultToString(statement.executeQuery());
 			}
 			else if (parts.get(0).equals(coms.get("SeeBookingInvitedCommand")))
 			{
@@ -818,6 +843,17 @@ public class Database
 			s1.setInt(3, result.getInt(1));
 		}
 			
+		return String.valueOf(s1.executeUpdate());
+	}
+
+	public String sendNotificationToUser(int user_id, int booking_id, String message)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("INSERT INTO Notification (message, bookingId, systemUserId) VALUES (?, ?, ?)");
+		s1.setString(1, message);
+		s1.setInt(2, booking_id);
+		s1.setInt(3, user_id);
 		return String.valueOf(s1.executeUpdate());
 	}
 
