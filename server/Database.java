@@ -432,7 +432,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("SeeMyBookingsCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE systemUserId=? ORDER BY timeBegin ASC");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation INNER JOIN Booking ON Booking.bookingId=Invitation.bookingId WHERE systemUserId=? ORDER BY timeBegin ASC");
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
