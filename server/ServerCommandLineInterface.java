@@ -173,6 +173,10 @@ public class ServerCommandLineInterface
 				{
 					server.respondToMessage("You have sent a block that is too large to be accepted by the server. Largest size is: " + utils.Configuration.settings.getInt("maxblocksize"));
 				}
+				catch (javax.crypto.BadPaddingException exc)
+				{
+					verbose("Client was unable to respond, probably because of a query regarding known hosts.");
+				}
 			}
 		}
 		catch (Exception exc)
