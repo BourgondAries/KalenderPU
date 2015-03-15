@@ -126,20 +126,21 @@ public class Server
 	}
 
 	public void getSymmetricKeyFromClient()
+		throws
+			javax.crypto.BadPaddingException,
+			javax.crypto.NoSuchPaddingException,
+			java.security.NoSuchAlgorithmException,
+			javax.crypto.IllegalBlockSizeException,
+			java.security.InvalidKeyException,
+			java.io.IOException
 	{
 		verbose("Fetching symmetric key.");
-		try
-		{
-			byte[] bytes = new byte[settings.getInt("keylength")];
-			int code = input_from_client.read(bytes);
-			bytes = java.util.Arrays.copyOf(bytes, code);
-			bytes = utils.Utils.decrypt(bytes, server_private_key);
-			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
-		}
-		catch (Exception exc)
-		{
-			verbose(exc.toString());
-		}
+
+		byte[] bytes = new byte[settings.getInt("keylength")];
+		int code = input_from_client.read(bytes);
+		bytes = java.util.Arrays.copyOf(bytes, code);
+		bytes = utils.Utils.decrypt(bytes, server_private_key);
+		symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
 	}
 
 	public void respondToMessage(String string)

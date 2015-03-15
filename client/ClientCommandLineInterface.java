@@ -33,22 +33,19 @@ public class ClientCommandLineInterface
 		verbose("Sending data: '" + login_info + " " + command + "'.");
 		if (client.sendData(login_info + " " + command, host, port) == false)
 		{
-			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.nDo you want to add remote to the list of trusted servers? (yes/no): ");
+			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
 			while (true)
 			{
 				String result = scanner.nextLine();
 				if (result.equals("yes"))
 				{
 					client.addPublicServerKeyToTrusted();	
+					client.sendSymmetricKey();
 					client.sendWhenTrusted(login_info + " " + command);
-					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
-					System.out.println("Server response:");
-					for (String string : answer)
-						System.out.println(string);
-					break;
+					return client.fetchResponse();
 				}
 				else if (result.equals("no"))
-					break;
+					return "Could not retrieve a response from the server";
 				else
 					System.out.print("Please enter \"yes\" or \"no\": ");
 			}
@@ -197,6 +194,10 @@ public class ClientCommandLineInterface
 				{
 					System.out.println("Sorry, we were unable to check the authenticity of the server. We'll retry connecting.");
 					continue;
+				}
+				catch (java.lang.NullPointerException exc)
+				{
+					System.out.println("Nullptrexc");
 				}
 			
 				System.out.print("Command (type 'help' for info): ");
