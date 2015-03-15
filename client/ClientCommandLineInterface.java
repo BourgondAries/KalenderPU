@@ -240,6 +240,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("GetAllSubordinateUsersCommand") + "' - Get all connected users of this group."
 								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
+								+ "\n'" + utils.Configuration.settings.get("SeeBookingInvitedCommand") + "' - See a list of users that are invited to a booking."
 								+ "\n"
 								+ "\n" + pad100("Room")
 
@@ -269,6 +270,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all groups you're a member of."
 								+ "\n" + pad100("Notification")
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnNotifications") + "' - Se your own notifications.'"
+								+ "\n\n"
 
 							);
 						}
@@ -434,6 +436,19 @@ public class ClientCommandLineInterface
 						{
 							line =
 								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("GetEventsCommand"));
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SeeBookingInvitedCommand")))
+						{
+							System.out.print("Which booking ID would you like to view: ");
+							String to_view = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("SeeBookingInvitedCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(to_view)
+								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("DeleteUserCommand")))

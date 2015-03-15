@@ -580,6 +580,12 @@ public class Database
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
 			}
+			else if (parts.get(0).equals(coms.get("SeeBookingInvitedCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE bookingId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=-1 WHERE systemUserId=? AND bookingId=?");
