@@ -1,16 +1,14 @@
 package server;
+
 import java.util.ArrayList; 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 
-
 public class User
 {
-	/*
 	public int user_id, rank;	
 	public String username, fname, lname, hashed_password;
-	Connection connection;
 	Database db;
 	ResultSet rs;
 	PreparedStatement prepStatement;
@@ -25,18 +23,12 @@ public class User
 		this.hashed_password = hashed_password;
 	}
 
-	public void setConnection(Connection connection)
-	{
-		this.connection = connection;
-	}
-
-	public void saveNewUser(String password) throws(exception)
+	public void saveNewUser(String password) throws java.sql.SQLException
 	{
 		try
         {
         	utils.Configuration.loadDefaultConfiguration();
 			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
-        	boolean create_new = false;
         	if (this.user_id == 0)
         	{	
         		System.out.println("user_id = 0");
@@ -60,14 +52,10 @@ public class User
         {
             except.printStackTrace();
         }
-        catch (IOException exc)
-		{
-			exc.printStackTrace();
-		}
         db.closeDatabase();
     }  
 
-    public void updateSystemUser()
+    public void updateSystemUser() throws Exception
     {
 		try
         {
@@ -82,7 +70,7 @@ public class User
 				if (result.next() == true)
 				{
 					java.sql.PreparedStatement statement 
-					= db.prepareStatement
+					= db.getPreparedStatement
 						("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
 					
 					statement.setInt(1, this.rank);
@@ -103,10 +91,7 @@ public class User
         {
             except.printStackTrace();
         }
-        catch (IOException exc)
-		{
-			exc.printStackTrace();
-		}
+        
     	db.closeDatabase();
 }
  
@@ -148,10 +133,49 @@ public class User
 			{
 				exc.printStackTrace();
 			}	
-			catch (IOException exc)
+    	}
+    	else
+    		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
+    	db.closeDatabase();		
+	}
+	public void loadSystemUser(String username) throws java.sql.SQLException
+	{ 
+		
+		if (this.user_id != 0)
+        {
+        	try 
+			{
+          		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE username=?");
+			
+				prepstatement.setString(1, this.username);
+				java.sql.ResultSet result = prepstatement.executeQuery();
+			
+				if (result.next() == true)
+				{
+					String query = Database.resultToString(result);
+				
+					java.util.ArrayList<String> res = utils.Utils.splitAndUnescapeString(query);
+						//tester for å finne ut hva som komer ut fra database slik at vi kan lagre informasjon med rette indekser. 
+					for (int i = 0; i < res.size(); ++i) 
+						System.out.println(i + res.get(i));
+					// #antall felt 6, systemUserId, rank, username, fname, lname, hashedPW		
+					// user_id, rank, username, 
+					int index = 7;
+
+					this.user_id = Integer.parseInt(res.get(index));
+					this.rank = Integer.parseInt(res.get(index+1));
+					this.username = res.get(index+2);
+					this.fname = res.get(index+3);
+					this.lname = res.get(index+4);
+					this.hashed_password = res.get(index+5);
+				}
+				else 
+					System.out.println("It seems like the database is empty for this user " + username + " .");
+			}		
+			catch (java.sql.SQLException exc)
 			{
 				exc.printStackTrace();
-			}
+			}	
     	}
     	else
     		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
@@ -173,7 +197,7 @@ public class User
 	public static User getUser(String username) throws java.sql.SQLException
 	{
 		User user = new User(1,1, username, "", "", "");
-		//user.loadSystemUser(username);
+		user.loadSystemUser(username);
 		return user;
 	}
 
@@ -182,5 +206,5 @@ public class User
 		System.out.println("Gisle er jelly");
 	}
 	
-	*/
+	
 }

@@ -1,11 +1,11 @@
 package server;
 
 import static org.junit.Assert.*;
-//@Test
+
 
 public class TestUser
 {
-/*
+
 	//Database db = null;
 	//User random_user = null;
 	//User user_root = null;
@@ -57,13 +57,26 @@ public class TestUser
 		assertEquals(user,user.getUser());
 	}
 
+	public static User newTestUser()
+	{
+		User user = new User(user_id, rank, username, fname, lname, hashed_password);
+		return user;
+	}
 
+/*
 @org.junit.Test
 	public static void getUserFromDatabase(User user) throws java.sql.SQLException
 	{
+		Database db;
 		utils.Configuration.loadDefaultConfiguration();
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-
+		try
+		{
+			db = new Database(utils.Configuration.settings.get("DBConnection"));
+		}
+		catch ( Exception CouldNotConnectAndSetupDatabaseConnection)
+		{
+			CouldNotConnectAndSetupDatabaseConnection.printStackTrace();
+		}
 		setFields(user);
 		user.saveNewUser( hashed_password);
 		//user.updateSystemUser();  
@@ -84,23 +97,43 @@ public class TestUser
 		assertEquals(lname, user.lname);
 		assertEquals(hashed_password, user.hashed_password);
 		db.closeDatabase();
-	}
+	} */
 	
+@org.junit.Test
+	public static void getUserFromDatabase(User user) throws Exception
+	{
+		utils.Configuration.loadDefaultConfiguration();
+		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		setFields(user);
+		user.saveNewUser( hashed_password);
+		//user.updateSystemUser();  
+		setFields(user, 666, 2, "feilUsername", "feilFirstname", "feilLastname", "feilPassord" );
+		
+		user.loadSystemUser(user_id);
+		
+		assertEquals(user_id, user.user_id); 
+		assertEquals(rank, user.rank);
+		assertEquals(username, user.username);
+		assertEquals(fname, user.fname);
+		assertEquals(lname, user.lname);
+		assertEquals(hashed_password, user.hashed_password);
+		db.closeDatabase();
+	}	
 	@org.junit.Test
-	public static void main(String[] args) 	
+	public static void main(String[] args) 	throws Exception
 	{
 		utils.Configuration.loadDefaultConfiguration();
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		//utils.Configuration.loadDefaultConfigurations();
-		User user = new User(user_id, rank, username, fname, lname, hashed_password);
+		User user = newTestUser();
 		
 		System.out.println("Hello Test"); 
 		
 		user.saveNewUser("hash"); 
 		db.closeDatabase();
-		
+		getUserShouldReturnUser();
 		//getUserFromDatabase(user); 
 	}
-	*/
+	
 }
 
