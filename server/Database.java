@@ -585,7 +585,21 @@ public class Database
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=-1 WHERE systemUserId=? AND bookingId=?");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
-				return String.valueOf(statement.executeUpdate());
+
+				String result_string = String.valueOf(statement.executeUpdate());
+
+
+				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId = (SELECT adminId FROM booking WHERE bookingId=?)");
+				s1.setString(1, parts.get(1));
+				java.sql.ResultSet result = s1.executeQuery();
+
+				if (result.next())
+				{
+					System.out.println(result.getString(1));
+					result_string += sendNotificationToUser(result.getString(1), Integer.parseInt(parts.get(1)), "'" + user.username + "' denied your booking invitation");
+				}
+
+				return result_string;
 			}
 			else if (parts.get(0).equals(coms.get("RoomFind")))
 			{
@@ -691,25 +705,30 @@ public class Database
 		java.sql.ResultSet result = s1.executeQuery();
 
 		if (result.next())
-			inviteUserToBooking(result.getInt(1), booking_id);
-
-
-		if (result.next())
 			return inviteUserToBooking(result.getInt(1), booking_id);
 
 		return "No such user found '" + username_to_invite + "'."; 
 	}
 
 	public String inviteUserToBooking(int user_id, int booking_id)
-		throws
-			java.sql.SQLException
 	{
-		java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-		statement.setInt(1, user_id);
-		statement.setInt(2, booking_id);
-		return String.valueOf(statement.executeUpdate());
-	}
+		java.sql.PreparedStatement statement = null;
+		String result_string = "";
+		try 
+		{
+			statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+			statement.setInt(1, user_id);
+			statement.setInt(2, booking_id);
+			result_string = String.valueOf(statement.executeUpdate());
+		}
+		catch (java.sql.SQLException exc)
+		{
+			//verbose(exc.toString());
+			System.out.println("User already invited");
+		}
 
+		return result_string;
+	}
 
 	public String sendNotificationToUser(String user_name, int booking_id, String message)
 		throws
