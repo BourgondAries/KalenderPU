@@ -1,11 +1,11 @@
 package server;
 
 import static org.junit.Assert.*;
-//@Test
+
 
 public class TestUser
 {
-/*
+
 	//Database db = null;
 	//User random_user = null;
 	//User user_root = null;
@@ -17,7 +17,7 @@ public class TestUser
 	
 
 	@org.junit.Test
-	public static void fieldsShouldBeSet()
+	public void fieldsShouldBeSet()
 	{
 		 user = new User(user_id,rank,username,fname,lname,hashed_password);
 
@@ -30,7 +30,7 @@ public class TestUser
 		assertEquals(hashed_password, user.hashed_password);
 	}
 
-	public static void setFields(User user) 
+	public void setFields(User user) 
 	{
 		user.user_id = user_id;
 		user.rank = rank;
@@ -39,7 +39,7 @@ public class TestUser
 		user.lname = lname;
 		user.hashed_password = hashed_password;
 	}
-	public static void setFields(User user, int user_id, int rank, String username, String firstname, String lastname, String hashed_password) 
+	public void setFields(User user, int user_id, int rank, String username, String firstname, String lastname, String hashed_password) 
 	{
 		user.user_id = user_id;
 		user.rank = rank;
@@ -48,22 +48,34 @@ public class TestUser
 		user.lname = lastname;
 		user.hashed_password = hashed_password;
 	}
-	
 
 	@org.junit.Test
-	public static void getUserShouldReturnUser() throws java.sql.SQLException
+	public void getUserShouldReturnUser() throws java.sql.SQLException
 	{
 		User user = new User(user_id,rank,username,fname,lname,hashed_password);
 		assertEquals(user,user.getUser());
 	}
 
+	public User newTestUser()
+	{
+		User user = new User(user_id, rank, username, fname, lname, hashed_password);
+		return user;
+	}
 
+/*
 @org.junit.Test
 	public static void getUserFromDatabase(User user) throws java.sql.SQLException
 	{
+		Database db;
 		utils.Configuration.loadDefaultConfiguration();
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
-
+		try
+		{
+			db = new Database(utils.Configuration.settings.get("DBConnection"));
+		}
+		catch ( Exception CouldNotConnectAndSetupDatabaseConnection)
+		{
+			CouldNotConnectAndSetupDatabaseConnection.printStackTrace();
+		}
 		setFields(user);
 		user.saveNewUser( hashed_password);
 		//user.updateSystemUser();  
@@ -84,21 +96,53 @@ public class TestUser
 		assertEquals(lname, user.lname);
 		assertEquals(hashed_password, user.hashed_password);
 		db.closeDatabase();
-	}
+	} */
 	
-	@org.junit.Test
-	public static void main(String[] args) 	
+@org.junit.Test
+	public void getUserFromDatabase() throws Exception
 	{
+		User user = newTestUser();
+		User.eraseSystemUser("oar");
+		setFields(user);
+		user.saveNewUser(hashed_password);
+		//user.updateSystemUser();  
+		setFields(user, 666, 2, "feilUsername", "feilFirstname", "feilLastname", "feilPassord" );
+		
+		user.loadSystemUser(user_id);
+
+		System.out.println(user.user_id);
+		
+		assertEquals(user_id, user.user_id); 
+		assertEquals(rank, user.rank);
+		assertEquals(username, user.username);
+		assertEquals(fname, user.fname);
+		assertEquals(lname, user.lname);
+		assertEquals(hashed_password, user.hashed_password);
+		
+	}	
+	
+/*
+	@org.junit.Test
+	public static void main(String[] args) 	throws Exception
+	{
+		System.out.println("Testing User.java"); 
 		utils.Configuration.loadDefaultConfiguration();
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		//utils.Configuration.loadDefaultConfigurations();
-		User user = new User(user_id, rank, username, fname, lname, hashed_password);
-		
-		System.out.println("Hello Test"); 
-		
-		user.saveNewUser("hash"); 
+		System.out.println("Deleting testuser from db:"); 
+		User.eraseSystemUser("oar");
+		System.out.println("Making testuser."); 
+
+		getUserShouldReturnUser();
+
+		User user = newTestUser();
+		System.out.println("Saving testuser to db"); 
+
+		getUserFromDatabase(user);
+
+
 		db.closeDatabase();
-		
+		//getUserShouldReturnUser();
 		//getUserFromDatabase(user); 
 	}
 	*/
