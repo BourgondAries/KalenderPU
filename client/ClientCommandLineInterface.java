@@ -258,6 +258,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
 								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking." 
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteWithNameCommand") + "' - Invite a person to a booking by the booking name." 
+								+ "\n'" + utils.Configuration.settings.get("ChangeBooking") + "' - Change the time and room of the booking."
 								+ "\n'" + utils.Configuration.settings.get("ChangeBookingTime") + "' - Change the time of the booking."
 								+ "\n"
 								+ "\n" + pad100("Group")
@@ -654,7 +655,7 @@ public class ClientCommandLineInterface
 									+ " "							
 									+ utils.Utils.escapeSpaces(booking_id)
 								);
-							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("FindGroupCommand")))
 						{
@@ -721,7 +722,7 @@ public class ClientCommandLineInterface
 									+ " "
 									+ utils.Utils.escapeSpaces(to)
 								);
-							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingWithNameCommand")))
 						{
@@ -829,6 +830,31 @@ public class ClientCommandLineInterface
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeBooking")))
+						{
+							System.out.println("Booking id: ");
+							String booking_id = scanner.nextLine();
+							System.out.println("Room id to change to: ");
+							String room_id = scanner.nextLine();
+							System.out.println("From (yyyy-mm-dd HH:MM:ss date format): ");
+							String from = scanner.nextLine();
+							System.out.println("To (yyyy-mm-dd HH:MM:ss date format): ");
+							String to = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("ChangeBookingTime")
+									+ " "
+									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(room_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(from)
+									+ " "
+									+ utils.Utils.escapeSpaces(to)
+								);
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("ChangeBookingTime")))
 						{
 							System.out.println("Booking id: ");
@@ -874,7 +900,7 @@ public class ClientCommandLineInterface
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
 								);
-							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SeeOwnGroups")))
 						{

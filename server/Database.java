@@ -419,7 +419,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("GetEventsCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time FROM PersonalEvent WHERE systemUserId=? ORDER BY time ASC");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT description, time, timeEnd FROM PersonalEvent WHERE systemUserId=? ORDER BY time ASC");
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
@@ -612,6 +612,27 @@ public class Database
 				}
 				return result_string + inviteUserToBooking(parts.get(1), parts.get(2));
 			}
+			else if (parts.get(0).equals(coms.get("ChangeBooking")))
+			{
+				// Function of (String systemUserName, Int booking_id)
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET roomId=?, timeBegin=?, timeEnd=? WHERE bookingId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(2)));
+				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(3)));
+				statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(4)));
+				statement.setInt(4, Integer.valueOf(parts.get(1)));
+				String.valueOf(statement.executeUpdate());
+
+				statement = connection.prepareStatement("SELECT adminId FROM Booking WHERE bookingId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
+				java.sql.ResultSet result = statement.executeQuery();
+				int users = 0;
+				while (result.next())
+				{
+					++users;
+					sendNotificationToUser(result.getInt(1), Integer.valueOf(parts.get(1)), "Changed the booking time of booking id: " + Integer.valueOf(parts.get(1)) + " to " + parts.get(2) + " until " + parts.get(3));
+				}
+				return "Sent notifications to: " + users + ".";
+			}
 			else if (parts.get(0).equals(coms.get("ChangeBookingTime")))
 			{
 				// Function of (String systemUserName, Int booking_id)
@@ -659,7 +680,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("SeeBookingInvitedCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE bookingId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT bookingId, status, wantsWarning, SystemUser.systemUserId, username, fname, lname FROM Invitation, SystemUser WHERE bookingId=? AND Invitation.systemUserId=SystemUser.systemUserId");
 				statement.setInt(1, Integer.valueOf(parts.get(1)));
 				return resultToString(statement.executeQuery());
 			}
@@ -667,7 +688,7 @@ public class Database
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=-1 WHERE systemUserId=? AND bookingId=?");
 				statement.setInt(1, user.user_id);
-				statement.setString(2, parts.get(1));
+				statement.setInt(2, Integer.valueOf(parts.get(1)));
 
 				String result_string = String.valueOf(statement.executeUpdate());
 
@@ -678,6 +699,27 @@ public class Database
 				if (result.next())
 				{
 					result_string += sendNotificationToUser(result.getString(1), Integer.parseInt(parts.get(1)), "'" + user.username + "' denied your booking invitation");
+				}
+
+				statement = connection.prepareStatement("SELECT * FROM Booking WHERE adminId=? AND bookingId=?");
+				statement.setInt(1, user.user_id);
+				statement.setInt(2, Integer.valueOf(parts.get(1)));
+				java.sql.ResultSet result_set_1 = statement.executeQuery();
+				if (result_set_1.next())
+				{
+					statement = connection.prepareStatement("DELETE FROM Invitation WHERE bookingId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					String ret_data = "Removed the booking, affected: " + statement.executeUpdate() + " users";
+
+					statement = connection.prepareStatement("DELETE FROM Notification WHERE bookingId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					statement.executeUpdate();
+
+					statement = connection.prepareStatement("DELETE FROM Booking WHERE bookingId=?");
+					statement.setInt(1, Integer.valueOf(parts.get(1)));
+					statement.executeUpdate();
+
+					return ret_data;
 				}
 
 				return result_string;
