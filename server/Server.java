@@ -273,18 +273,22 @@ public class Server
 			bytes = total;
 			if (bytes.length > settings.getInt("maxblocksize"))
 				throw new BlockSizeTooLargeException();
+			System.out.println("hallo1");
 		}
 		while (length != -1 && length == settings.getInt("blocklength"));
-
+		System.out.println("hallo2");
 		try
 		{
 			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
+			System.out.println("hallo3");
 		}
 		catch (Exception exc)
 		{
+			System.out.println("hallo4");
 			verbose(exc.toString());
+
 		}
 	}
 
