@@ -21,7 +21,7 @@ public class ClientCommandLineInterface
 	}
 
 	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner)
-		throws 
+		throws
 			Client.UnableToVerifyAuthenticityException,
 			Client.AsymmetricKeyInvalidException,
 			Client.SymmetricKeyTooLargeForAsymmetricEncryptionException,
@@ -33,22 +33,19 @@ public class ClientCommandLineInterface
 		verbose("Sending data: '" + login_info + " " + command + "'.");
 		if (client.sendData(login_info + " " + command, host, port) == false)
 		{
-			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.nDo you want to add remote to the list of trusted servers? (yes/no): ");
+			System.out.print("WARNING: The certificate presented by remote does not appear to be trusted.\nDo you want to add remote to the list of trusted servers? (yes/no): ");
 			while (true)
 			{
 				String result = scanner.nextLine();
 				if (result.equals("yes"))
 				{
 					client.addPublicServerKeyToTrusted();	
+					client.sendSymmetricKey();
 					client.sendWhenTrusted(login_info + " " + command);
-					java.util.ArrayList<String> answer = utils.Utils.splitAndUnescapeString(client.fetchResponse());
-					System.out.println("Server response:");
-					for (String string : answer)
-						System.out.println(string);
-					break;
+					return client.fetchResponse();
 				}
 				else if (result.equals("no"))
-					break;
+					return "Could not retrieve a response from the server";
 				else
 					System.out.print("Please enter \"yes\" or \"no\": ");
 			}
@@ -198,6 +195,10 @@ public class ClientCommandLineInterface
 					System.out.println("Sorry, we were unable to check the authenticity of the server. We'll retry connecting.");
 					continue;
 				}
+				catch (java.lang.NullPointerException exc)
+				{
+					System.out.println("Nullptrexc");
+				}
 			
 				System.out.print("Command (type 'help' for info): ");
 				while (scanner.hasNextLine())
@@ -245,6 +246,7 @@ public class ClientCommandLineInterface
 								+ "\n" + pad100("Room")
 
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
+								+ "\n'" + utils.Configuration.settings.get("RoomBookingWithNameCommand") + "' - Book a room via name."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
@@ -253,7 +255,8 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you are part of."
 								+ "\n'" + utils.Configuration.settings.get("SeeMyOwnBookingsCommand") + "' - See all the bookings you own."
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
-								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
+								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking." 
+								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteWithNameCommand") + "' - Invite a person to a booking by the booking name." 
 								+ "\n"
 								+ "\n" + pad100("Group")
 								+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
@@ -706,6 +709,39 @@ public class ClientCommandLineInterface
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingWithNameCommand")))
+						{
+							System.out.println("Enter the title of the booking: ");
+							String title = scanner.nextLine();
+							System.out.println("Enter the description of the booking: ");
+							String description = scanner.nextLine();
+							System.out.println("Enter the room name to book: ");
+							String room_name = scanner.nextLine();
+							System.out.println("Warning time (yyyy-mm-dd HH:MM:ss date format): ");
+							String warntime = scanner.nextLine();
+							System.out.println("From (yyyy-mm-dd HH:MM:ss date format): ");
+							String from = scanner.nextLine();
+							System.out.println("To (yyyy-mm-dd HH:MM:ss date format): ");
+							String to = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomBookingWithNameCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(title)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
+									+ " "
+									+ utils.Utils.escapeSpaces(room_name)
+									+ " "
+									+ utils.Utils.escapeSpaces(warntime)
+									+ " "
+									+ utils.Utils.escapeSpaces(from)
+									+ " "
+									+ utils.Utils.escapeSpaces(to)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RemoveRoomBookingCommand")))
 						{
 							System.out.println("The booking which you would like to remove: ");
@@ -742,6 +778,36 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(users)
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(send_note)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingInviteWithNameCommand")))
+						{
+							System.out.println("Whom to invite (username): ");
+							String users = scanner.nextLine();
+							System.out.println("Booking name to invite to: ");
+							String booking_name = scanner.nextLine();
+							System.out.println("Send notification to the invitee? (yes/no): ");
+							String send_note = scanner.nextLine();
+							String description = "";
+							if (send_note.toLowerCase().equals("yes"))
+							{
+								System.out.println("Write a message: ");
+								description = scanner.nextLine();
+							}
+
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomBookingInviteWithNameCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(users)
+									+ " "
+									+ utils.Utils.escapeSpaces(booking_name)
 									+ " "
 									+ utils.Utils.escapeSpaces(send_note)
 									+ " "
@@ -829,6 +895,20 @@ public class ClientCommandLineInterface
 							line =
 								utils.Utils.escapeSpaces(utils.Configuration.settings.getAndEscape("SeeOwnNotifications"));
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("SendEcho")))
+						{
+							System.out.println("Type something you would like to echo: ");
+							String echo = scanner.nextLine();
+
+							line =
+								utils.Utils.escapeSpaces
+								(utils.Configuration.settings.getAndEscape("SendEcho")
+									+ " "
+									+ utils.Utils.escapeSpaces(echo)
+								);
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 
 						else if (line.equalsIgnoreCase("smug pepe"))

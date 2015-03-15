@@ -126,20 +126,21 @@ public class Server
 	}
 
 	public void getSymmetricKeyFromClient()
+		throws
+			javax.crypto.BadPaddingException,
+			javax.crypto.NoSuchPaddingException,
+			java.security.NoSuchAlgorithmException,
+			javax.crypto.IllegalBlockSizeException,
+			java.security.InvalidKeyException,
+			java.io.IOException
 	{
 		verbose("Fetching symmetric key.");
-		try
-		{
-			byte[] bytes = new byte[settings.getInt("keylength")];
-			int code = input_from_client.read(bytes);
-			bytes = java.util.Arrays.copyOf(bytes, code);
-			bytes = utils.Utils.decrypt(bytes, server_private_key);
-			symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
-		}
-		catch (Exception exc)
-		{
-			verbose(exc.toString());
-		}
+
+		byte[] bytes = new byte[settings.getInt("keylength")];
+		int code = input_from_client.read(bytes);
+		bytes = java.util.Arrays.copyOf(bytes, code);
+		bytes = utils.Utils.decrypt(bytes, server_private_key);
+		symmetric_key = new javax.crypto.spec.SecretKeySpec(bytes, settings.get("SymmetricSpec"));
 	}
 
 	public void respondToMessage(String string)
@@ -272,18 +273,22 @@ public class Server
 			bytes = total;
 			if (bytes.length > settings.getInt("maxblocksize"))
 				throw new BlockSizeTooLargeException();
+			System.out.println("hallo1");
 		}
 		while (length != -1 && length == settings.getInt("blocklength"));
-
+		System.out.println("hallo2");
 		try
 		{
 			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
+			System.out.println("hallo3");
 		}
 		catch (Exception exc)
 		{
+			System.out.println("hallo4");
 			verbose(exc.toString());
+
 		}
 	}
 

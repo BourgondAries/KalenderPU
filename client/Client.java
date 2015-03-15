@@ -117,7 +117,6 @@ public class Client
 		loadTrustedServers();
 		generatePair();
 		generateSymmetric();
-
 	}
 
 	public boolean sendData(String data, String host, int port)
