@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 
 public class User
 {
-	/*
+
 	public int user_id, rank;	
 	public String username, fname, lname, hashed_password;
 	Connection connection;
@@ -24,6 +24,8 @@ public class User
 		this.lname = lname;
 		this.hashed_password = hashed_password;
 	}
+
+	/*
 
 	public void setConnection(Connection connection)
 	{
