@@ -608,7 +608,7 @@ public class Database
 				String result_string = "";
 				if (parts.get(3).toLowerCase().equals("yes"))
 				{
-					// result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+					result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
 				}
 				return result_string + inviteUserToBooking(parts.get(1), parts.get(2));
 			}
@@ -638,7 +638,18 @@ public class Database
 				System.out.println("Accepting invite...");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
-				return String.valueOf(statement.executeUpdate());
+				String result_string = String.valueOf(statement.executeUpdate());
+
+				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId=(SELECT adminId FROM booking WHERE bookingId=?)");
+				s1.setString(1, parts.get(1));
+				java.sql.ResultSet result = s1.executeQuery();
+
+				if (result.next())
+				{
+					result_string += sendNotificationToUser(result.getString(1), Integer.parseInt(parts.get(1)), "'" + user.username + "' accepted your booking invitation");
+				}
+
+				return result_string;
 			}
 			else if (parts.get(0).equals(coms.get("FindUserId")))
 			{
@@ -659,7 +670,6 @@ public class Database
 				statement.setString(2, parts.get(1));
 
 				String result_string = String.valueOf(statement.executeUpdate());
-
 
 				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId=(SELECT adminId FROM booking WHERE bookingId=?)");
 				s1.setString(1, parts.get(1));
