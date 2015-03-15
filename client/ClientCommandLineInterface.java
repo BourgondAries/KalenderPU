@@ -212,7 +212,6 @@ public class ClientCommandLineInterface
 						{
 							System.out.print(
 								"" + "\n'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
-
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 								+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
 								+ "\n"

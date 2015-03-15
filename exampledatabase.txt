@@ -26,6 +26,22 @@ Buråsen
 12345
 12345
 
+register
+rune
+20
+Rune
+Olsen
+12345
+12345
+
+register
+tonje
+20
+Tonje
+Thorsen
+12345
+12345
+
 change password
 abba
 abba
@@ -41,6 +57,11 @@ root
 relogin
 per
 12345
+
+register room
+Møterom1
+20
+location
 
 new event
 Forretningsmøte med firma X
