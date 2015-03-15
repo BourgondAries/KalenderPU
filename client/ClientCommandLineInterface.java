@@ -848,7 +848,7 @@ public class ClientCommandLineInterface
 									+ " "
 									+ utils.Utils.escapeSpaces(to)
 								);
-							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingAcceptInviteCommand")))
 						{
