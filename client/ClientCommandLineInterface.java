@@ -232,6 +232,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("FindUserId") + "' - find a person in the database by id."
 
 								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
+								+ "\n'" + utils.Configuration.settings.get("GetCalendarOfCommand") + "' - get the calendar of some user." // Partial
 								+ "\n'" + utils.Configuration.settings.get("ChangeUser") + "' - Login as another user."
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
 
@@ -681,7 +682,32 @@ public class ClientCommandLineInterface
 							line =
 								utils.Utils.escapeSpaces
 								(
-									utils.Configuration.settings.getAndEscape("GetCalendarCommand")
+									utils.Configuration.settings.getAndEscape("GetCalendarOfCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(year)
+									+ " "
+									+ utils.Utils.escapeSpaces(month)
+									+ " "
+									+ utils.Utils.escapeSpaces(day)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("GetCalendarOfCommand")))
+						{
+							System.out.print("Enter the username: ");
+							String user = scanner.nextLine();
+							System.out.print("Enter the year: ");
+							String year = scanner.nextLine();
+							System.out.print("Enter the month: ");
+							String month = scanner.nextLine();
+							System.out.print("Enter the day (leave blank for entire month): ");
+							String day = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("GetCalendarOfCommand")
+									+ " "							
+									+ utils.Utils.escapeSpaces(user)
 									+ " "							
 									+ utils.Utils.escapeSpaces(year)
 									+ " "

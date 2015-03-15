@@ -488,6 +488,32 @@ public class Database
 					return "The data input is invalid: GetCalendarCommand.";
 				}
 			}
+			else if (parts.get(0).equals(coms.get("GetCalendarOfCommand")))
+			{
+				
+				java.sql.PreparedStatement statement = connection.prepareStatement
+				(
+					"SELECT * FROM PersonalEvent WHERE systemUserId=(SELECT systemUserId FROM SystemUser WHERE username=?) AND time >= ? AND time <= ? ORDER BY time"
+				);
+				statement.setString(1, parts.get(1));
+				verbose("Creating timestamp: '" + parts.get(2) + "-" + parts.get(3) + "-01 00:00:00'");
+				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2) + "-" + parts.get(3) + "-01 00:00:00"));
+				if (parts.get(3).equals("12"))
+					statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-" + parts.get(3) + "-01 00:00:00"));
+				else
+				{
+					verbose("Creating timestamp: '" + parts.get(2) + "-" + String.format("%02d", Integer.valueOf(parts.get(3)) + 1) + "-01 00:00:00'");
+					statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(2) + "-" + String.format("%02d", Integer.valueOf(parts.get(3)) + 1) + "-01 00:00:00"));
+				}
+				java.sql.ResultSet result = statement.executeQuery();
+				if (result == null)
+					return "We got a null result.";
+				else 
+				{
+					System.out.println("Not a null result");
+					return resultToString(result);
+				}
+			}
 			else if (parts.get(0).equals(coms.get("RegisterRoomCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Room (roomName, size, location) VALUES (?, ?, ?)");
