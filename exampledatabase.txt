@@ -1,13 +1,30 @@
 
 root
 root
+
 register
-newguy
+per
 20
-New Guy
-Etternavn of the new guy
-pass1
-pass1
+Per
+Persen
+12345
+12345
+
+register
+siv1
+20
+Siv
+Larsen
+12345
+12345
+
+register
+beate
+20
+Beate
+Buråsen
+12345
+12345
 
 change password
 abba
@@ -21,6 +38,51 @@ change password
 root
 root
 
+relogin
+per
+12345
+
 new event
-This is the event description
-2015
+Forretningsmøte med firma X
+2015-04-04 12:00:00
+2015-04-04 14:00:00
+30
+
+book room
+Forretningsmøte med firma X
+Vi skal diskutere den nye avtalen
+//TODO roomID
+2015-04-04 11:00:00
+2015-04-04 12:00:00
+2015-04-04 14:00:00
+
+invite to booking
+siv1
+// TODO bookindId
+no
+
+relogin
+siv1
+12345
+
+deny invitation
+// TODO bookindId
+
+relogin
+per
+12345
+
+see notifications
+
+invite to booking
+//TODO bookingId
+no
+
+relogin
+beate
+12345
+
+get invites
+
+accept invitation
+// TODO booking_id
