@@ -86,7 +86,7 @@ testUser:
 
 testUser-mac:
 	javac -cp $(TEST_LIBS_MAC) -d $(BIN_MAP) server/TestUser.java
-	java -cp $(TEST_RUNPATH_MAC)org.junit.runner-JunitCore server.TestUser
+	java -cp $(TEST_RUNPATH_MAC) org.junit.runner.JUnitCore server.TestUser
 
 TEST_LIBS_MAC=".:./commons-cli-1.2.jar:./derby.jar:./junit-4.12.jar:./hamcrest-all-1.3.jar"
 TEST_RUNPATH_MAC="./bin:./commons-cli-1.2.jar:./derby.jar:./junit-4.12.jar:./hamcrest-all-1.3.jar"
