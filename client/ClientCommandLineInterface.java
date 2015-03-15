@@ -21,7 +21,7 @@ public class ClientCommandLineInterface
 	}
 
 	public static String commandLineSendData(Client client, String host, Integer port, String login_info, String command, java.util.Scanner scanner)
-		throws 
+		throws
 			Client.UnableToVerifyAuthenticityException,
 			Client.AsymmetricKeyInvalidException,
 			Client.SymmetricKeyTooLargeForAsymmetricEncryptionException,
@@ -246,6 +246,7 @@ public class ClientCommandLineInterface
 								+ "\n" + pad100("Room")
 
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingCommand") + "' - Book a room."
+								+ "\n'" + utils.Configuration.settings.get("RoomBookingWithNameCommand") + "' - Book a room via name."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
@@ -698,6 +699,39 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(description)
 									+ " "
 									+ utils.Utils.escapeSpaces(room_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(warntime)
+									+ " "
+									+ utils.Utils.escapeSpaces(from)
+									+ " "
+									+ utils.Utils.escapeSpaces(to)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingWithNameCommand")))
+						{
+							System.out.println("Enter the title of the booking: ");
+							String title = scanner.nextLine();
+							System.out.println("Enter the description of the booking: ");
+							String description = scanner.nextLine();
+							System.out.println("Enter the room name to book: ");
+							String room_name = scanner.nextLine();
+							System.out.println("Warning time (yyyy-mm-dd HH:MM:ss date format): ");
+							String warntime = scanner.nextLine();
+							System.out.println("From (yyyy-mm-dd HH:MM:ss date format): ");
+							String from = scanner.nextLine();
+							System.out.println("To (yyyy-mm-dd HH:MM:ss date format): ");
+							String to = scanner.nextLine();
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomBookingWithNameCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(title)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
+									+ " "
+									+ utils.Utils.escapeSpaces(room_name)
 									+ " "
 									+ utils.Utils.escapeSpaces(warntime)
 									+ " "
