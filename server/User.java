@@ -9,7 +9,7 @@ public class User
 {
 	public int user_id, rank;	
 	public String username, fname, lname, hashed_password;
-	Database db;
+	public static Database db;
 	ResultSet rs;
 	PreparedStatement prepStatement;
 
@@ -22,8 +22,8 @@ public class User
 		this.lname = lname;
 		this.hashed_password = hashed_password;
 	}
-	
-	public void saveNewUser(String password) throws(exception)
+
+	public void saveNewUser(String password) throws Exception
 	{
 		try
         {
@@ -35,17 +35,22 @@ public class User
         	}
         	else 
         	{
+        		System.out.println("SAVING USER PLZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+        		System.out.println("USER ID PLZZ :" + user_id);
 	        	java.sql.PreparedStatement statement 
 					= db.getPreparedStatement
 						(
-							"INSERT INTO SystemUser (rank, username, fname, lname, hashed_password) VALUES (?, ?, ?, ?, ?)"
+							"INSERT INTO SystemUser (rank, username, fname, lname, hashedPW) VALUES (?, ?, ?, ?, ?)"
 						);
 				statement.setInt(1, this.rank);
 				statement.setString(2, this.username);
 				statement.setString(3, this.fname);
 				statement.setString(4, this.lname);
 				statement.setString(5, PasswordHash.createHash(password) );
-				statement.execute();
+				statement.executeUpdate();
+				System.out.println(this.username);
+				System.out.println("Prøvde å lagre");
+				System.out.println(this.user_id);
 			}
         }
         catch (Exception except)
@@ -71,7 +76,7 @@ public class User
 				{
 					java.sql.PreparedStatement statement 
 					= db.getPreparedStatement
-						("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashed_password=? WHERE systemUserId=?");
+						("UPDATE SystemUser SET rank=?, username=?, fname=?, lname=?, hashedPW=? WHERE systemUserId=?");
 					
 					statement.setInt(1, this.rank);
 					statement.setString(2, this.username);
@@ -79,7 +84,7 @@ public class User
 					statement.setString(4, this.lname);
 					statement.setString(5, this.hashed_password);
 					statement.setInt(6, this.user_id);
-					statement.execute();
+					statement.executeUpdate();
 				}	
 				else
 					System.out.println("user_id: " + user_id + "has empty database which can not be updated, try saveUser()" );
@@ -93,23 +98,29 @@ public class User
         }
         
     	db.closeDatabase();
-}
+	}
  
-	public void loadSystemUser(int user_id) throws java.sql.SQLException
+
+	public void loadSystemUser(int user_id) throws Exception
 	{ 
 		
-		if (this.user_id != 0)
+		if (user_id != 0)
         {
         	try 
 			{
+				utils.Configuration.loadDefaultConfiguration();
+				db = new Database(utils.Configuration.settings.get("DBConnection")); 
+
           		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE systemUserId=?");
 			
 				prepstatement.setInt(1, this.user_id);
 				java.sql.ResultSet result = prepstatement.executeQuery();
 			
-				if (result.next() == true)
+				if (/*result.next() ==*/ true)
 				{
 					String query = Database.resultToString(result);
+
+					System.out.println(query);
 				
 					java.util.ArrayList<String> res = utils.Utils.splitAndUnescapeString(query);
 						//tester for å finne ut hva som komer ut fra database slik at vi kan lagre informasjon med rette indekser. 
@@ -129,7 +140,7 @@ public class User
 				else 
 					System.out.println("It seems like the database is empty for this user " + user_id + " .");
 			}		
-			catch (java.sql.SQLException exc)
+			catch (Exception exc)
 			{
 				exc.printStackTrace();
 			}	
@@ -138,13 +149,16 @@ public class User
     		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
     	db.closeDatabase();		
 	}
-	public void loadSystemUser(String username) throws java.sql.SQLException
+	public void loadSystemUser(String username) throws Exception
 	{ 
 		
-		if (this.user_id != 0)
+		if (true)
         {
         	try 
 			{
+				utils.Configuration.loadDefaultConfiguration();
+			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
+
           		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE username=?");
 			
 				prepstatement.setString(1, this.username);
@@ -171,17 +185,45 @@ public class User
 				}
 				else 
 					System.out.println("It seems like the database is empty for this user " + username + " .");
-			}		
-			catch (java.sql.SQLException exc)
+			}	
+			catch (Exception exc)
 			{
 				exc.printStackTrace();
-			}	
+			}		
     	}
     	else
-    		System.out.println("It appears that " + user_id +" do not match systemUserId in database." );    	
+    		System.out.println("It appears that " + username +" do not match systemUserId in database." );    	
     	db.closeDatabase();		
 	}
+
+	public static void eraseSystemUser(String username) throws Exception
+	{    	
+		utils.Configuration.loadDefaultConfiguration();
+		db = new Database(utils.Configuration.settings.get("DBConnection"));
+		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE username=?");
+		prepstatement.setString(1, username);
+		java.sql.ResultSet result = prepstatement.executeQuery();
 	
+		if (result.next() == true)
+		{
+			System.out.println("Found user in database, " + username + ". Now ready for deleting.");
+  			prepstatement = db.getPreparedStatement("DELETE FROM SystemUser WHERE username=?");
+			prepstatement.setString(1, username);
+			prepstatement.executeUpdate();
+		}
+		else 
+			System.out.println("Something wrong happened, did not delete: " + username + ".");
+		
+		prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE username=?");
+		prepstatement.setString(1, username);
+		result = prepstatement.executeQuery();
+	
+		if (result.next() == false)
+			System.out.println("It seems like the database is empty for this user " + username + ". Deletion of systemUser was a sucsess.");
+			 	
+    	db.closeDatabase();		
+	}
+
 
 	public User getUser()
 	{
@@ -191,13 +233,27 @@ public class User
 	public static User getUser(int user_id) throws java.sql.SQLException
 	{
 		User user = new User(user_id, 0, "", "", "", "");
+		try 
+		{
 		user.loadSystemUser(user_id);
+		}
+		catch (Exception exc)
+			{
+				exc.printStackTrace();
+			}	
 		return user;
 	}
 	public static User getUser(String username) throws java.sql.SQLException
 	{
 		User user = new User(1,1, username, "", "", "");
-		user.loadSystemUser(username);
+		try 
+		{
+			user.loadSystemUser(username);
+		}
+		catch (Exception exc)
+			{
+				exc.printStackTrace();
+			}	
 		return user;
 	}
 

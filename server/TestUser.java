@@ -17,7 +17,7 @@ public class TestUser
 	
 
 	@org.junit.Test
-	public static void fieldsShouldBeSet()
+	public void fieldsShouldBeSet()
 	{
 		 user = new User(user_id,rank,username,fname,lname,hashed_password);
 
@@ -30,7 +30,7 @@ public class TestUser
 		assertEquals(hashed_password, user.hashed_password);
 	}
 
-	public static void setFields(User user) 
+	public void setFields(User user) 
 	{
 		user.user_id = user_id;
 		user.rank = rank;
@@ -39,7 +39,7 @@ public class TestUser
 		user.lname = lname;
 		user.hashed_password = hashed_password;
 	}
-	public static void setFields(User user, int user_id, int rank, String username, String firstname, String lastname, String hashed_password) 
+	public void setFields(User user, int user_id, int rank, String username, String firstname, String lastname, String hashed_password) 
 	{
 		user.user_id = user_id;
 		user.rank = rank;
@@ -48,16 +48,15 @@ public class TestUser
 		user.lname = lastname;
 		user.hashed_password = hashed_password;
 	}
-	
 
 	@org.junit.Test
-	public static void getUserShouldReturnUser() throws java.sql.SQLException
+	public void getUserShouldReturnUser() throws java.sql.SQLException
 	{
 		User user = new User(user_id,rank,username,fname,lname,hashed_password);
 		assertEquals(user,user.getUser());
 	}
 
-	public static User newTestUser()
+	public User newTestUser()
 	{
 		User user = new User(user_id, rank, username, fname, lname, hashed_password);
 		return user;
@@ -100,16 +99,18 @@ public class TestUser
 	} */
 	
 @org.junit.Test
-	public static void getUserFromDatabase(User user) throws Exception
+	public void getUserFromDatabase() throws Exception
 	{
-		utils.Configuration.loadDefaultConfiguration();
-		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
+		User user = newTestUser();
+		User.eraseSystemUser("oar");
 		setFields(user);
-		user.saveNewUser( hashed_password);
+		user.saveNewUser(hashed_password);
 		//user.updateSystemUser();  
 		setFields(user, 666, 2, "feilUsername", "feilFirstname", "feilLastname", "feilPassord" );
 		
 		user.loadSystemUser(user_id);
+
+		System.out.println(user.user_id);
 		
 		assertEquals(user_id, user.user_id); 
 		assertEquals(rank, user.rank);
@@ -117,23 +118,33 @@ public class TestUser
 		assertEquals(fname, user.fname);
 		assertEquals(lname, user.lname);
 		assertEquals(hashed_password, user.hashed_password);
-		db.closeDatabase();
+		
 	}	
+	
+/*
 	@org.junit.Test
 	public static void main(String[] args) 	throws Exception
 	{
+		System.out.println("Testing User.java"); 
 		utils.Configuration.loadDefaultConfiguration();
 		Database db = new Database(utils.Configuration.settings.get("DBConnection"));
 		//utils.Configuration.loadDefaultConfigurations();
-		User user = newTestUser();
-		
-		System.out.println("Hello Test"); 
-		
-		user.saveNewUser("hash"); 
-		db.closeDatabase();
+		System.out.println("Deleting testuser from db:"); 
+		User.eraseSystemUser("oar");
+		System.out.println("Making testuser."); 
+
 		getUserShouldReturnUser();
+
+		User user = newTestUser();
+		System.out.println("Saving testuser to db"); 
+
+		getUserFromDatabase(user);
+
+
+		db.closeDatabase();
+		//getUserShouldReturnUser();
 		//getUserFromDatabase(user); 
 	}
-	
+	*/
 }
 
