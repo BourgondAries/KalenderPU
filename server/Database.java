@@ -564,9 +564,6 @@ public class Database
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteCommand")))
 			{
 				// Function of (String systemUserName, Int booking_id)
-
-				return inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
-
 				String result_string = "";
 				if (parts.get(3).toLowerCase().equals("yes"))
 				{
