@@ -602,6 +602,17 @@ public class Database
 				return result_string + inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 
 			}
+			else if (parts.get(0).equals(coms.get("RoomBookingInviteWithNameCommand")))
+			{
+				// Function of (String systemUserName, Int booking_id)
+				String result_string = "";
+				if (parts.get(3).toLowerCase().equals("yes"))
+				{
+					// result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+				}
+				return result_string + inviteUserToBooking(parts.get(1), parts.get(2));
+
+			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=1 WHERE systemUserId=? AND bookingId=?");
@@ -730,6 +741,27 @@ public class Database
 			return exc.toString();
 		}
 		return "Impossible.";
+	}
+
+	public String inviteUserToBooking(String username_to_invite, String booking_name)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT bookingId FROM Booking WHERE bookingName=?");
+		s1.setString(1, booking_name);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+		{
+			int booking_id = result.getInt(1);
+			if (result.next())
+			{
+				return "Too many bookings with the same name.";
+			}
+			return inviteUserToBooking(username_to_invite, booking_id);
+		}
+
+		return "No such user found '" + username_to_invite + "'."; 
 	}
 
 	public String inviteUserToBooking(String username_to_invite, int booking_id)

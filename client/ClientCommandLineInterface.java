@@ -255,7 +255,8 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("SeeMyBookingsCommand") + "' - See all the bookings you are part of."
 								+ "\n'" + utils.Configuration.settings.get("SeeMyOwnBookingsCommand") + "' - See all the bookings you own."
 								+ "\n'" + utils.Configuration.settings.get("StatusCommand") + "' - Get the status of events, bookings, etc." // Partial
-								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking."
+								+ "\n'" + utils.Configuration.settings.get("InviteGroupToBookingCommand") + "' - Invite an entire group to a booking." 
+								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteWithNameCommand") + "' - Invite a person to a booking by the booking name." 
 								+ "\n"
 								+ "\n" + pad100("Group")
 								+ "\n'" + utils.Configuration.settings.get("CreateGroupCommand") + "' - Create a group."
@@ -777,6 +778,36 @@ public class ClientCommandLineInterface
 									+ utils.Utils.escapeSpaces(users)
 									+ " "
 									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(send_note)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
+								);
+							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingInviteWithNameCommand")))
+						{
+							System.out.println("Whom to invite (username): ");
+							String users = scanner.nextLine();
+							System.out.println("Booking name to invite to: ");
+							String booking_name = scanner.nextLine();
+							System.out.println("Send notification to the invitee? (yes/no): ");
+							String send_note = scanner.nextLine();
+							String description = "";
+							if (send_note.toLowerCase().equals("yes"))
+							{
+								System.out.println("Write a message: ");
+								description = scanner.nextLine();
+							}
+
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomBookingInviteWithNameCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(users)
+									+ " "
+									+ utils.Utils.escapeSpaces(booking_name)
 									+ " "
 									+ utils.Utils.escapeSpaces(send_note)
 									+ " "
