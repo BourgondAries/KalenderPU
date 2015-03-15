@@ -542,6 +542,36 @@ public class Database
 				}
 				return "Could not register the room, it was already occupied.";
 			}
+			else if (parts.get(0).equals(coms.get("RoomBookingWithNameCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>=? AND timeEnd<=?) AND Room.roomId=(SELECT roomId FROM Room WHERE roomName=?)");
+
+				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5)); 
+				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
+
+				statement.setTimestamp(1, begin_time);
+				statement.setTimestamp(2, begin_time);
+				statement.setTimestamp(3, end_time);
+				statement.setTimestamp(4, end_time);
+				statement.setTimestamp(5, begin_time);
+				statement.setTimestamp(6, end_time);
+				statement.setString(7, parts.get(3));
+				java.sql.ResultSet result = statement.executeQuery();
+				if (!result.next())
+				{
+					// Then actual register the room under the user.
+					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, (SELECT roomId FROM Room WHERE roomName=?), ?, ?, ?)");
+					statement.setInt(1, user.user_id);
+					statement.setString(2, parts.get(1));
+					statement.setString(3, parts.get(2));
+					statement.setString(4, parts.get(3));
+					statement.setTimestamp(5, java.sql.Timestamp.valueOf(parts.get(4)));
+					statement.setTimestamp(6, java.sql.Timestamp.valueOf(parts.get(5)));
+					statement.setTimestamp(7, java.sql.Timestamp.valueOf(parts.get(6)));
+					return String.valueOf(statement.executeUpdate());
+				}
+				return "Could not register the room, it was already occupied.";
+			}
 			else if (parts.get(0).equals(coms.get("RemoveRoomBookingCommand")))
 			{
 				if (!user.username.equals("root"))
@@ -572,6 +602,17 @@ public class Database
 				return result_string + inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 
 			}
+			else if (parts.get(0).equals(coms.get("RoomBookingInviteWithNameCommand")))
+			{
+				// Function of (String systemUserName, Int booking_id)
+				String result_string = "";
+				if (parts.get(3).toLowerCase().equals("yes"))
+				{
+					// result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+				}
+				return result_string + inviteUserToBooking(parts.get(1), parts.get(2));
+
+			}
 			else if (parts.get(0).equals(coms.get("RoomBookingAcceptInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=1 WHERE systemUserId=? AND bookingId=?");
@@ -580,12 +621,31 @@ public class Database
 				statement.setString(2, parts.get(1));
 				return String.valueOf(statement.executeUpdate());
 			}
+			else if (parts.get(0).equals(coms.get("SeeBookingInvitedCommand")))
+			{
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation WHERE bookingId=?");
+				statement.setInt(1, Integer.valueOf(parts.get(1)));
+				return resultToString(statement.executeQuery());
+			}
 			else if (parts.get(0).equals(coms.get("RoomBookingDenyInviteCommand")))
 			{
 				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Invitation SET status=-1 WHERE systemUserId=? AND bookingId=?");
 				statement.setInt(1, user.user_id);
 				statement.setString(2, parts.get(1));
-				return String.valueOf(statement.executeUpdate());
+
+				String result_string = String.valueOf(statement.executeUpdate());
+
+
+				java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT username FROM systemUser WHERE systemUserId=(SELECT adminId FROM booking WHERE bookingId=?)");
+				s1.setString(1, parts.get(1));
+				java.sql.ResultSet result = s1.executeQuery();
+
+				if (result.next())
+				{
+					result_string += sendNotificationToUser(result.getString(1), Integer.parseInt(parts.get(1)), "'" + user.username + "' denied your booking invitation");
+				}
+
+				return result_string;
 			}
 			else if (parts.get(0).equals(coms.get("RoomFind")))
 			{
@@ -666,6 +726,11 @@ public class Database
 
 			}
 
+			else if (parts.get(0).equals(coms.get("SendEcho")))
+			{
+				return parts.get(1);
+			}
+
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";
@@ -682,6 +747,27 @@ public class Database
 		return "Impossible.";
 	}
 
+	public String inviteUserToBooking(String username_to_invite, String booking_name)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT bookingId FROM Booking WHERE bookingName=?");
+		s1.setString(1, booking_name);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+		{
+			int booking_id = result.getInt(1);
+			if (result.next())
+			{
+				return "Too many bookings with the same name.";
+			}
+			return inviteUserToBooking(username_to_invite, booking_id);
+		}
+
+		return "No such user found '" + username_to_invite + "'."; 
+	}
+
 	public String inviteUserToBooking(String username_to_invite, int booking_id)
 		throws
 			java.sql.SQLException
@@ -691,25 +777,30 @@ public class Database
 		java.sql.ResultSet result = s1.executeQuery();
 
 		if (result.next())
-			inviteUserToBooking(result.getInt(1), booking_id);
-
-
-		if (result.next())
 			return inviteUserToBooking(result.getInt(1), booking_id);
 
 		return "No such user found '" + username_to_invite + "'."; 
 	}
 
 	public String inviteUserToBooking(int user_id, int booking_id)
-		throws
-			java.sql.SQLException
 	{
-		java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
-		statement.setInt(1, user_id);
-		statement.setInt(2, booking_id);
-		return String.valueOf(statement.executeUpdate());
-	}
+		java.sql.PreparedStatement statement = null;
+		String result_string = "";
+		try 
+		{
+			statement = connection.prepareStatement("INSERT INTO Invitation (systemUserId, bookingId) VALUES (?, ?)");
+			statement.setInt(1, user_id);
+			statement.setInt(2, booking_id);
+			result_string = String.valueOf(statement.executeUpdate());
+		}
+		catch (java.sql.SQLException exc)
+		{
+			//verbose(exc.toString());
+			return "User already invited" ;
+		}
 
+		return result_string;
+	}
 
 	public String sendNotificationToUser(String user_name, int booking_id, String message)
 		throws
