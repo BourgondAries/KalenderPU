@@ -672,6 +672,11 @@ public class Database
 
 			}
 
+			else if (parts.get(0).equals(coms.get("SendEcho")))
+			{
+				return parts.get(1);
+			}
+
 			else if (parts.get(0).equals(coms.get("PassCheck")))
 			{
 				return "Password is valid.";

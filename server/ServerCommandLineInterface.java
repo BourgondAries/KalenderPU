@@ -154,7 +154,7 @@ public class ServerCommandLineInterface
 						System.out.println(message_parts.get(i));
 					if (message_parts.size() == 3)
 					{
-						synchronized(db)
+						// synchronized(db)
 						{
 							server.respondToMessage(db.execute(message_parts.get(0), message_parts.get(1), message_parts.get(2)));
 						}
@@ -177,7 +177,9 @@ public class ServerCommandLineInterface
 		}
 		catch (Exception exc)
 		{
+			System.out.println("hallo7");
 			verbose(exc.toString());
+			exc.printStackTrace();
 		}
 	}
 
