@@ -273,10 +273,8 @@ public class Server
 			bytes = total;
 			if (bytes.length > settings.getInt("maxblocksize"))
 				throw new BlockSizeTooLargeException();
-			System.out.println("hallo1");
 		}
 		while (length != -1 && length == settings.getInt("blocklength"));
-		System.out.println("hallo2");
 		try
 		{
 			// System.out.println(new String(bytes));
