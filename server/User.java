@@ -22,8 +22,8 @@ public class User
 		this.lname = lname;
 		this.hashed_password = hashed_password;
 	}
-
-	public void saveNewUser(String password) throws java.sql.SQLException
+	
+	public void saveNewUser(String password) throws(exception)
 	{
 		try
         {

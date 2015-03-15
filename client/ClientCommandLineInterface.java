@@ -210,7 +210,7 @@ public class ClientCommandLineInterface
 						if (line.equalsIgnoreCase(utils.Configuration.settings.get("HelpCommand")))
 						{
 							System.out.print(
-								+ "\n'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
+								"" + "\n'" + utils.Configuration.settings.get("HelpCommand") + "' - print this help text."
 
 								+ "\n'" + utils.Configuration.settings.get("ExitCommand") + "' - exit the client."
 								+ "\n'" + utils.Configuration.settings.get("ReconnectCommand") + "' - Reconnect to any other server."
@@ -267,6 +267,8 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all rooms you're a member of."
 								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
 								+ "\n'" + utils.Configuration.settings.get("SeeOwnGroups") + "' - See all groups you're a member of."
+								+ "\n" + pad100("Notification")
+								+ "\n'" + utils.Configuration.settings.get("SeeOwnNotifications") + "' - Se your own notifications.'"
 
 							);
 						}
