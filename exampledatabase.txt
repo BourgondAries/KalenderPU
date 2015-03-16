@@ -59,7 +59,7 @@ per
 12345
 
 register room
-Møterom 1
+Moterom 1
 20
 location
 
@@ -74,7 +74,7 @@ Spiserom
 3. etasje
 
 new event
-Forretningsmøte med firma Y
+Forretningsmote med firma Y
 2015-04-04 12:00:00
 2015-04-04 14:00:00
 30
@@ -86,7 +86,7 @@ Forberede møte
 30
 
 book room name
-Forretningsmøte med firma Y
+Forretningsmote med firma Y
 Vi skal diskutere den nye avtalen
 Moterom1
 2015-04-04 11:00:00
