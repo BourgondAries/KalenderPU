@@ -59,51 +59,65 @@ per
 12345
 
 register room
-Møterom1
+Møterom 1
 20
 location
 
+register room
+Konferanserom
+30
+1. etasje
+
+register room
+Spiserom
+20
+3. etasje
+
 new event
-Forretningsmøte med firma X
+Forretningsmøte med firma Y
 2015-04-04 12:00:00
 2015-04-04 14:00:00
 30
 
-book room
+new event
+Forberede møte
+2015-04-04 10:00:00
+2015-04-04 12:00:00
+30
+
+book room name
 Forretningsmøte med firma Y
 Vi skal diskutere den nye avtalen
-//TODO roomID
+Moterom1
 2015-04-04 11:00:00
 2015-04-04 12:00:00
 2015-04-04 14:00:00
 
 invite to booking
 siv1
-// TODO bookindId
-no
+1
+yes
+Viktig mote
 
 relogin
 siv1
 12345
 
 deny invitation
-// TODO bookindId
+1
 
 relogin
 per
 12345
 
-see notifications
-
 invite to booking
-//TODO bookingId
+beate
+1
 no
 
 relogin
 beate
 12345
 
-get invites
-
 accept invitation
-// TODO booking_id
+1

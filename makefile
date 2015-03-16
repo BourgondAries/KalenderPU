@@ -46,6 +46,7 @@ dbreset:
 	java -classpath $(DBRESET_RUNPATH) -Djdbc.drivers=org.apache.derby.jdbc.EmbeddedDriver org.apache.derby.tools.ij < ijcommands.txt
 
 exampledb:
+	$(MAKE) cclient
 	java -classpath $(CLIENT_RUNPATH) client.Client -v --cli < exampledatabase.txt
 
 clean:
