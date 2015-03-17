@@ -48,6 +48,8 @@ public class User
 				statement.setString(4, this.lname);
 				statement.setString(5, PasswordHash.createHash(password) );
 				statement.executeUpdate();
+									
+
 				System.out.println(this.username);
 				System.out.println("Prøvde å lagre");
 				System.out.println(this.user_id);
@@ -128,7 +130,7 @@ public class User
 						System.out.println(i + res.get(i));
 					// #antall felt 6, systemUserId, rank, username, fname, lname, hashedPW		
 					// user_id, rank, username, 
-					int index = 7;
+					int index = 0;
 
 					this.user_id = Integer.parseInt(res.get(index));
 					this.rank = Integer.parseInt(res.get(index+1));
@@ -159,7 +161,7 @@ public class User
 				utils.Configuration.loadDefaultConfiguration();
 			this.db = new Database(utils.Configuration.settings.get("DBConnection"));
 
-          		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT * FROM SystemUser WHERE username=?");
+          		java.sql.PreparedStatement prepstatement = db.getPreparedStatement("SELECT user_id, rank, username, fname, lname FROM SystemUser WHERE systemUser.username like ?");
 			
 				prepstatement.setString(1, this.username);
 				java.sql.ResultSet result = prepstatement.executeQuery();
@@ -259,7 +261,7 @@ public class User
 
 	public static void main(String[] args) 
 	{
-		System.out.println("Gisle er jelly");
+		System.out.println("User main");
 	}
 	
 	

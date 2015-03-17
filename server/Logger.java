@@ -43,5 +43,6 @@ public class Logger
 		{
 			System.err.println("Error: " + e.getMessage());		
 		}		
+
 	}
 }
