@@ -1,10 +1,10 @@
 package server;
-<<<<<<< HEAD
 import java.io.FileWriter;
 import java.sql.Date;
 import java.util.Calendar;
 import java.io.*;
-public class Logger{
+public class Logger
+{
 	
 	public static void Log(String message, String type, String stringSeverity) throws IOException, IllegalArgumentException
 	{
@@ -42,10 +42,6 @@ public class Logger{
 		catch(IOException e)
 		{
 			System.err.println("Error: " + e.getMessage());		
-		}
-		
-		
-
-		
+		}		
 	}
 }
