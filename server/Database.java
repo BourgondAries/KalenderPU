@@ -497,6 +497,7 @@ public class Database
 				);
 				statement.setString(1, parts.get(1));
 				verbose("Creating timestamp: '" + parts.get(2) + "-" + parts.get(3) + "-01 00:00:00'");
+				System.out.println(java.sql.Timestamp.valueOf(parts.get(2) + "-" + parts.get(3) + "-01 00:00:00"));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2) + "-" + parts.get(3) + "-01 00:00:00"));
 				if (parts.get(3).equals("12"))
 					statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-" + parts.get(3) + "-01 00:00:00"));
