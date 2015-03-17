@@ -268,7 +268,11 @@ public class Database
 				{
 					java.sql.PreparedStatement statement = connection.prepareStatement("DELETE FROM SystemUser WHERE username=?");
 					statement.setString(1, parts.get(1));
-					return String.valueOf(statement.executeUpdate());
+					int result = statement.executeUpdate();
+					if (result == 0)
+						return "Could not delete this user. The user probably doesn't exist.";
+					if (result > 0)
+						return "Deleted the user and associated data.";
 				}
 				setStatus(Status.NON_ROOT_TRIED_TO_DELETE_USER);
 				return "You are not allowed to delete users.";
@@ -627,7 +631,15 @@ public class Database
 					result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
 				}
 				return result_string + inviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
-
+			}
+			else if (parts.get(0).equals(coms.get("RoomBookingUninviteCommand")))
+			{
+				String result_string = "";
+				if (parts.get(3).toLowerCase().equals("yes"))
+				{
+					result_string = sendNotificationToUser(parts.get(1), Integer.valueOf(parts.get(2)), parts.get(4));
+				}
+				return result_string + uninviteUserToBooking(parts.get(1), Integer.valueOf(parts.get(2)));
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingInviteWithNameCommand")))
 			{
@@ -849,6 +861,60 @@ public class Database
 			return exc.toString();
 		}
 		return "Impossible.";
+	}
+
+	public String uninviteUserToBooking(String username_to_invite, String booking_name)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT bookingId FROM Booking WHERE bookingName=?");
+		s1.setString(1, booking_name);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+		{
+			int booking_id = result.getInt(1);
+			if (result.next())
+			{
+				return "Too many bookings with the same name.";
+			}
+			return uninviteUserToBooking(username_to_invite, booking_id);
+		}
+
+		return "No such user found '" + username_to_invite + "'."; 
+	}
+
+	public String uninviteUserToBooking(String username_to_invite, int booking_id)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement s1 = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+		s1.setString(1, username_to_invite);
+		java.sql.ResultSet result = s1.executeQuery();
+
+		if (result.next())
+			return uninviteUserToBooking(result.getInt(1), booking_id);
+
+		return "No such user found '" + username_to_invite + "'."; 
+	}
+
+	public String uninviteUserToBooking(int user_id, int booking_id)
+	{
+		java.sql.PreparedStatement statement = null;
+		String result_string = "";
+		try 
+		{
+			statement = connection.prepareStatement("DELETE FROM Invitation WHERE systemUserId=? AND bookingId=?");
+			statement.setInt(1, user_id);
+			statement.setInt(2, booking_id);
+			result_string = String.valueOf(statement.executeUpdate());
+		}
+		catch (java.sql.SQLException exc)
+		{
+			return "User already invited" ;
+		}
+
+		return result_string;
 	}
 
 	public String inviteUserToBooking(String username_to_invite, String booking_name)
