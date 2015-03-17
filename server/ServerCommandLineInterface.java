@@ -181,7 +181,6 @@ public class ServerCommandLineInterface
 		}
 		catch (Exception exc)
 		{
-			System.out.println("hallo7");
 			verbose(exc.toString());
 			exc.printStackTrace();
 		}

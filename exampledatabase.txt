@@ -1,7 +1,6 @@
 
 root
 root
-
 register
 per
 20
@@ -9,7 +8,6 @@ Per
 Persen
 12345
 12345
-
 register
 siv1
 20
@@ -17,15 +15,13 @@ Siv
 Larsen
 12345
 12345
-
 register
 beate
 20
 Beate
-Buråsen
+Buraasen
 12345
 12345
-
 register
 rune
 20
@@ -33,7 +29,6 @@ Rune
 Olsen
 12345
 12345
-
 register
 tonje
 20
@@ -41,50 +36,40 @@ Tonje
 Thorsen
 12345
 12345
-
 change password
 abba
 abba
-
 relogin
 root
 abba
-
 change password
 root
 root
-
 relogin
 per
 12345
-
 register room
 Moterom 1
 20
 location
-
 register room
 Konferanserom
 30
 1. etasje
-
 register room
 Spiserom
 20
 3. etasje
-
 new event
 Forretningsmote med firma Y
 2015-04-04 12:00:00
 2015-04-04 14:00:00
 30
-
 new event
-Forberede møte
+Forberede moete
 2015-04-04 10:00:00
 2015-04-04 12:00:00
 30
-
 book room name
 Forretningsmote med firma Y
 Vi skal diskutere den nye avtalen
@@ -92,32 +77,25 @@ Moterom1
 2015-04-04 11:00:00
 2015-04-04 12:00:00
 2015-04-04 14:00:00
-
 invite to booking
 siv1
-1
+4
 yes
 Viktig mote
-
 relogin
 siv1
 12345
-
 deny invitation
-1
-
+4
 relogin
 per
 12345
-
 invite to booking
 beate
-1
+4
 no
-
 relogin
 beate
 12345
-
 accept invitation
-1
+4

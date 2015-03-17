@@ -19,7 +19,7 @@ CREATE TABLE PersonalEvent
 	timeEnd		timestamp,
 	warntime    int,
 	PRIMARY KEY (eventId),
-	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId) ON DELETE CASCADE
 );
 
 CREATE TABLE Room
@@ -43,7 +43,7 @@ CREATE TABLE Booking
 	timeEnd			timestamp,
 	PRIMARY KEY (bookingId),
 	FOREIGN KEY (roomId) REFERENCES ROOM(roomId),
-	FOREIGN KEY (adminId) REFERENCES SystemUser(systemUserId)
+	FOREIGN KEY (adminId) REFERENCES SystemUser(systemUserId) ON DELETE CASCADE
 );
 
 CREATE TABLE SystemGroup
@@ -54,7 +54,7 @@ CREATE TABLE SystemGroup
 	parentGroupId int,
 	CHECK (groupId != parentGroupId),
 	PRIMARY KEY (groupId),
-	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId) ON DELETE SET NULL,
+	FOREIGN KEY (parentGroupId) REFERENCES SystemGroup(groupId),
 	FOREIGN KEY (groupAdminId) REFERENCES SystemUser(systemUserId)
 );
 
@@ -63,8 +63,8 @@ CREATE TABLE GroupMember
 	systemUserId		int		NOT NULL,
 	groupId		int		NOT NULL,
 	PRIMARY KEY (systemUserId, groupId),
-	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId),
-	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId)
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId) ON DELETE CASCADE,
+	FOREIGN KEY (groupId) REFERENCES SystemGroup (groupId) 
 );
 
 CREATE TABLE Invitation
@@ -73,7 +73,9 @@ CREATE TABLE Invitation
 	bookingId 			int NOT NULL,
 	status				int WITH DEFAULT 0,
 	wantsWarning		boolean WITH DEFAULT true,
-	PRIMARY KEY (systemUserId, bookingId)
+	PRIMARY KEY (systemUserId, bookingId),
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser (systemUserId) ON DELETE CASCADE,
+	FOREIGN KEY (bookingId) REFERENCES Booking (bookingId) ON DELETE CASCADE
 );
 
 CREATE TABLE Notification
@@ -87,7 +89,7 @@ CREATE TABLE Notification
 	systemUserId 			int, 
 	CHECK (groupId IS NOT NULL OR systemUserId IS NOT NULL),
 	PRIMARY KEY (n_Id),
-	FOREIGN KEY (bookingId) REFERENCES Booking(bookingId),
-	FOREIGN KEY (groupId) REFERENCES SystemGroup(groupId),
-	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId)
+	FOREIGN KEY (bookingId) REFERENCES Booking(bookingId) ON DELETE CASCADE,
+	FOREIGN KEY (groupId) REFERENCES SystemGroup(groupId) ON DELETE CASCADE,
+	FOREIGN KEY (systemUserId) REFERENCES SystemUser(systemUserId) ON DELETE CASCADE
 );

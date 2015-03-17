@@ -280,13 +280,10 @@ public class Server
 			// System.out.println(new String(bytes));
 			last_message = new String(utils.Utils.decryptSymmetric(bytes, symmetric_key, settings.get("SymmetricCipher")));
 			System.out.println(">" + last_message);
-			System.out.println("hallo3");
 		}
 		catch (Exception exc)
 		{
-			System.out.println("hallo4");
 			verbose(exc.toString());
-
 		}
 	}
 

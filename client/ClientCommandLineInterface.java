@@ -250,6 +250,7 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingWithNameCommand") + "' - Book a room via name."
 								+ "\n'" + utils.Configuration.settings.get("RemoveRoomBookingCommand") + "' - Unbook a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingInviteCommand") + "' - Invite people to your booking."
+								+ "\n'" + utils.Configuration.settings.get("RoomBookingUninviteCommand") + "' - Remove people from a booking."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingAcceptInviteCommand") + "' - Accept someone's room booking invitation."
 								+ "\n'" + utils.Configuration.settings.get("RoomBookingDenyInviteCommand") + "' - Deny someone's room booking invitation."
 								+ "\n'" + utils.Configuration.settings.get("GetInvitesCommand") + "' - Get all invites aimed at you."
@@ -468,7 +469,7 @@ public class ClientCommandLineInterface
 									+ " "
 									+ utils.Utils.escapeSpaces(username)
 								);
-							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
 						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("CreateGroupCommand")))
 						{
@@ -825,6 +826,36 @@ public class ClientCommandLineInterface
 								);
 							System.out.println(ServerReturnData.getPrettyStringWithoutObject(commandLineSendData(client, host, port, login_info, line, scanner)));
 						}
+						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingUninviteCommand")))
+						{
+							System.out.println("Whom to Uninvite (username): ");
+							String users = scanner.nextLine();
+							System.out.println("Booking id to invite to: ");
+							String booking_id = scanner.nextLine();
+							System.out.println("Send notification to the invitee? (yes/no): ");
+							String send_note = scanner.nextLine();
+							String description = "";
+							if (send_note.toLowerCase().equals("yes"))
+							{
+								System.out.println("Write a message: ");
+								description = scanner.nextLine();
+							}
+
+							line =
+								utils.Utils.escapeSpaces
+								(
+									utils.Configuration.settings.getAndEscape("RoomBookingUninviteCommand")
+									+ " "
+									+ utils.Utils.escapeSpaces(users)
+									+ " "
+									+ utils.Utils.escapeSpaces(booking_id)
+									+ " "
+									+ utils.Utils.escapeSpaces(send_note)
+									+ " "
+									+ utils.Utils.escapeSpaces(description)
+								);
+							System.out.println(commandLineSendData(client, host, port, login_info, line, scanner));
+						}
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("RoomBookingInviteWithNameCommand")))
 						{
 							System.out.println("Whom to invite (username): ");
@@ -1008,6 +1039,9 @@ public class ClientCommandLineInterface
 						else if (line.equalsIgnoreCase(utils.Configuration.settings.get("PassCheck")))
 						{
 							System.out.println("Checking password: " + commandLineSendData(client, host, port, login_info, utils.Configuration.settings.getAndEscape("PassCheck"), scanner));
+						}
+						else if (line.equalsIgnoreCase(System.getProperty("line.separator")))
+						{
 						}
 						else
 						{
