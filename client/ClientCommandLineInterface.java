@@ -238,7 +238,6 @@ public class ClientCommandLineInterface
 								+ "\n'" + utils.Configuration.settings.get("RoomFind") + "' - Find a room."
 								+ "\n'" + utils.Configuration.settings.get("RoomFindCommand") + "' - Find a room of specific size."
 								+ "\n'" + utils.Configuration.settings.get("CheckBookingTime") + "' - Check to see which rooms are available within a specific time."
-								+ "\n'" + utils.Configuration.settings.get("GetCalendarCommand") + "' - get the current user's calendar." // Partial
 								+ "\n'" + utils.Configuration.settings.get("GetAllSubordinateUsersCommand") + "' - Get all connected users of this group."
 								+ "\n'" + utils.Configuration.settings.get("FindGroupCommand") + "' - Find a group by name."
 								+ "\n'" + utils.Configuration.settings.get("SeeBookingInvitedCommand") + "' - See a list of users that are invited to a booking."
@@ -682,7 +681,7 @@ public class ClientCommandLineInterface
 							line =
 								utils.Utils.escapeSpaces
 								(
-									utils.Configuration.settings.getAndEscape("GetCalendarOfCommand")
+									utils.Configuration.settings.getAndEscape("GetCalendarCommand")
 									+ " "
 									+ utils.Utils.escapeSpaces(year)
 									+ " "

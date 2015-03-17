@@ -467,14 +467,15 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("GetCalendarCommand")))
 			{
-				// Need to return all entries in the calendar for this month.
-				if (parts.size() == 4 && parts.get(3).equals("")) // "CMD 'year' 'month' 'day'"
-				{
-					java.sql.PreparedStatement statement = connection.prepareStatement
+				java.sql.PreparedStatement statement = connection.prepareStatement
 					(
 						"SELECT * FROM PersonalEvent WHERE systemUserId=? AND time >= ? AND time <= ? ORDER BY time"
 					);
-					statement.setInt(1, user.user_id);
+				statement.setInt(1, user.user_id);
+
+				// Need to return all entries in the calendar for this month.
+				if (parts.size() == 4 && parts.get(3).equals("")) // "CMD 'year' 'month' 'day'"
+				{
 					verbose("Creating timestamp: '" + parts.get(1) + "-" + parts.get(2) + "-01 00:00:00'");
 					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-01 00:00:00"));
 					if (parts.get(2).equals("12"))
@@ -493,6 +494,10 @@ public class Database
 						return resultToString(result);
 					}
 				}
+				else if (parts.size() == 4)
+				{
+
+				}
 				else // Incorrect data size...
 				{
 					return "The data input is invalid: GetCalendarCommand.";
@@ -507,6 +512,7 @@ public class Database
 				);
 				statement.setString(1, parts.get(1));
 				verbose("Creating timestamp: '" + parts.get(2) + "-" + parts.get(3) + "-01 00:00:00'");
+				System.out.println(java.sql.Timestamp.valueOf(parts.get(2) + "-" + parts.get(3) + "-01 00:00:00"));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(2) + "-" + parts.get(3) + "-01 00:00:00"));
 				if (parts.get(3).equals("12"))
 					statement.setTimestamp(3, java.sql.Timestamp.valueOf(String.valueOf(Integer.valueOf(parts.get(2)) + 1) + "-" + parts.get(3) + "-01 00:00:00"));
