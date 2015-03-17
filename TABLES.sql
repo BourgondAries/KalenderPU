@@ -84,7 +84,7 @@ CREATE TABLE Notification
 	message 		varchar(255),
 	duration		varchar(255),
 	seen 			boolean WITH DEFAULT false,
-	bookingId		int NOT NULL,
+	bookingId		int,
 	groupId 		int, 
 	systemUserId 			int, 
 	CHECK (groupId IS NOT NULL OR systemUserId IS NOT NULL),

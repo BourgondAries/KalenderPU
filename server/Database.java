@@ -419,7 +419,13 @@ public class Database
 				statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(3)));
 				statement.setInt(4, user.user_id);
 				statement.setInt(5, parts.get(4).equals("") ? 0 : Integer.valueOf(parts.get(4)));
-				return String.valueOf(statement.executeUpdate());
+				int affected = statement.executeUpdate();
+
+				if (isOverLappingWithAnything(user.user_id, java.sql.Timestamp.valueOf(parts.get(2)), java.sql.Timestamp.valueOf(parts.get(3))) == Overlap.EVENT)
+				{
+					sendNotificationToUser(user.user_id, null, "The event overlaps with an already existing event.");
+				}
+				return String.valueOf(affected);
 			}
 			else if (parts.get(0).equals(coms.get("GetEventsCommand")))
 			{
@@ -436,7 +442,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("SeeMyBookingsCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation INNER JOIN Booking ON Booking.bookingId=Invitation.bookingId WHERE (systemUserId=? AND status=1) ORDER BY timeBegin ASC");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM Invitation INNER JOIN Booking ON Booking.bookingId=Invitation.bookingId WHERE (systemUserId=? AND status=1) ORDER BY time ASC");
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
@@ -533,7 +539,7 @@ public class Database
 				if (result.next())
 				{
 					// Add an empty dummy booking to make the room available.
-					statement = connection.prepareStatement("INSERT INTO Booking (adminId, roomId, timeBegin, timeEnd) VALUES (?, ?, ?, ?)");
+					statement = connection.prepareStatement("INSERT INTO Booking (adminId, roomId, time, timeEnd) VALUES (?, ?, ?, ?)");
 					statement.setInt(1, 1);
 					statement.setInt(2, result.getInt(1));
 					statement.setTimestamp(3, java.sql.Timestamp.valueOf("1970-01-01 00:00:00"));
@@ -544,7 +550,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>=? AND timeEnd<=?) AND Room.roomId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, time, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (time<? AND timeEnd>? OR time<? AND timeEnd>? OR time>=? AND timeEnd<=?) AND Room.roomId=?");
 
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5)); 
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
@@ -560,7 +566,7 @@ public class Database
 				if (!result.next())
 				{
 					// Then actual register the room under the user.
-					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
+					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, time, timeEnd) VALUES (?, ?, ?, ?, ?, ?, ?)");
 					statement.setInt(1, user.user_id);
 					statement.setString(2, parts.get(1));
 					statement.setString(3, parts.get(2));
@@ -574,7 +580,7 @@ public class Database
 			}
 			else if (parts.get(0).equals(coms.get("RoomBookingWithNameCommand")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, timeBegin, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>=? AND timeEnd<=?) AND Room.roomId=(SELECT roomId FROM Room WHERE roomName=?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, time, timeEnd FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (time<? AND timeEnd>? OR time<? AND timeEnd>? OR time>=? AND timeEnd<=?) AND Room.roomId=(SELECT roomId FROM Room WHERE roomName=?)");
 
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(5)); 
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(6)); 
@@ -590,7 +596,7 @@ public class Database
 				if (!result.next())
 				{
 					// Then actual register the room under the user.
-					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, timeBegin, timeEnd) VALUES (?, ?, ?, (SELECT roomId FROM Room WHERE roomName=?), ?, ?, ?)");
+					statement = connection.prepareStatement("INSERT INTO Booking (adminId, bookingName, description, roomId, warnTime, time, timeEnd) VALUES (?, ?, ?, (SELECT roomId FROM Room WHERE roomName=?), ?, ?, ?)");
 					statement.setInt(1, user.user_id);
 					statement.setString(2, parts.get(1));
 					statement.setString(3, parts.get(2));
@@ -653,7 +659,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("ChangeBooking")))
 			{
 				// Function of (String systemUserName, Int booking_id)
-				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET roomId=?, timeBegin=?, timeEnd=? WHERE bookingId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET roomId=?, time=?, timeEnd=? WHERE bookingId=?");
 				statement.setInt(1, Integer.valueOf(parts.get(2)));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(3)));
 				statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(4)));
@@ -674,7 +680,7 @@ public class Database
 			else if (parts.get(0).equals(coms.get("ChangeBookingTime")))
 			{
 				// Function of (String systemUserName, Int booking_id)
-				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET timeBegin=?, timeEnd=? WHERE bookingId=?");
+				java.sql.PreparedStatement statement = connection.prepareStatement("UPDATE Booking SET time=?, timeEnd=? WHERE bookingId=?");
 				statement.setTimestamp(1, java.sql.Timestamp.valueOf(parts.get(2)));
 				statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(3)));
 				statement.setInt(3, Integer.valueOf(parts.get(1)));
@@ -814,13 +820,9 @@ public class Database
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
-			/*else if (parts.get(0).equals(coms.get("CheckAvailable")))
-			{
-
-			}*/
 			else if (parts.get(0).equals(coms.get("CheckBookingTime")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, Room.roomName FROM Room WHERE Room.roomId NOT IN (SELECT DISTINCT Room.roomId FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>? AND timeEnd<?))");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, Room.roomName FROM Room WHERE Room.roomId NOT IN (SELECT DISTINCT Room.roomId FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (time<=? AND timeEnd>=? OR time<=? AND timeEnd>=? OR time>=? AND timeEnd<=?))");
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(1));
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(2));
 
@@ -975,7 +977,7 @@ public class Database
 		return result_string;
 	}
 
-	public String sendNotificationToUser(String user_name, int booking_id, String message)
+	public String sendNotificationToUser(String user_name, Integer booking_id, String message)
 		throws
 			java.sql.SQLException
 	{
@@ -994,15 +996,100 @@ public class Database
 		return String.valueOf(s1.executeUpdate());
 	}
 
-	public String sendNotificationToUser(int user_id, int booking_id, String message)
+	public String sendNotificationToUser(int user_id, Integer booking_id, String message)
 		throws
 			java.sql.SQLException
 	{
-		java.sql.PreparedStatement s1 = connection.prepareStatement("INSERT INTO Notification (message, bookingId, systemUserId) VALUES (?, ?, ?)");
-		s1.setString(1, message);
-		s1.setInt(2, booking_id);
-		s1.setInt(3, user_id);
-		return String.valueOf(s1.executeUpdate());
+		if (booking_id != null)
+		{
+			java.sql.PreparedStatement s1 = connection.prepareStatement("INSERT INTO Notification (message, bookingId, systemUserId) VALUES (?, ?, ?)");
+			s1.setString(1, message);
+			s1.setInt(2, booking_id);
+			s1.setInt(3, user_id);
+			return String.valueOf(s1.executeUpdate());
+		}
+		else
+		{
+			java.sql.PreparedStatement s1 = connection.prepareStatement("INSERT INTO Notification (message, systemUserId) VALUES (?, ?)");
+			s1.setString(1, message);
+			s1.setInt(2, user_id);
+			return String.valueOf(s1.executeUpdate());
+		}
+	}
+
+	enum Overlap
+	{
+		BOOKING,
+		EVENT,
+		NOTHING
+	}
+
+	public Overlap isOverLappingWithAnything(String username, java.sql.Timestamp time_start, java.sql.Timestamp time_end)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement statement = connection.prepareStatement("SELECT systemUserId FROM SystemUser WHERE username=?");
+		statement.setString(1, username);
+		java.sql.ResultSet result = statement.executeQuery();
+		if (result.next())
+		{
+			return isOverLappingWithAnything(result.getInt(1), time_start, time_end);
+		}
+		else
+		{
+			// throw user not found exception
+			return Overlap.NOTHING;
+		}
+	}
+
+	public Overlap isOverLappingWithAnything(int user_id, java.sql.Timestamp time_start, java.sql.Timestamp time_end)
+		throws
+			java.sql.SQLException
+	{
+		java.sql.PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM PersonalEvent WHERE PersonalEvent.systemUserId=? AND (time<=? AND timeEnd>=? OR time<=? AND timeEnd>=? OR time>=? AND timeEnd<=?)");
+		java.sql.Timestamp begin_time = time_start;
+		java.sql.Timestamp end_time = time_end;
+
+		statement.setInt(1, user_id);
+		statement.setTimestamp(2, begin_time);
+		statement.setTimestamp(3, begin_time);
+		statement.setTimestamp(4, end_time);
+		statement.setTimestamp(5, end_time);
+		statement.setTimestamp(6, begin_time);
+		statement.setTimestamp(7, end_time);
+		java.sql.ResultSet result = statement.executeQuery();
+		boolean overlaps_with_event = false;
+		if (result.next())
+		{
+			int result_count = result.getInt(1);
+			if (result_count > 0)
+				overlaps_with_event = true;
+		}
+
+		if (overlaps_with_event)
+			return Overlap.EVENT;
+		else
+			return Overlap.NOTHING;
+
+		/*
+		statement = connection.prepareStatement("SELECT COUNT(*) FROM Invitation WHERE Invitation.systemUserId=? AND (time<=? AND timeEnd>=? OR time<=? AND timeEnd>=? OR time>=? AND timeEnd<=?)");
+
+		statement.setTimestamp(1, user_id);
+		statement.setTimestamp(2, begin_time);
+		statement.setTimestamp(3, begin_time);
+		statement.setTimestamp(4, end_time);
+		statement.setTimestamp(5, end_time);
+		statement.setTimestamp(6, begin_time);
+		statement.setTimestamp(7, end_time);
+		java.sql.ResultSet result = statement.executeQuery();
+		boolean overlaps_with_event = false;
+		if (result.next())
+		{
+			int result_count = result.getInt(1);
+			if (result_count > 0)
+				overlaps_with_event = true;
+		}
+		*/
 	}
 
 }
