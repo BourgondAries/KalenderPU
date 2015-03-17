@@ -814,9 +814,13 @@ public class Database
 				statement.setInt(1, user.user_id);
 				return resultToString(statement.executeQuery());
 			}
+			/*else if (parts.get(0).equals(coms.get("CheckAvailable")))
+			{
+
+			}*/
 			else if (parts.get(0).equals(coms.get("CheckBookingTime")))
 			{
-				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, Room.roomName FROM Room, Booking WHERE Room.roomId=Booking.roomId AND NOT (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>? AND timeEnd<?)");
+				java.sql.PreparedStatement statement = connection.prepareStatement("SELECT Room.roomId, Room.roomName FROM Room WHERE Room.roomId NOT IN (SELECT DISTINCT Room.roomId FROM Room, Booking WHERE Room.roomId=Booking.roomId AND (timeBegin<? AND timeEnd>? OR timeBegin<? AND timeEnd>? OR timeBegin>? AND timeEnd<?))");
 				java.sql.Timestamp begin_time = java.sql.Timestamp.valueOf(parts.get(1));
 				java.sql.Timestamp end_time = java.sql.Timestamp.valueOf(parts.get(2));
 
