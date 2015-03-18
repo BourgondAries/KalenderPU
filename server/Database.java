@@ -489,8 +489,12 @@ public class Database
 					}
 				}
 				else if (parts.size() == 4)
-				{
-
+				{	
+					statement.setTimestamp(2, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-" + parts.get(3) + " 00:00:00"));
+					statement.setTimestamp(3, java.sql.Timestamp.valueOf(parts.get(1) + "-" + parts.get(2) + "-" + parts.get(3) + " 23:59:59"));
+					java.sql.ResultSet result = statement.executeQuery();
+					
+					return resultToString(result);
 				}
 				else // Incorrect data size...
 				{
@@ -502,7 +506,7 @@ public class Database
 				
 				java.sql.PreparedStatement statement = connection.prepareStatement
 				(
-					"SELECT * FROM PersonalEvent WHERE systemUserId=(SELECT systemUserId FROM SystemUser WHERE username=?) AND time >= ? AND time <= ? ORDER BY time"
+					"SELECT * FROM PersonalEvent WHERE systemUserId=(SELECT systemUserId FROM SystemUser WHERE username=?) AND time >= ? AND time <= ? ORDER BY time DESC"
 				);
 				statement.setString(1, parts.get(1));
 				verbose("Creating timestamp: '" + parts.get(2) + "-" + parts.get(3) + "-01 00:00:00'");
