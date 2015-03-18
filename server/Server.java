@@ -129,10 +129,10 @@ public class Server
 		throws
 			javax.crypto.BadPaddingException,
 			javax.crypto.NoSuchPaddingException,
-			java.security.NoSuchAlgorithmException,
 			javax.crypto.IllegalBlockSizeException,
-			java.security.InvalidKeyException,
-			java.io.IOException
+			java.io.IOException,
+			java.security.NoSuchAlgorithmException,
+			java.security.InvalidKeyException
 	{
 		verbose("Fetching symmetric key.");
 
