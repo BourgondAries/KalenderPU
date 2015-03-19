@@ -107,12 +107,29 @@ public class ClientCommandLineInterface
 		}
 		catch (Client.UnableToGenerateAsymmetricKeyPair exc)
 		{
+			try
+			{
+				server.Logger.Log(exc.toString(), "","");
+			}
+			catch(IOException ioexc)
+			{
+				
+			}
 			verbose("Unable to generate asymmetric key pair.");
 			exc.printStackTrace();
 			System.exit(1);
 		}
 		catch (Client.UnableToGenerateSymmetricKey exc)
 		{
+			try
+			{
+				server.Logger.Log(exc.toString(), "","");
+			}
+			catch(IOException ioexc)
+			{
+				
+			}
+			
 			verbose("Unable to generate symmetric key.");
 			exc.printStackTrace();
 			System.exit(1);
@@ -152,11 +169,28 @@ public class ClientCommandLineInterface
 				}
 				catch (ServerReturnData.InvalidInputException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
+					
 					System.out.println("The server has responded with empty data. This can be a network anomaly, just retry.");
 					continue;
 				}
 				catch (Client.SymmetricKeyTooLargeForAsymmetricEncryptionException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
 					System.out.println("We can't get an encrypted channel to work at this momemt. Contact the system administrator.");
 					// Log.log(Log.Severity.SECURITY, "It appears the symmetric key is too large for asymmetric encryption. Increase the key size in settings.conf.");
 					// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -164,6 +198,14 @@ public class ClientCommandLineInterface
 				}
 				catch (Client.UnableToEncryptAsymmetrically exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}	
 					System.out.println("We can't encrypt your data right now.");
 					// Log.log(Log.Severity.SECURITY, "It appears the requested method for encryption is not present.");
 					// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -171,6 +213,15 @@ public class ClientCommandLineInterface
 				}
 				catch (Client.AsymmetricKeyInvalidException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
+					
 					System.out.println("There was a miscommunication with the server.");
 					// Log.log(Log.Severity.SECURITY, "The asymmetric key is invalid.");
 					// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -178,6 +229,14 @@ public class ClientCommandLineInterface
 				}
 				catch (java.net.UnknownHostException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
 					System.out.println("The host is unknown...");
 					// Log.log(Log.Severity.INPUT, "The host is unknown, see the stack trace.");
 					// Log.log(Log.Severity.INPUT, exc.getStackTrace());
@@ -185,6 +244,7 @@ public class ClientCommandLineInterface
 				}
 				catch (Client.UnableToSendSymmetricKeyToTheServerException exc)
 				{
+					server.Logger.Log(exc.toString(), "","");
 					System.out.println("Unable to communicate with the server");
 					// Log.log(Log.Severity.SECURITY, "The symmetric key could not be sent to the server.");
 					// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -192,11 +252,28 @@ public class ClientCommandLineInterface
 				}
 				catch (Client.UnableToVerifyAuthenticityException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
+					
 					System.out.println("Sorry, we were unable to check the authenticity of the server. We'll retry connecting.");
 					continue;
 				}
 				catch (java.lang.NullPointerException exc)
 				{
+					try
+					{
+						server.Logger.Log(exc.toString(), "","");
+					}
+					catch(IOException ioexc)
+					{
+						
+					}
 					System.out.println("Nullptrexc");
 				}
 			
@@ -1050,38 +1127,92 @@ public class ClientCommandLineInterface
 					}
 					catch (Client.UnableToVerifyAuthenticityException exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{}
 						System.out.println("Sorry, we could not verify the server's authenticity. Check the log file for more details.");
 					}
 					catch (ServerReturnData.InvalidInputException exc)
-					{
+						{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+
+						}
 						System.out.println("The server has responded with empty data. This can be a network anomaly, just retry.");
 					}
 					catch (Client.SymmetricKeyTooLargeForAsymmetricEncryptionException exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+							
+						}
 						System.out.println("We can't get an encrypted channel to work at this momemt. Contact the system administrator.");
 						// Log.log(Log.Severity.SECURITY, "It appears the symmetric key is too large for asymmetric encryption. Increase the key size in settings.conf.");
 						// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
 					}
 					catch (Client.UnableToEncryptAsymmetrically exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+							
+						}
 						System.out.println("We can't encrypt your data right now.");
 						// Log.log(Log.Severity.SECURITY, "It appears the requested method for encryption is not present.");
 						// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
 					}
 					catch (Client.AsymmetricKeyInvalidException exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+							
+						}
 						System.out.println("There was a miscommunication with the server.");
 						// Log.log(Log.Severity.SECURITY, "The asymmetric key is invalid.");
 						// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
 					}
 					catch (java.net.UnknownHostException exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+							
+						}
 						System.out.println("The host is unknown...");
 						// Log.log(Log.Severity.INPUT, "The host is unknown, see the stack trace.");
 						// Log.log(Log.Severity.INPUT, exc.getStackTrace());
 					}
 					catch (Client.UnableToSendSymmetricKeyToTheServerException exc)
 					{
+						try
+						{
+							server.Logger.Log(exc.toString(), "","");
+						}
+						catch(IOException ioexc)
+						{
+							
+						}
 						System.out.println("Unable to communicate with the server");
 						// Log.log(Log.Severity.SECURITY, "The symmetric key could not be sent to the server.");
 						// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -1091,6 +1222,14 @@ public class ClientCommandLineInterface
 		}
 		catch (java.util.NoSuchElementException exc)
 		{
+			try
+			{
+				server.Logger.Log(exc.toString(), "","");
+			}
+			catch(IOException ioexc)
+			{
+				
+			}
 			verbose("End of stream, shutting down.");
 		}
 	}
