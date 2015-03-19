@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Tue Mar 17 18:15:32 CET 2015:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-014c-28bb-b189-000002f94558 
+on database directory C:\Users\Allan\Documents\KalenderPU\database with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Loaded from file:/C:/Users/Allan/Documents/KalenderPU/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_25-b18
+user.dir=c:\Users\Allan\Documents\KalenderPU
+os.name=Windows 8.1
+os.arch=amd64
+os.version=6.3
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
