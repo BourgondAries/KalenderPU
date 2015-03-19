@@ -164,9 +164,9 @@ public class Database
 
 	public int resetRootPassword(String password)
 		throws 
-			java.sql.SQLException,
 			java.security.NoSuchAlgorithmException,
-			java.security.spec.InvalidKeySpecException
+			java.security.spec.InvalidKeySpecException,
+			java.sql.SQLException
 	{
 		java.sql.PreparedStatement prepstatement = connection.prepareStatement("UPDATE SystemUser SET hashedPW=? WHERE username='root'");
 		prepstatement.setString(1, PasswordHash.createHash(password));
