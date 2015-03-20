@@ -111,7 +111,7 @@ public class ClientCommandLineInterface
 			{
 				server.Logger.Log(exc.toString(), "","");
 			}
-			catch(IOException ioexc)
+			catch(java.io.IOException ioexc)
 			{
 				
 			}
@@ -125,7 +125,7 @@ public class ClientCommandLineInterface
 			{
 				server.Logger.Log(exc.toString(), "","");
 			}
-			catch(IOException ioexc)
+			catch(java.io.IOException ioexc)
 			{
 				
 			}
@@ -173,7 +173,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -187,7 +187,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -202,7 +202,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}	
@@ -217,7 +217,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -233,7 +233,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -244,7 +244,7 @@ public class ClientCommandLineInterface
 				}
 				catch (Client.UnableToSendSymmetricKeyToTheServerException exc)
 				{
-					server.Logger.Log(exc.toString(), "","");
+					// server.Logger.Log(exc.toString(), "","");
 					System.out.println("Unable to communicate with the server");
 					// Log.log(Log.Severity.SECURITY, "The symmetric key could not be sent to the server.");
 					// Log.log(Log.Severity.SECURITY, exc.getStackTrace());
@@ -256,7 +256,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -270,7 +270,7 @@ public class ClientCommandLineInterface
 					{
 						server.Logger.Log(exc.toString(), "","");
 					}
-					catch(IOException ioexc)
+					catch(java.io.IOException ioexc)
 					{
 						
 					}
@@ -1131,7 +1131,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{}
 						System.out.println("Sorry, we could not verify the server's authenticity. Check the log file for more details.");
 					}
@@ -1141,7 +1141,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 
 						}
@@ -1153,7 +1153,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 							
 						}
@@ -1167,7 +1167,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 							
 						}
@@ -1181,7 +1181,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 							
 						}
@@ -1195,7 +1195,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 							
 						}
@@ -1209,7 +1209,7 @@ public class ClientCommandLineInterface
 						{
 							server.Logger.Log(exc.toString(), "","");
 						}
-						catch(IOException ioexc)
+						catch(java.io.IOException ioexc)
 						{
 							
 						}
@@ -1226,7 +1226,7 @@ public class ClientCommandLineInterface
 			{
 				server.Logger.Log(exc.toString(), "","");
 			}
-			catch(IOException ioexc)
+			catch(java.io.IOException ioexc)
 			{
 				
 			}

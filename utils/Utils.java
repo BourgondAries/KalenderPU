@@ -27,6 +27,8 @@ public class Utils
 		throws 
 			java.io.IOException
 	{
+		if (filename == null || filename.equals(""))
+			return new byte[0];
 		java.nio.file.Path path = java.nio.file.Paths.get(filename);
       	return java.nio.file.Files.readAllBytes(path);
 	}
