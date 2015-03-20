@@ -1,9 +1,10 @@
 ## Setup ##
 1. Install "make". A command-line program. On GNU/Linux you may issue `sudo apt-get install make`. On Windows install [http://sourceforge.net/projects/mingw/files/Installer/](MingW); then add the folder where mingw32-make.exe is located into the "system path" (All command line invocations search each system path for the program to execute).
 2. `make setup` - On windows you may invoke `mingw32-make.exe`. This sets up the database in a completely fresh state. Note that the database will have 1 user named "root". This user will be added by the server program. `ij>` may take a while. Just let it run until it exits. On mac use the specified mac extensions such as "make setup-mac"
-3. `make key` - Run this to generate a public/private key pair for the server.
-4. Run the server (`make vserver` or `make vserver-mac` or `mingw32-make.exe vserver`)
-5. Run the client (from another terminal, `make vclient` or `make vclient-mac` or `mingw32-make.exe vclient`).
+3. Depending under which environment you run the server, you need to either make settings.conf.windows or settings.conf.linux your settings.conf file. The reason is that the windows version uses CRLF whilst linux uses LF only.
+4. `make key` - Run this to generate a public/private key pair for the server.
+5. Run the server (`make vserver` or `make vserver-mac` or `mingw32-make.exe vserver`)
+6. Run the client (from another terminal, `make vclient` or `make vclient-mac` or `mingw32-make.exe vclient`).
 
 ## Sending a Message ##
 Now that the client and server are running, press enter on the server terminal. This will set the standard port. The standard port is contained in settings.conf under the key "port". Now press enter on the client to set the hostname to be default (also found in settings.conf under "hostname"). Doing this skips setting the port of the client.  
